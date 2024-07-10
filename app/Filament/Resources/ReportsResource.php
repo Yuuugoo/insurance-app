@@ -2,20 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReportsResource\Pages;
-use App\Filament\Resources\ReportsResource\RelationManagers;
+use Filament\Forms;
+use Filament\Tables;
 use App\Models\Report;
 use App\Models\Reports;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use App\Enums\CostCenter;
 use Filament\Tables\Table;
+use App\Enums\InsuranceProd;
+use App\Enums\InsuranceType;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Wizard;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Wizard\Step;
+use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ReportsResource\RelationManagers;
 
 class ReportsResource extends Resource
 {
@@ -27,14 +33,38 @@ class ReportsResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('sale_person')
-                    ->label('Sales Person'),
-                TextInput::make('cost_center')
-                    ->label('Cost Center'),
-                TextInput::make('arpr_num')
-                    ->label('AR/PR No.'),
-                DatePicker::make('arpr_date')
-                    ->label('AR/PR Date'),
+
+                Wizard::make([
+                    Wizard\Step::make('Report Details')
+                        ->schema([
+                            TextInput::make('sale_person')
+                                ->label('Sales Person'),
+                            Select::make('cost_center')
+                                ->label('Cost center')
+                                ->options(CostCenter::class),
+                            TextInput::make('arpr_num')
+                                ->label('AR/PR No.'),
+                            DatePicker::make('arpr_date')
+                                ->label('AR/PR Date'),
+                            Select::make('insurance_prod')
+                                ->label('Insurance Provider')
+                                ->options(InsuranceProd::class),
+                            Select::make('insurance_type')
+                                ->label('Insurance Provider')
+                                ->options(InsuranceType::class),
+                        ])
+                            ->description('View Report Details')
+                            ->columns(['md' => 2, 'xl' => 3]),
+                    Wizard\Step::make('Delivery')
+                        ->schema([
+                            // ...
+                        ]),
+                    Wizard\Step::make('Billing')
+                        ->schema([
+                            // ...
+                        ]),
+                ])->columnSpanFull()
+                    
 
             ]);
     }
