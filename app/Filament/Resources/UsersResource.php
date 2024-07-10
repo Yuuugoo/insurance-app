@@ -36,7 +36,9 @@ class UsersResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Name'),
+                TextColumn::make('is_admin')
+                    ->label('Is_admin'),
             ])
             ->filters([
                 //
