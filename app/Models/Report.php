@@ -23,6 +23,7 @@ class Report extends Model
         'policy_file', 'terms', 'gross_premium',
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
+        'payment_status'
     ];
 
     protected $casts = [

@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->string('sale_person', 50)->nullable();
-            $table->string('terms', 50)->nullable();
-            $table->integer('gross_premium')->nullable();
-            $table->string('payment_mode',50)->nullable();
-            $table->integer('total_payment')->nullable();
+            $table->string('payment_status', 50)->default('pending');
         });
     }
 

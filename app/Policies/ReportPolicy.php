@@ -19,10 +19,10 @@ class ReportPolicy
     /**
      * Determine whether the user can view the model.
      */
-    // public function view(User $user, Report $report): bool
-    // {
-    //     //
-    // }
+    public function view(User $user, Report $report): bool
+    {
+        return $user->hasRole(['acct-manager']);
+    }
 
     /**
      * Determine whether the user can create models.

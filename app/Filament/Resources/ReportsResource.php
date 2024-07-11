@@ -112,7 +112,7 @@ class ReportsResource extends Resource
                             FileUpload::make('depo_slip')
                                 ->openable()
                                 ->downloadable()
-                                ->hidden(fn () => ! Auth::user()->hasRole('acct-staff'))
+                                ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
 
                             
                             
