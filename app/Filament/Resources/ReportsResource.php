@@ -2,23 +2,36 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\mode;
 use Filament\Forms;
+use App\Enums\Terms;
 use Filament\Tables;
+use App\Enums\payment;
 use App\Models\Report;
 use App\Models\Reports;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Enums\CostCenter;
+use App\Enums\ModePayment;
 use Filament\Tables\Table;
+use App\Enums\PolicyStatus;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
+use App\Enums\ModeApplication;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use function Laravel\Prompts\table;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+
 use Filament\Forms\Components\Wizard\Step;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -48,28 +61,63 @@ class ReportsResource extends Resource
                                 ->label('AR/PR No.'),
                             DatePicker::make('arpr_date')
                                 ->label('AR/PR Date'),
+                            DatePicker::make('inception_date')
+                                ->label('Inception/Effectivity'),
+                            TextInput::make('assured')
+                                ->label('Assured'),
+                            TextInput::make('policy_num')
+                                ->label('Policy Number'),                        
                             Select::make('insurance_prod')
                                 ->label('Insurance Provider')
                                 ->options(InsuranceProd::class),
                             Select::make('insurance_type')
-                                ->label('Insurance Provider')
+                                ->label('Type of Insurance')
                                 ->options(InsuranceType::class),
+                            Select::make('application')
+                                ->label('Mode of Application')
+                                ->options(ModeApplication::class),
                         ])
                             ->description('View Report Details')
                             ->columns(['md' => 2, 'xl' => 3]),
-                    Wizard\Step::make('Delivery')
-                        ->schema([
-                            Fieldset::make('vehicles')
-                                ->relationship('vehicles')
-                                ->schema([
-                                    TextInput::make('plate_num'),
-                                    TextInput::make('policy_status'),
-                                ])
+                    Wizard\Step::make('Vehicle Details')
+                        ->schema([                     
+                            TextInput::make('plate_num')
+                                ->label('Plate Number'),
+                            TextInput::make('car_details')
+                                ->label('Car Details'),
+                            Select::make('policy_status')
+                                ->label('Policy Status')
+                                ->options(PolicyStatus::class),
+                            TextInput::make('financing_bank')
+                                ->label('Mortagagee/Financing'),
+                                
 
-                        ]),
-                    Wizard\Step::make('Billing')
+                        ])
+                        ->description('View Vehicle Details')
+                        ->columns(['md' => 2, 'xl' => 2]),
+                    Wizard\Step::make('Payment Details')
                         ->schema([
-                            // ...
+                            Select::make('terms')
+                                ->label('Terms')
+                                ->options(Terms::class),
+                            TextInput::make('gross_premium')
+                                ->label('Gross Premium'),
+
+                            Select::make('payment_mode')
+                                ->label('Mode of Payment')
+                                ->options(Payment::class),
+                            TextInput::make('total_payment')
+                                ->label('Total Payment Amount'),
+
+                            FileUpload::make('depo_slip')
+                                ->openable()
+                                ->downloadable()
+                                ->hidden(fn () => ! Auth::user()->hasRole('acct-staff'))
+
+                            
+                            
+
+                            
                         ]),
                 ])->columnSpanFull()
                     
@@ -92,9 +140,9 @@ class ReportsResource extends Resource
                     ->label('AR/PR No.'),
                 TextColumn::make('arpr_date')
                     ->label('AR/PR Date'),
-                TextColumn::make('vehicles.plate_num')
+                TextColumn::make('plate_num')
                     ->label('Vehicle Plate No.'),
-                TextColumn::make('vehicles.policy_status')
+                TextColumn::make('policy_status')
                     ->label('Policy Status'),
 
 
@@ -104,6 +152,7 @@ class ReportsResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -125,6 +174,8 @@ class ReportsResource extends Resource
             'index' => Pages\ListReports::route('/'),
             'create' => Pages\CreateReports::route('/create'),
             'edit' => Pages\EditReports::route('/{record}/edit'),
+            'view' => Pages\ViewReports::route('/{record}'),
+            
         ];
     }
 }

@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('arpr_num', 50);
             $table->date('arpr_date');
             $table->date('inception_date')->nullable();
-            $table->string('assured', 50)->nullable();
-            $table->string('policy_num', 50)->nullable();
-            $table->string('insurance_prod', 10)->nullable();
-            $table->string('application', 50)->nullable();
+            $table->string('assured', 50);
+            $table->string('policy_num', 50);
+            $table->string('insurance_prod', 10);
+            $table->string('application', 50);
             $table->string('cashier_remarks')->nullable();
             $table->date('remit_date')->nullable();
             $table->string('acct_remarks')->nullable();

@@ -37,7 +37,7 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        return $user->hasAnyRole(['cashier', 'acctstaff']);
+        return $user->hasAnyRole(['cashier', 'acct-staff']);
     }
 
     /**
@@ -45,7 +45,7 @@ class ReportPolicy
      */
     public function delete(User $user, Report $report): bool
     {
-        return $user->hasRole(['acctmanager']);
+        return $user->hasRole(['super-admin']);
     }
 
     /**

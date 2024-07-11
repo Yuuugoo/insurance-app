@@ -17,17 +17,12 @@ class Report extends Model
 
     protected $fillable = [
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
-        'insurance_prod', 'insurance_type',
-        // 'inception_date', 'assured', 'policy_num',
-        // 'application', 'cashier_remarks', 'remit_date', 'acct_remarks',
-        // 'depo_slip', 'policy_file',
-        // 'terms',
-        // 'gross_premium',
-        // 'payment_mode',
-        // 'total_payment', 'plate_num',
-        // 'car_details',
-        // 'policy_status',
-        // 'financing_bank',
+        'insurance_prod', 'insurance_type', 'inception_date', 
+        'assured', 'policy_num', 'application', 'cashier_remarks', 
+        'remit_date', 'acct_remarks', 'depo_slip', 
+        'policy_file', 'terms', 'gross_premium',
+        'payment_mode',  'total_payment', 'plate_num',
+        'car_details', 'policy_status',    'financing_bank',
     ];
 
     protected $casts = [
