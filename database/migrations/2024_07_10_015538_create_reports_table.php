@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('payment_id')->nullable();
-            $table->foreign('payment_id')->references('id')->on('report_payments');
-            $table->string('sale_person', 50)->nullable();
             $table->string('cost_center', 50);
             $table->string('arpr_num', 50);
             $table->date('arpr_date');

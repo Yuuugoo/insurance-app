@@ -18,8 +18,8 @@ class ReportPayment extends Model
         'total_payment',
     ];
 
-    public function payment_report(): BelongsTo
+    public function report(): BelongsTo
     {
-        return $this->belongsTo(Report::class);
+        return $this->belongsTo(Report::class, 'report_id', 'id');
     }
 }

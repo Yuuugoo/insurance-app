@@ -17,10 +17,9 @@ class ReportVehicle extends Model
         'financing_bank',
     ];
 
-    public function vehicle_report(): BelongsTo
+    public function report(): BelongsTo
     {
-        return $this->belongsTo(ReportPayment::class);
+        return $this->belongsTo(Report::class, 'report_id', 'id');
     }
-    
 
 }

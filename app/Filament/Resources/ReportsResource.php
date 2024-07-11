@@ -14,6 +14,7 @@ use App\Enums\InsuranceType;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -58,7 +59,13 @@ class ReportsResource extends Resource
                             ->columns(['md' => 2, 'xl' => 3]),
                     Wizard\Step::make('Delivery')
                         ->schema([
-                            // ...
+                            Fieldset::make('vehicles')
+                                ->relationship('vehicles')
+                                ->schema([
+                                    TextInput::make('plate_num'),
+                                    TextInput::make('policy_status'),
+                                ])
+
                         ]),
                     Wizard\Step::make('Billing')
                         ->schema([
@@ -74,6 +81,9 @@ class ReportsResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('created_at')
+                    ->dateTime('d-M-Y')
+                    ->label('Date Created'),
                 TextColumn::make('sale_person')
                     ->label('Sales Person'),
                 TextColumn::make('cost_center')
@@ -82,6 +92,11 @@ class ReportsResource extends Resource
                     ->label('AR/PR No.'),
                 TextColumn::make('arpr_date')
                     ->label('AR/PR Date'),
+                TextColumn::make('vehicles.plate_num')
+                    ->label('Vehicle Plate No.'),
+                TextColumn::make('vehicles.policy_status')
+                    ->label('Policy Status'),
+
 
             ])
             ->filters([

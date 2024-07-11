@@ -36,14 +36,14 @@ class Report extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function report_payment(): HasOne
+    public function payments(): HasOne
     {
-        return $this->hasOne(ReportPayment::class);
+        return $this->hasOne(ReportPayment::class, 'report_id', 'id');
     }
 
-    public function report_vehicle(): HasOne
+    public function vehicles(): HasOne
     {
-        return $this->hasOne(ReportVehicle::class);
+        return $this->hasOne(ReportVehicle::class, 'report_id', 'id');
     }
 
 }
