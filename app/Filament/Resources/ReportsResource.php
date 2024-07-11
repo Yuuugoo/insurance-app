@@ -27,7 +27,7 @@ use App\Filament\Resources\ReportsResource\RelationManagers;
 class ReportsResource extends Resource
 {
     protected static ?string $model = Report::class;
-    protected static ?string $navigationGroup = 'Reports';
+    protected static ?string $navigationGroup = 'REPORTS';
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

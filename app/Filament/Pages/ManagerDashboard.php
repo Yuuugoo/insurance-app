@@ -18,9 +18,7 @@ class ManagerDashboard extends Page
     public static function canAccess(): bool
     {       
         $user = Auth::user();
-        // dd($user);
-        $user_role = $user->hasRole('acctmanager');
-        return $user->hasRole('acctmanager');
+        return $user->hasRole('acct-manager');
     }
 
     protected function getHeaderWidgets(): array

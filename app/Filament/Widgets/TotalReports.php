@@ -10,6 +10,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class TotalReports extends BaseWidget
 {
+
+    
     public function table(Table $table): Table
     {
         return $table

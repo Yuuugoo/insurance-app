@@ -16,12 +16,18 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
-        // 'payment_id', (FK)
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type',
         // 'inception_date', 'assured', 'policy_num',
         // 'application', 'cashier_remarks', 'remit_date', 'acct_remarks',
         // 'depo_slip', 'policy_file',
+        // 'terms',
+        // 'gross_premium',
+        // 'payment_mode',
+        // 'total_payment', 'plate_num',
+        // 'car_details',
+        // 'policy_status',
+        // 'financing_bank',
     ];
 
     protected $casts = [
@@ -34,16 +40,6 @@ class Report extends Model
     public function user_reports(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function payments(): HasOne
-    {
-        return $this->hasOne(ReportPayment::class, 'report_id', 'id');
-    }
-
-    public function vehicles(): HasOne
-    {
-        return $this->hasOne(ReportVehicle::class, 'report_id', 'id');
     }
 
 }

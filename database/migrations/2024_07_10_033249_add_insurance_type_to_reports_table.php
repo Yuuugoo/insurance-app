@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             $table->string('insurance_type', 10)->nullable();
+            $table->string('plate_num', 50)->nullable();;
+            $table->string('car_details')->nullable();
+            $table->string('policy_status', 50)->nullable();
+            $table->string('financing_bank', 50)->nullable();
         });
     }
 

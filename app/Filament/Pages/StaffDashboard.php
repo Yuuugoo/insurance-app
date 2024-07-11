@@ -16,7 +16,7 @@ class StaffDashboard extends Page
     
     public static function canAccess(): bool
     {
-        return Auth::user()->hasRole('acctstaff');
+        return Auth::user()->hasRole('acct-staff');
     }
     
     protected function getHeaderWidgets(): array

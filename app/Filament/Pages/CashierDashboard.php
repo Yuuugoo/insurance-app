@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\TotalReports;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,13 @@ class CashierDashboard extends Page
     {
         return[
             AccountWidget::class
+        ];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            TotalReports::class
         ];
     }
 

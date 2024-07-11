@@ -2,32 +2,30 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UsersResource\Pages;
-use App\Filament\Resources\UsersResource\RelationManagers;
-use App\Models\User;
-use App\Models\Users;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Tables\Columns\TextColumn;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PermissionsResource\Pages;
+use App\Filament\Resources\PermissionsResource\RelationManagers;
 
-class UsersResource extends Resource
+class PermissionsResource extends Resource
 {
-    protected static ?string $model = User::class;
-    protected static ?string $navigationGroup = 'Settings';
-    protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $model = Permission::class;
+    protected static ?string $navigationGroup = 'ADMIN MANAGEMENT';
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                
             ]);
     }
 
@@ -35,10 +33,8 @@ class UsersResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Name'),
-                TextColumn::make('is_admin')
-                    ->label('Is_admin'),
+                TextColumn::make('id')->label('ID'),
+                TextColumn::make('name'),
             ])
             ->filters([
                 //
@@ -63,9 +59,9 @@ class UsersResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUsers::route('/create'),
-            'edit' => Pages\EditUsers::route('/{record}/edit'),
+            'index' => Pages\ListPermissions::route('/'),
+            'create' => Pages\CreatePermissions::route('/create'),
+            'edit' => Pages\EditPermissions::route('/{record}/edit'),
         ];
     }
 }

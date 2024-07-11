@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\CashierDashboard;
 use App\Filament\Pages\StaffDashboard;
+use App\Filament\Widgets\TotalReports;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -50,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                TotalReports::class,
             ])
             ->middleware([
                 EncryptCookies::class,

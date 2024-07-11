@@ -33,40 +33,42 @@ class RolesAndPermissionSeeder extends Seeder
         $permission9 = Permission::create(['name' => 'delete: deposit']);
         $permission10 = Permission::create(['name' => 'read: report']);
 
-        // generate cashier permission
-        $cashierRole = Permission::create(['name' => 'create: cashier']);
-        $cashierRole = Permission::create(['name' => 'read: cashier']);
-        $cashierRole = Permission::create(['name' => 'update: cashier']);
-        $cashierRole = Permission::create(['name' => 'delete: cashier']);
-
-        // generate accounting staff permission
-        $acctStaffRole = Permission::create(['name' => 'create: acct-staff']);
-        $acctStaffRole = Permission::create(['name' => 'read: acctstaff']);
-        $acctStaffRole = Permission::create(['name' => 'update: acctstaff']);
-        $acctStaffRole = Permission::create(['name' => 'delete: acctstaff']);
-
-        // generate accounting manager permission
-        $acctManagerRole = Permission::create(['name' => 'create: acct-manager']);
-        $acctManagerRole = Permission::create(['name' => 'read: acct-manager']);
-        $acctManagerRole = Permission::create(['name' => 'update: acct-manager']);
-        $acctManagerRole = Permission::create(['name' => 'delete: acct-manager']);
+        $permissions = [
+            ['name' => 'create: cashier'],
+            ['name' => 'read: cashier'],
+            ['name' => 'update: cashier'],
+            ['name' => 'delete: cashier'],
+            
+            ['name' => 'create: acct-staff'],
+            ['name' => 'read: acct-staff'],
+            ['name' => 'update: acct-staff'],
+            ['name' => 'delete: acct-staff'],
+            
+            ['name' => 'create: acct-manager'],
+            ['name' => 'read: acct-manager'],
+            ['name' => 'update: acct-manager'],
+            ['name' => 'delete: acct-manager'],
+        ];
+        
+        // Then you can create all permissions at once:
+        foreach ($permissions as $permission) {
+            Permission::create($permission);
+        }
 
         $cashierRole = Role::create(['name' => 'cashier'])->syncPermissions([
             $permission1, $permission2, $permission3, $permission4, $permission5, $permission6,
         ]);
 
-        $acctStaffRole = Role::create(['name' => 'acctstaff'])->syncPermissions([
+        $acctStaffRole = Role::create(['name' => 'acct-staff'])->syncPermissions([
             $permission7, $permission8, $permission9
         ]);
 
-        $acctManagerRole = Role::create(['name' => 'acctmanager'])->syncPermissions([
+        $acctManagerRole = Role::create(['name' => 'acct-manager'])->syncPermissions([
             $permission10
         ]);
 
         $superAdminRole = Role::create(['name' => 'super-admin'])->syncPermissions([
-            $permission1, $permission2, $permission3, $permission4, $permission5, $permission6,
-            $permission7, $permission8, $permission9, $permission10, $cashierRole, $acctStaffRole,
-            $acctManagerRole
+            $permissions
         ]);
 
         $createAccountPermission = Permission::create(['name' => 'create: account']);
@@ -75,7 +77,6 @@ class RolesAndPermissionSeeder extends Seeder
 
         User::create([
             'name' => 'Cashier',
-            'is_admin' => 1,
             'email' => 'cashier@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -85,7 +86,6 @@ class RolesAndPermissionSeeder extends Seeder
 
         User::create([
             'name' => 'Accounting Staff',
-            'is_admin' => 1,
             'email' => 'acctstaff@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -95,7 +95,6 @@ class RolesAndPermissionSeeder extends Seeder
 
         User::create([
             'name' => 'Accounting Manager',
-            'is_admin' => 1,
             'email' => 'acctmanager@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -105,13 +104,12 @@ class RolesAndPermissionSeeder extends Seeder
 
         User::create([
             'name' => 'Super Admin',
-            'is_admin' => 1,
             'email' => 'superadmin@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
 
-        ])->assignRole($acctManagerRole);
+        ])->assignRole($superAdminRole);
 
         
 
