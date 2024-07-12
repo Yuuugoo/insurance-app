@@ -1,0 +1,45 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+@layer components{
+    .fi-sidebar { 
+        @apply bg-white max-w-60 !important
+    
+    }
+
+    .aap-logo{
+        @apply w-auto h-20 mb-5 !important
+    }
+
+    .fi-sidebar-collapsed{@apply max-w-12 h-auto}
+    .fi-sidebar-item-label{ @apply text-black !important}
+    .fi-sidebar-item-icon{ @apply text-black !important}
+    .fi-sidebar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1px;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    .fi-sidebar-nav-groups::before {
+        @apply border-b border-gray-200 opacity-25 !important
+    }
+    
+}
+
+@layer utilities {
+    /* For Webkit-based browsers (Chrome, Safari) */
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;  /* Color of the scroll thumb on hover */
+        }
+  
+    /* For Firefox, Edge */
+    * {
+      scrollbar-width: thin;  /* "auto" or "thin" */
+      scrollbar-color: #fcdeb1 #f1f1f1;  /* thumb and track color */
+    }
+  }

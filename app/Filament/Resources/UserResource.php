@@ -24,7 +24,7 @@ use Filament\Tables\Columns\ImageColumn;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-    protected static ?string $navigationGroup = 'ADMIN MANAGEMENT';
+    protected static ?string $navigationGroup = 'ADMIN';
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form

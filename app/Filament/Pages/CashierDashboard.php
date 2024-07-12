@@ -26,11 +26,5 @@ class CashierDashboard extends Page
         ];
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            TotalReports::class
-        ];
-    }
 
 }

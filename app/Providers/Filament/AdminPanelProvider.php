@@ -37,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            // ->sidebarCollapsibleOnDesktop()
             ->darkMode(false)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
@@ -52,7 +53,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-                TotalReports::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,

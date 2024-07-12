@@ -18,7 +18,7 @@ use App\Filament\Resources\PermissionsResource\RelationManagers;
 class PermissionsResource extends Resource
 {
     protected static ?string $model = Permission::class;
-    protected static ?string $navigationGroup = 'ADMIN MANAGEMENT';
+    protected static ?string $navigationGroup = 'ADMIN';
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
     public static function form(Form $form): Form
