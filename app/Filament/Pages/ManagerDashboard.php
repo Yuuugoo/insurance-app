@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ManagerDashboard extends Page
 {
@@ -26,5 +27,10 @@ class ManagerDashboard extends Page
         return[
             AccountWidget::class
         ];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return ('Accounting Manager Dashboard');
     }
 }

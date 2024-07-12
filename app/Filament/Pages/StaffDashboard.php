@@ -2,10 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Support\Htmlable;
+use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 
 class StaffDashboard extends Page
 {
@@ -25,5 +26,10 @@ class StaffDashboard extends Page
         return [
             ReportsStatsOverview::class
         ];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return ('Accounting Staff Dashboard');
     }
 }

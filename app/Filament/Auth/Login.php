@@ -13,5 +13,10 @@ class Login extends AuthLogin
     {
         return ('');
     }
+
+    public function getTitle(): string|Htmlable
+    {
+        return ('AAP Insurance Report Login');
+    }
 }
 

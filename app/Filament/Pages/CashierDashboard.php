@@ -2,11 +2,12 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
-use App\Filament\Widgets\TotalReports;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Widgets\TotalReports;
+use Illuminate\Contracts\Support\Htmlable;
+use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 
 class CashierDashboard extends Page
 {
@@ -33,6 +34,11 @@ class CashierDashboard extends Page
         return [
             
         ];
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return ('Cashier Dashboard');
     }
 
 }

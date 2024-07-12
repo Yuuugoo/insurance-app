@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Support\Htmlable;
 
 class SuperAdminDashboard extends Page
 {
@@ -15,5 +16,10 @@ class SuperAdminDashboard extends Page
     public static function canAccess(): bool
     {
         return Auth::user()->hasRole('super-admin');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return ('Super Admin Dashboard');
     }
 }
