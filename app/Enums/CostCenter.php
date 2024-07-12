@@ -29,7 +29,8 @@ enum CostCenter: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::AURORA =>'AURORA',
+            // Arrange Alphabetically
+            self::AURORA =>'Aurora',
             self::FAIRVIEW =>'Fairview',
             self::FELIZ =>'Feliz',
             self::MNLBAY =>'Manila Bay',

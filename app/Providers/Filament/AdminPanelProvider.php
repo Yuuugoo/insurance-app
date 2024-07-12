@@ -2,19 +2,20 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\CashierDashboard;
-use App\Filament\Pages\StaffDashboard;
-use App\Filament\Widgets\TotalReports;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Blade;
+use App\Filament\Pages\StaffDashboard;
+use App\Filament\Widgets\TotalReports;
 use Filament\Navigation\NavigationItem;
+use App\Filament\Pages\CashierDashboard;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -33,11 +34,11 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             ->login() // Login Form
             ->brandName('') // Remove Brand Name
-            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Amber,
             ])
             ->darkMode(false)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
                 'panels::sidebar.nav.start',
                 fn (): string => Blade::render('@livewire(\'SidebarLogo\')'), // Added logo at the top of Sidebar
@@ -67,7 +68,12 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotifications() // Database Notifications
+            ->databaseNotifications()// Database Notifications
+            ->plugins([
+                StickyHeaderPlugin::make()
+                    ->floating()
+                    ->colored(),
+            ])
             ;
     }
 }

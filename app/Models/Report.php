@@ -6,6 +6,8 @@ use App\Enums\CostCenter;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
 use App\Enums\ModeApplication;
+use App\Enums\PaymentStatus;
+use App\Enums\PolicyStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +33,8 @@ class Report extends Model
         'insurance_prod' => InsuranceProd::class,
         'insurance_type' => InsuranceType::class,
         'application' => ModeApplication::class,
+        'payment_status' => PaymentStatus::class,
+        'policy_status' => PolicyStatus::class
     ];
 
     public function user_reports(): BelongsTo

@@ -32,8 +32,10 @@ class RolesResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
-                TextColumn::make('name'),
+                TextColumn::make('id')
+                    ->label('ID'),
+                TextColumn::make('name')
+                    ->icon('heroicon-o-flag'),
             ])
             ->filters([
                 //

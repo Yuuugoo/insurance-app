@@ -36,6 +36,7 @@ use Filament\Forms\Components\Wizard\Step;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
+use Faker\Provider\ar_EG\Text;
 
 class ReportsResource extends Resource
 {
@@ -60,9 +61,11 @@ class ReportsResource extends Resource
                             TextInput::make('arpr_num')
                                 ->label('AR/PR No.'),
                             DatePicker::make('arpr_date')
-                                ->label('AR/PR Date'),
+                                ->label('AR/PR Date')
+                                ->native(false),
                             DatePicker::make('inception_date')
-                                ->label('Inception/Effectivity'),
+                                ->label('Inception/Effectivity')
+                                ->native(false),
                             TextInput::make('assured')
                                 ->label('Assured'),
                             TextInput::make('policy_num')
@@ -130,22 +133,34 @@ class ReportsResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('created_at')
-                    ->dateTime('d-M-Y')
-                    ->label('Date Created'),
+                    ->searchable()
+                    ->dateTime()
+                    ->label('Date Created')
+                    ->icon('heroicon-o-calendar-days'),
                 TextColumn::make('sale_person')
-                    ->label('Sales Person'),
+                    ->label('Sales Person')
+                    ->icon('heroicon-o-user')
+                    ->visibleFrom('md'),
                 TextColumn::make('cost_center')
-                    ->label('Cost Center'),
+                    ->label('Cost Center')
+                    ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
-                    ->label('AR/PR No.'),
+                    ->label('AR/PR No.')
+                    ->searchable()
+                    ->visibleFrom('md'),
                 TextColumn::make('arpr_date')
-                    ->label('AR/PR Date'),
+                    ->label('AR/PR Date')
+                    ->icon('heroicon-o-calendar-days')
+                    ->visibleFrom('md'),
                 TextColumn::make('plate_num')
-                    ->label('Vehicle Plate No.'),
+                    ->label('Vehicle Plate No.')
+                    ->searchable(),
+                TextColumn::make('payment_status')
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('policy_status')
-                    ->label('Policy Status'),
-
-
+                    ->label('Policy Status')
+                    ->badge(),
             ])
             ->filters([
                 //

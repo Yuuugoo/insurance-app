@@ -2,20 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Hash;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\Layout\Panel;
+use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\RelationManagers;
+use Filament\Tables\Columns\ImageColumn;
 
 class UserResource extends Resource
 {
@@ -30,15 +34,8 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Toggle::make('is_admin')
-                    ->default(0),
                 Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->options([
-                        'cashier' => 'Cashier',
-                        'acct-staff' => 'Accounting Staff',
-                        'acct-manager' => 'Accounting Manager',
-                    ])
                     ->native(false),
                 Forms\Components\TextInput::make('email')
                     ->email()
@@ -46,6 +43,10 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
+                    ->dehydrateStateUsing(static fn(null|string $state):
+                        null|string =>
+                        filled($state) ? Hash::make($state): null,
+                    )
                     ->required()
                     ->maxLength(255),
             ]);
@@ -55,25 +56,32 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('avatar')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('is_admin')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('roles.name'),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->date()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->description('Name', position: 'above')
+                    ->searchable()
+                    ->icon('heroicon-o-user'),
+  
+                Panel::make([
+                    Split::make([
+                        TextColumn::make('roles.name')
+                            ->icon('heroicon-o-flag')
+                            ->description('role', position: 'below'),
+                        Tables\Columns\TextColumn::make('email')
+                            ->searchable()
+                            ->icon('heroicon-o-envelope')
+                            ->description('email', position: 'below'),
+                        Tables\Columns\TextColumn::make('created_at')
+                            ->dateTime(now())
+                            ->sortable()
+                            ->description('date created', position: 'below'),
+                        Tables\Columns\TextColumn::make('updated_at')
+                            ->dateTime()
+                            ->sortable()
+                            ->description('date updated', position: 'below'),
+                    ])->from('md'),
+                ])->collapsed(false)
             ])
             ->filters([
                 //
