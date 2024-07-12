@@ -6,6 +6,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use App\Filament\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\StaffDashboard;
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('/')
-            ->login() // Login Form
+            ->login(Login::class) // Login Form
             ->brandName('') // Remove Brand Name
             ->colors([
                 'primary' => Color::Amber,
@@ -43,6 +44,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::sidebar.nav.start',
                 fn (): string => Blade::render('@livewire(\'SidebarLogo\')'), // Added logo at the top of Sidebar
+            )
+            ->renderHook(
+                'panels::body.end',
+                fn (): string => Blade::render('@livewire(\'Footer\')')
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

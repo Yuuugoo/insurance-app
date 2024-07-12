@@ -8,7 +8,7 @@ enum Payment: string implements HasLabel
 {
     case CASH = 'cash';
     case CHECK = 'check';
-    case PAYMENT = 'payment';
+    case PAYMAYA = 'paymaya';
     case ONLINE = 'online';
     case GCASH = 'gcash';   
     case PAYNAMICS = 'paynamics';   
@@ -20,7 +20,7 @@ enum Payment: string implements HasLabel
         return match ($this) {
             self::CASH =>'CASH',
             self::CHECK =>'CHECK',
-            self::PAYMENT =>'PAYMENT',
+            self::PAYMAYA =>'PAYMAYA',
             self::ONLINE =>'ONLINE',
             self::GCASH =>'GCASH',
             self::PAYNAMICS =>'PAYNAMICS',

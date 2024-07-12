@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Report extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 

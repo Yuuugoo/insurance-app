@@ -13,9 +13,10 @@ class CashierDashboard extends Page
     protected static ?string $navigationIcon = 'heroicon-o-home';
     protected static ?int $navigationSort = 1;
     protected static ?string $title = 'Dashboard';
-    protected static string $view = 'filament.pages.cashier-dashboard';
+    protected static string $view = 'filament.pages.dashboard.cashier-dashboard';
 
-    public static function canAccess(): bool
+    
+    public static function canAccess(): bool    
     {
         return Auth::user()->hasRole('cashier');
     }

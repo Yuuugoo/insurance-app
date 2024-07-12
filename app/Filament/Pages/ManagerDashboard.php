@@ -11,7 +11,7 @@ class ManagerDashboard extends Page
     protected static ?string $navigationIcon = 'heroicon-o-home';
     protected static ?int $navigationSort = 3;
     protected static ?string $title = 'Dashboard';
-    protected static string $view = 'filament.pages.manager-dashboard';
+    protected static string $view = 'filament.pages.dashboard.manager-dashboard';
 
     
 

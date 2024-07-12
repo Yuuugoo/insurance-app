@@ -29,6 +29,10 @@ export default {
           'gray': '#8492a6',
           'gray-light': '#d3dce6',
           'white': '#fff',
+          'aap-blue': '#004cb5',
+          'aap-yellow': '#ffdd01',
+          'aap-footer-bg': '#363839',
+          'aap-footer-label': '#90a3a2',
         },
         fontFamily: {
           sans: ['Graphik', 'sans-serif'],

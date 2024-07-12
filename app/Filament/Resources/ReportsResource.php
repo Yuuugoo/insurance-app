@@ -18,8 +18,10 @@ use App\Enums\PolicyStatus;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
 use App\Enums\ModeApplication;
+use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
@@ -28,16 +30,15 @@ use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Enums\FiltersLayout;
+
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
-
 use Filament\Forms\Components\Wizard\Step;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
-use Faker\Provider\ar_EG\Text;
-use Filament\Tables\Filters\Filter;
 
 class ReportsResource extends Resource
 {
@@ -104,11 +105,11 @@ class ReportsResource extends Resource
                             Select::make('terms')
                                 ->label('Terms')
                                 ->options(Terms::class),
-                            TextInput::make('gross_premium')
+                            TextInput::make('gross_premium') // change to float in migration
                                 ->numeric()
                                 ->required(),
                                 
-                            TextInput::make('total_payment')
+                            TextInput::make('total_payment') // change to float in migration
                                 ->numeric()
                                 ->required()
                                 ->live(onBlur: true)
@@ -116,7 +117,7 @@ class ReportsResource extends Resource
                                     $balance = floatval($get('gross_premium')) - floatval($state);
                                     $set('payment_balance', number_format($balance, 2));
                                 }),
-                            TextInput::make('payment_balance')
+                            TextInput::make('payment_balance') // change to float in migration
                                 ->numeric()
                                 ->readOnly() 
                                 ->live(debounce: 500),
@@ -131,9 +132,7 @@ class ReportsResource extends Resource
                                 ->downloadable()
                                 ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
 
-                            
-                            
-
+                        
                             
                         ]),
                 ])->columnSpanFull()
@@ -151,10 +150,10 @@ class ReportsResource extends Resource
                     ->dateTime()
                     ->label('Date Created')
                     ->icon('heroicon-o-calendar-days'),
-                TextColumn::make('sale_person')
-                    ->label('Sales Person')
-                    ->icon('heroicon-o-user')
-                    ->visibleFrom('md'),
+                // TextColumn::make('sale_person')
+                //     ->label('Sales Person')
+                //     ->icon('heroicon-o-user')
+                //     ->visibleFrom('md'),
                 TextColumn::make('cost_center')
                     ->label('Cost Center')
                     ->icon('heroicon-o-map-pin'),
@@ -169,6 +168,8 @@ class ReportsResource extends Resource
                 TextColumn::make('plate_num')
                     ->label('Vehicle Plate No.')
                     ->searchable(),
+                TextColumn::make('car_details')
+                    ->label('Car Details'),
                 TextColumn::make('payment_status')
                     ->badge()
                     ->sortable(),
@@ -192,6 +193,7 @@ class ReportsResource extends Resource
                     ->label('PENDING Payment')
                     ->query(fn (Builder $query): Builder => $query->where('payment_status', 'pending')),
             ])
+            
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
