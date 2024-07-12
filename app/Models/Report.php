@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Enums\CostCenter;
+use App\Enums\PolicyStatus;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
-use App\Enums\ModeApplication;
 use App\Enums\PaymentStatus;
-use App\Enums\PolicyStatus;
+use App\Enums\ModeApplication;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,7 +25,7 @@ class Report extends Model
         'insurance_prod', 'insurance_type', 'inception_date', 
         'assured', 'policy_num', 'application', 'cashier_remarks', 
         'remit_date', 'acct_remarks', 'depo_slip', 
-        'policy_file', 'terms', 'gross_premium',
+        'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
         'payment_status'
@@ -41,5 +44,6 @@ class Report extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 
 }

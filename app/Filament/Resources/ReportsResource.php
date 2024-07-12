@@ -37,6 +37,7 @@ use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
 use Faker\Provider\ar_EG\Text;
+use Filament\Tables\Filters\Filter;
 
 class ReportsResource extends Resource
 {
@@ -104,13 +105,26 @@ class ReportsResource extends Resource
                                 ->label('Terms')
                                 ->options(Terms::class),
                             TextInput::make('gross_premium')
-                                ->label('Gross Premium'),
+                                ->numeric()
+                                ->required(),
+                                
+                            TextInput::make('total_payment')
+                                ->numeric()
+                                ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function ($state, callable $set, $get) {
+                                    $balance = floatval($get('gross_premium')) - floatval($state);
+                                    $set('payment_balance', number_format($balance, 2));
+                                }),
+                            TextInput::make('payment_balance')
+                                ->numeric()
+                                ->readOnly() 
+                                ->live(debounce: 500),
+ 
 
                             Select::make('payment_mode')
                                 ->label('Mode of Payment')
                                 ->options(Payment::class),
-                            TextInput::make('total_payment')
-                                ->label('Total Payment Amount'),
 
                             FileUpload::make('depo_slip')
                                 ->openable()
@@ -159,11 +173,24 @@ class ReportsResource extends Resource
                     ->badge()
                     ->sortable(),
                 TextColumn::make('policy_status')
+                    ->searchable()
                     ->label('Policy Status')
+                    ->sortable()
                     ->badge(),
             ])
             ->filters([
-                //
+                Filter::make('new_policy')
+                    ->label('NEW Policy Status')
+                    ->query(fn (Builder $query): Builder => $query->where('policy_status', 'new')),
+                Filter::make('renewal_policy')
+                    ->label('RENEWAL Policy Status')
+                    ->query(fn (Builder $query): Builder => $query->where('policy_status', 'renewal')),
+                Filter::make('paid_payment')
+                    ->label('PAID Payment')
+                    ->query(fn (Builder $query): Builder => $query->where('payment_status', 'paid')),
+                Filter::make('pending_payment')
+                    ->label('PENDING Payment')
+                    ->query(fn (Builder $query): Builder => $query->where('payment_status', 'pending')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -182,6 +209,15 @@ class ReportsResource extends Resource
             //
         ];
     }
+
+    public static function getWidget(): array
+    {
+        return [
+            
+        ];
+    }
+    
+    
 
     public static function getPages(): array
     {

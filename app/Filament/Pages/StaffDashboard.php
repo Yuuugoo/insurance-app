@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class StaffDashboard extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            AccountWidget::class
+            ReportsStatsOverview::class
         ];
     }
 }

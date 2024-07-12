@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 use App\Filament\Widgets\TotalReports;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
@@ -22,9 +23,15 @@ class CashierDashboard extends Page
     protected function getHeaderWidgets(): array
     {
         return[
-            AccountWidget::class
+            ReportsStatsOverview::class
         ];
     }
 
+    protected function getFooterWidgets(): array
+    {
+        return [
+            
+        ];
+    }
 
 }
