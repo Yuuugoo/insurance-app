@@ -22,7 +22,6 @@ use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +30,11 @@ use Filament\Forms\Components\Wizard;
 use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Exports\ReportExporter;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
+use App\Filament\Exports\ProductExporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,6 +44,8 @@ use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 
 class ReportsResource extends Resource
 {
@@ -56,6 +59,7 @@ class ReportsResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+          
             ->schema([
 
                 Wizard::make([
@@ -141,6 +145,7 @@ class ReportsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('created_at')
                     ->searchable()
@@ -240,10 +245,16 @@ class ReportsResource extends Resource
                         ->openUrlInNewTab(), 
                 ])->color('success')
             ])
+
+            ->headerActions([
+                    ExportAction::make()->exporter(ReportExporter::class)
+                ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     
                 ]),
+
+                ExportBulkAction::make()->exporter(ReportExporter::class)
             ]);
     }
 

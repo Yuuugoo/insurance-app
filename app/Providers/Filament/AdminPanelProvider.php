@@ -11,7 +11,6 @@ use Filament\Actions\Action;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\MaxWidth;
-use Filament\Navigation\UserMenuItem;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\StaffDashboard;
 use App\Filament\Widgets\TotalReports;
@@ -43,6 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->maxContentWidth(MaxWidth::Full)
             // ->sidebarCollapsibleOnDesktop()
             ->darkMode(false)
             ->viteTheme('resources/css/filament/admin/theme.css') // Register Custom CSS
@@ -54,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
                 'panels::body.end',
                 fn (): string => Blade::render('@livewire(\'Footer\')')
             )
+            ->databaseNotifications()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
