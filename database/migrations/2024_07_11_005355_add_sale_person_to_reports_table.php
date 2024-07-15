@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::table('reports', function (Blueprint $table) {
             $table->string('sale_person', 50)->nullable();
             $table->string('terms', 50)->nullable();
-            $table->integer('gross_premium')->nullable();
+            $table->float('gross_premium', 8, 2)->nullable();
             $table->string('payment_mode',50)->nullable();
-            $table->integer('total_payment')->nullable();
+            $table->float('total_payment', 8, 2)->nullable();
         });
     }
 
