@@ -31,7 +31,6 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
-
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -126,10 +125,9 @@ class ReportsResource extends Resource
                                 ->openable()
                                 ->downloadable()
                                 ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
-
                         ]),
-                ])->columnSpanFull()
-                    
+                ])
+                ->columnSpanFull()                    
 
             ]);
     }

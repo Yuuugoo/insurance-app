@@ -24,6 +24,7 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
+        'user_id',
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 
         'assured', 'policy_num', 'application', 'cashier_remarks', 
@@ -47,6 +48,17 @@ class Report extends Model
     public function user_reports(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($report) {
+            if (!$report->user_id) {
+                $report->user_id = auth()->id();
+            }
+        });
     }
 
 }

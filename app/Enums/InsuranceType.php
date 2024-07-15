@@ -21,7 +21,7 @@ enum InsuranceType: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::COMPRE =>'MCT',
+            self::COMPRE =>'COMPRE',
             self::TPL =>'OONA',
             self::FIRE =>'FPG',
             self::TRAVEL =>'OAC',

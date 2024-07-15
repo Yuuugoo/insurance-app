@@ -23,6 +23,8 @@ class EditProfile extends Page
     public function mount(): void
     {
         $this->form->fill(auth()->user()->toArray());
+
+
     }
 
     public function form(Form $form): Form
@@ -39,12 +41,12 @@ class EditProfile extends Page
                         ->required()
                         ->unique()
                         ->maxLength(255),
-                    // TextInput::make('password')
-                    //     ->password()
-                    //     ->maxLength(255)
-                    //     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    //     ->dehydrated(fn ($state) => filled($state))
-                    //     ->required(fn (string $context): bool => $context === 'create'),
+                    TextInput::make('password')
+                        ->password()
+                        ->maxLength(255)
+                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                        ->dehydrated(fn ($state) => filled($state))
+                        ->required(fn (string $context): bool => $context === 'create'),
                     // FileUpload::make('avatar')
                     //     ->image()
                     //     ->directory('avatars'),
