@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use view;
 use App\Enums\mode;
 use Filament\Forms;
 use App\Enums\Terms;
@@ -21,6 +22,7 @@ use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use Illuminate\Support\Facades\Auth;
@@ -36,9 +38,11 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Wizard\Step;
+use Filament\Actions\Action as ActionsAction;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportsResource extends Resource
 {
@@ -46,6 +50,8 @@ class ReportsResource extends Resource
     protected static ?string $navigationGroup = 'REPORTS';
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+
 
     public static function form(Form $form): Form
     {
@@ -182,7 +188,7 @@ class ReportsResource extends Resource
                     ->label('Car Details'),
                 TextColumn::make('payment_status')
                     ->label('Payment Status')
-                    ->sortable(),
+                    ->badge(),
                 TextColumn::make('payment_mode')
                     ->label('Payment Mode')
                     ->sortable(),
@@ -204,7 +210,7 @@ class ReportsResource extends Resource
                     ->label('Accounting Remarks')
                     ->icon('heroicon-o-calendar-days')
                     ->visibleFrom('md'),
-            ])
+            ])->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('new_policy')
                     ->label('NEW Policy Status')
@@ -226,6 +232,12 @@ class ReportsResource extends Resource
                         ->color('success'),
                     Tables\Actions\ViewAction::make()
                         ->color('gray'),
+                    Tables\Actions\Action::make('pdf') 
+                        ->label('PDF')
+                        ->color('success')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->url(fn (Report $record) => route('pdf', $record))
+                        ->openUrlInNewTab(), 
                 ])->color('success')
             ])
             ->bulkActions([

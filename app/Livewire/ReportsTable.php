@@ -11,6 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use App\Filament\Resources\ReportsResource;
 use App\Filament\Resources\ReportsResource\Pages\EditReports as PagesEditReports;
 use App\Filament\Resources\ReportsResource\Pages\ViewReports;
+use App\Models\Report;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class ReportsTable extends BaseWidget
@@ -61,6 +62,10 @@ class ReportsTable extends BaseWidget
                     ->badge(),
                 
           
+            ])
+            ->actions([
+                Tables\Actions\Action::make('View')
+                    ->url(fn (Report $record): string => ReportsResource::getUrl('edit', ['record' => $record])),
             ]);
     }
     

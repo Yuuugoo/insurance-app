@@ -6,6 +6,7 @@ use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\ReportsResource;
+use Filament\Resources\Pages\ListRecords\Tab;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsOverview;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 
@@ -31,6 +32,15 @@ class ListReports extends ListRecords
     {
         return [
             ReportsStatsOverview::class,
+        ];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            null => Tab::make('All'),
+            'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
+            'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
         ];
     }
 }

@@ -7,7 +7,11 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Filament\Auth\Login;
+use Filament\Actions\Action;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Navigation\UserMenuItem;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\StaffDashboard;
 use App\Filament\Widgets\TotalReports;
@@ -33,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('/')
+            ->maxContentWidth(MaxWidth::Full) 
             ->login(Login::class) // Login Form
             ->brandName('') // Remove Brand Name
             ->colors([
@@ -40,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             // ->sidebarCollapsibleOnDesktop()
             ->darkMode(false)
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme('resources/css/filament/admin/theme.css') // Register Custom CSS
             ->renderHook(
                 'panels::sidebar.nav.start',
                 fn (): string => Blade::render('@livewire(\'SidebarLogo\')'), // Added logo at the top of Sidebar
