@@ -2,12 +2,15 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\ReportsResource\Widgets\MonthlyReportsChart;
+use App\Filament\Resources\ReportsResource\Widgets\ReportsChart;
 use Filament\Pages\Page;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
 use App\Filament\Widgets\TotalReports;
 use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
+use App\Filament\Resources\ReportsResource\Widgets\ReportsTable;
 
 class CashierDashboard extends Page
 {
@@ -15,7 +18,7 @@ class CashierDashboard extends Page
     protected static ?int $navigationSort = 1;
     protected static ?string $title = 'Dashboard';
     protected static string $view = 'filament.pages.dashboard.cashier-dashboard';
-
+    
     
     public static function canAccess(): bool    
     {
@@ -25,7 +28,7 @@ class CashierDashboard extends Page
     protected function getHeaderWidgets(): array
     {
         return[
-            ReportsStatsOverview::class
+
         ];
     }
 

@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Encryption\DecryptException;
+
+
 
 class Report extends Model
 {
@@ -35,6 +40,9 @@ class Report extends Model
         'payment_status'
     ];
 
+    
+    
+
     protected $casts = [
         'cost_center' => CostCenter::class,
         'insurance_prod' => InsuranceProd::class,
@@ -43,7 +51,11 @@ class Report extends Model
         'payment_status' => PaymentStatus::class,
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
+       // 'depo_slip' => 'encrypted',
+      //  'plate_num' => 'encrypted',
+      
     ];
+
 
     public function user_reports(): BelongsTo
     {
@@ -61,4 +73,5 @@ class Report extends Model
         });
     }
 
+   
 }
