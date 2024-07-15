@@ -4,7 +4,7 @@
         $loginRoute = route('filament.admin.auth.login');
     @endphp
 
-    <footer class="@if(Request::url() == $loginRoute) fixed bottom-0 @endif z-20 w-full p-4 bg-aap-footer-bg border-t border-gray-200 shadow md:p-6 dark:bg-aap-footer-label dark:border-aap-footer-label text-center">
+    <footer class="z-20 w-full p-4 bg-aap-footer-bg border-t border-gray-200 shadow md:p-6 dark:bg-aap-footer-label dark:border-aap-footer-label text-center">
         <span class="text-sm text-gray-500 dark:text-gray-400">© 2024
             <a href="
             @if ($role == 'cashier')

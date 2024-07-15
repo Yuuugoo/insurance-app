@@ -30,8 +30,9 @@ use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Actions\ActionGroup;
 
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -95,8 +96,6 @@ class ReportsResource extends Resource
                                 ->options(PolicyStatus::class),
                             TextInput::make('financing_bank')
                                 ->label('Mortagagee/Financing'),
-                                
-
                         ])
                         ->description('View Vehicle Details')
                         ->columns(['md' => 2, 'xl' => 2]),
@@ -105,11 +104,10 @@ class ReportsResource extends Resource
                             Select::make('terms')
                                 ->label('Terms')
                                 ->options(Terms::class),
-                            TextInput::make('gross_premium') // change to float in migration
+                            TextInput::make('gross_premium')
                                 ->numeric()
                                 ->required(),
-                                
-                            TextInput::make('total_payment') // change to float in migration
+                            TextInput::make('total_payment') 
                                 ->numeric()
                                 ->required()
                                 ->live(onBlur: true)
@@ -117,23 +115,18 @@ class ReportsResource extends Resource
                                     $balance = floatval($get('gross_premium')) - floatval($state);
                                     $set('payment_balance', number_format($balance, 2));
                                 }),
-                            TextInput::make('payment_balance') // change to float in migration
+                            TextInput::make('payment_balance')
                                 ->numeric()
                                 ->readOnly() 
                                 ->live(debounce: 500),
- 
-
                             Select::make('payment_mode')
                                 ->label('Mode of Payment')
                                 ->options(Payment::class),
-
                             FileUpload::make('depo_slip')
                                 ->openable()
                                 ->downloadable()
                                 ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
 
-                        
-                            
                         ]),
                 ])->columnSpanFull()
                     
@@ -150,10 +143,10 @@ class ReportsResource extends Resource
                     ->dateTime()
                     ->label('Date Created')
                     ->icon('heroicon-o-calendar-days'),
-                // TextColumn::make('sale_person')
-                //     ->label('Sales Person')
-                //     ->icon('heroicon-o-user')
-                //     ->visibleFrom('md'),
+                TextColumn::make('sale_person')
+                    ->label('Sales Person')
+                    ->icon('heroicon-o-user')
+                    ->visibleFrom('md'),    
                 TextColumn::make('cost_center')
                     ->label('Cost Center')
                     ->icon('heroicon-o-map-pin'),
@@ -163,21 +156,56 @@ class ReportsResource extends Resource
                     ->visibleFrom('md'),
                 TextColumn::make('arpr_date')
                     ->label('AR/PR Date')
+                    ->visibleFrom('md'),
+                TextColumn::make('insurance_prod')
+                    ->label('Insurance Provider')
+                    ->visibleFrom('md'),
+                TextColumn::make('insurance_type')
+                    ->label('Insurance Type')
                     ->icon('heroicon-o-calendar-days')
+                    ->visibleFrom('md'),
+                TextColumn::make('inception_date')
+                    ->label('Inception Date')
+                    ->visibleFrom('md'),
+                TextColumn::make('assured')
+                    ->label('Assured')
+                    ->visibleFrom('md'),
+                TextColumn::make('policy_num')
+                    ->label('Policy Number')
+                    ->visibleFrom('md'),
+                TextColumn::make('application')
+                    ->label('Mode of Application')
                     ->visibleFrom('md'),
                 TextColumn::make('plate_num')
                     ->label('Vehicle Plate No.')
-                    ->searchable(),
+                    ->searchable()
+                    ->grow(false),
                 TextColumn::make('car_details')
                     ->label('Car Details'),
                 TextColumn::make('payment_status')
-                    ->badge()
+                    ->label('Payment Status')
                     ->sortable(),
+                TextColumn::make('payment_mode')
+                    ->label('Payment Mode')
+                    ->sortable(),
+                TextColumn::make('gross_premium')->label('Gross Premium'),
+                TextColumn::make('total_payment')->label('Total Payment'),
+                TextColumn::make('payment_balance')->label('Payment Balance'),
                 TextColumn::make('policy_status')
                     ->searchable()
                     ->label('Policy Status')
                     ->sortable()
                     ->badge(),
+                TextColumn::make('user_reports.email')
+                    ->label('Submitted By'),
+                TextColumn::make('cashier_remarks')
+                    ->label('Cashier Remarks')
+                    ->icon('heroicon-o-calendar-days')
+                    ->visibleFrom('md'),
+                TextColumn::make('acct_remarks')
+                    ->label('Accounting Remarks')
+                    ->icon('heroicon-o-calendar-days')
+                    ->visibleFrom('md'),
             ])
             ->filters([
                 Filter::make('new_policy')
@@ -195,8 +223,12 @@ class ReportsResource extends Resource
             ])
             
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->color('success'),
+                    Tables\Actions\ViewAction::make()
+                        ->color('gray'),
+                ])->color('success')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

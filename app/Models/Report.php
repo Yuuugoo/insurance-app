@@ -8,6 +8,7 @@ use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
 use App\Enums\PaymentStatus;
 use App\Enums\ModeApplication;
+use App\Enums\Payment;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,8 @@ class Report extends Model
 {
     use HasFactory;
     
+    protected $primaryKey = 'reports_id';
+
     protected $fillable = [
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 
@@ -37,13 +40,13 @@ class Report extends Model
         'insurance_type' => InsuranceType::class,
         'application' => ModeApplication::class,
         'payment_status' => PaymentStatus::class,
-        'policy_status' => PolicyStatus::class
+        'policy_status' => PolicyStatus::class,
+        'payment_mode' => Payment::class,
     ];
 
     public function user_reports(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
 
 }

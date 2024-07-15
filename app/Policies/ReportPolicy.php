@@ -21,7 +21,7 @@ class ReportPolicy
      */
     public function view(User $user, Report $report): bool
     {
-        return $user->hasRole(['acct-manager']);
+        return $user->hasAnyRole(['acct-staff', 'cashier', 'acct-manager']);
     }
 
     /**
