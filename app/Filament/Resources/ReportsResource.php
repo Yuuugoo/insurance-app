@@ -168,12 +168,13 @@ class ReportsResource extends Resource
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(function ($state, callable $set, $get) {
                                     $balance = intval($get('gross_premium')) - intval($state);
-                                    $set('payment_balance', number_format($balance));
+                                    $set('payment_balance', $balance); // Store as raw number
                                 }),
                             TextInput::make('payment_balance')
                                 ->numeric()
                                 ->readOnly() 
-                                ->live(debounce: 500),
+                                ->live(debounce: 500)
+                                ->formatStateUsing(fn ($state) => number_format($state)),
                             Select::make('payment_mode')
                                 ->filled()
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
@@ -269,6 +270,7 @@ class ReportsResource extends Resource
                     ->label('Accounting Remarks')
                     ->icon('heroicon-o-calendar-days')
                     ->visibleFrom('md'),
+                
             ])->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('new_policy')
@@ -288,15 +290,16 @@ class ReportsResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()
-                        ->color('success'),
+                        ->color('warning'),
                     Tables\Actions\ViewAction::make()
-                        ->color('gray'),
+                        ->color('info'),
                     Tables\Actions\Action::make('pdf') 
                         ->label('PDF')
                         ->color('success')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->url(fn (Report $record) => route('pdf', $record))
                         ->openUrlInNewTab(),
+                        
                 ])->color('success')
             ])
 

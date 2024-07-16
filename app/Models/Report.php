@@ -50,11 +50,11 @@ class Report extends Model
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
         'terms' => Terms::class
-        'terms' => Terms::class,
        // 'depo_slip' => 'encrypted',
       //  'plate_num' => 'encrypted',
       
     ];
+    
 
 
     public function user_reports(): BelongsTo
