@@ -7,6 +7,7 @@ use App\Enums\mode;
 use Filament\Forms;
 use App\Enums\Terms;
 use Filament\Tables;
+use App\Rules\ARPRNO;
 use App\Enums\payment;
 use App\Models\Report;
 use App\Models\Reports;
@@ -16,11 +17,14 @@ use App\Enums\CostCenter;
 use App\Enums\ModePayment;
 use Filament\Tables\Table;
 use App\Enums\PolicyStatus;
+use App\Rules\PolicyNumber;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
+use App\Rules\NamewithSpace;
 use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
@@ -37,15 +41,16 @@ use Filament\Tables\Enums\FiltersLayout;
 use App\Filament\Exports\ProductExporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Actions\Action as ActionsAction;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\ReportsResource\Pages;
+
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Tables\Actions\ExportBulkAction;
 
 class ReportsResource extends Resource
 {
@@ -66,30 +71,56 @@ class ReportsResource extends Resource
                     Wizard\Step::make('Report Details')
                         ->schema([
                             TextInput::make('sale_person')
-                                ->label('Sales Person'),
-                            Select::make('cost_center')
+                            ->rules([new NamewithSpace()])
+                            ->readOnly(Auth::user()->hasRole('acct-staff'))
+                            ->filled()
+                            ->label('Sales Person'),
+                            Select::make('cost_center') 
                                 ->label('Cost center')
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->filled()
                                 ->options(CostCenter::class),
                             TextInput::make('arpr_num')
+                                ->filled()
+                                ->rules([new ARPRNO()])
                                 ->label('AR/PR No.'),
                             DatePicker::make('arpr_date')
+                                ->filled()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('AR/PR Date')
                                 ->native(false),
                             DatePicker::make('inception_date')
+                                ->afterOrEqual('arpr_date')
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Inception/Effectivity')
-                                ->native(false),
+                                ->native(false)
+                                ->validationMessages([
+                                    'after_or_equal' => 'ASDASDSAD',
+                                ]),
                             TextInput::make('assured')
+                                ->rules([new NamewithSpace()])
+                                ->filled()
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Assured'),
                             TextInput::make('policy_num')
+                                ->rules([new PolicyNumber()])
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
+                                ->filled()
                                 ->label('Policy Number'),                        
                             Select::make('insurance_prod')
                                 ->label('Insurance Provider')
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->filled()
                                 ->options(InsuranceProd::class),
                             Select::make('insurance_type')
                                 ->label('Type of Insurance')
+                                ->filled()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->options(InsuranceType::class),
                             Select::make('application')
                                 ->label('Mode of Application')
+                                ->filled()              
+                                ->disabled(Auth::user()->hasRole('acct-staff'))       
                                 ->options(ModeApplication::class),
                         ])
                             ->description('View Report Details')
@@ -97,13 +128,21 @@ class ReportsResource extends Resource
                     Wizard\Step::make('Vehicle Details')
                         ->schema([                     
                             TextInput::make('plate_num')
+                                ->filled()       
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Plate Number'),
                             TextInput::make('car_details')
+                                ->filled()       
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Car Details'),
                             Select::make('policy_status')
+                                ->filled()     
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Policy Status')
                                 ->options(PolicyStatus::class),
                             TextInput::make('financing_bank')
+                                ->filled()     
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Mortagagee/Financing'),
                         ])
                         ->description('View Vehicle Details')
@@ -111,33 +150,47 @@ class ReportsResource extends Resource
                     Wizard\Step::make('Payment Details')
                         ->schema([
                             Select::make('terms')
+                                ->filled()
                                 ->label('Terms')
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->options(Terms::class),
                             TextInput::make('gross_premium')
+                                ->gte('total_payment')
                                 ->numeric()
-                                ->required(),
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
+                                ->required()
+                                ->reactive(),
                             TextInput::make('total_payment') 
                                 ->numeric()
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(function ($state, callable $set, $get) {
-                                    $balance = floatval($get('gross_premium')) - floatval($state);
-                                    $set('payment_balance', number_format($balance, 2));
+                                    $balance = intval($get('gross_premium')) - intval($state);
+                                    $set('payment_balance', number_format($balance));
                                 }),
                             TextInput::make('payment_balance')
                                 ->numeric()
                                 ->readOnly() 
                                 ->live(debounce: 500),
                             Select::make('payment_mode')
+                                ->filled()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Mode of Payment')
                                 ->options(Payment::class),
-                            FileUpload::make('depo_slip')
+                           
+                            FileUpload::make('depo_slip')       
+                                ->filled()
+                                ->required()
                                 ->openable()
                                 ->downloadable()
                                 ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
+
+                            
                         ]),
                 ])
-                ->columnSpanFull()                    
+                ->columnSpanFull()    
+                ->skippable()                
 
             ]);
     }
