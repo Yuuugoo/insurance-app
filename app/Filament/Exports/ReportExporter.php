@@ -23,7 +23,8 @@ class ReportExporter extends Exporter
     protected static ?string $model = Report::class;
 
     public static function getColumns(): array
-    {
+    {   
+        
         return [
             ExportColumn::make('reports_id')
                 ->label('REPORTS ID'),
@@ -93,9 +94,8 @@ class ReportExporter extends Exporter
     public function getXlsxCellStyle(): ?Style
     {
         return (new Style())
-            ->setFontSize(12)
+            ->setFontSize(9)
             ->setShouldWrapText()
-            ->setShouldShrinkToFit()
             ->setFontName('Calibri')
             ->setCellAlignment(CellAlignment::CENTER)
             ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
@@ -106,12 +106,17 @@ class ReportExporter extends Exporter
         return (new Style())
             ->setFontBold()
             ->setShouldWrapText()
-            ->setFontSize(10)
+            ->setFontSize(9)
             ->setFontName('Arial')
             ->setFontColor(Color::rgb(0, 0, 0))
             ->setBackgroundColor(Color::rgb(184, 217, 173))
             ->setCellAlignment(CellAlignment::CENTER)
             ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
+    }
+
+    public function getFileName(Export $export): string
+    {
+        return "report-{$export->getKey()}";
     }
 
     public static function getCompletedNotificationBody(Export $export): string

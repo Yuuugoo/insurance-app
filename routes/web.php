@@ -18,4 +18,4 @@ use App\Http\Controllers\PDFController;
 //     return view('welcome');
 // });
 
-Route::get('pdf/{record}', PDFController::class)->name('pdf'); 
+Route::get('pdf/report/{record}', PDFController::class)->name('pdf'); 

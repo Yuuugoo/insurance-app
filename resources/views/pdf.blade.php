@@ -10,7 +10,7 @@
 <body>
     <h1>Insurance Report <br>{{ $record->assured }}</h1>
 
-    <img class="report-logo" src="{{public_path('images/aap-logo.png')}}" alt="aap-logo"><!-- To fix: Image not Loading -->
+    <img class="report-logo" src="{{public_path('images/aap-logo.png')}}" alt="aap-logo">
     <!-- General Details -->
     <p class="printed-date">Date Printed: {{$record->created_at->now()}}</p>
     <div class="section">

@@ -81,11 +81,11 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->databaseNotifications()// Database Notifications
-            ->plugins([
-                StickyHeaderPlugin::make()
-                    ->floating()
-                    ->colored(),
-            ])
+            // ->plugins([
+            //     StickyHeaderPlugin::make()
+            //         ->floating()
+            //         ->colored(),
+            // ])
             ;
     }
 }

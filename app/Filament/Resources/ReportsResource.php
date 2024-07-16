@@ -47,8 +47,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Actions\Action as ActionsAction;
 use Filament\Tables\Actions\ExportBulkAction;
-use App\Filament\Resources\ReportsResource\Pages;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
+use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
 
@@ -304,7 +305,11 @@ class ReportsResource extends Resource
                     ->exporter(ReportExporter::class)
                     ->label('Export All Records')
                     ->color('success')
-                    ->chunkSize(100)
+                    ->columnMapping(false)
+                    ->chunkSize(250)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
                 ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -313,7 +318,11 @@ class ReportsResource extends Resource
                 ExportBulkAction::make()->exporter(ReportExporter::class)
                     ->label('Export Selected Records')
                     ->color('success')
-                    ->chunkSize(100)
+                    ->columnMapping(false)
+                    ->chunkSize(250)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
             ]);
     }
 
