@@ -4,6 +4,12 @@ namespace App\Filament\Exports;
 
 use App\Models\Report;
 use App\Enums\CostCenter;
+use App\Enums\InsuranceProd;
+use App\Enums\InsuranceType;
+use App\Enums\ModeApplication;
+use App\Enums\Payment;
+use App\Enums\PolicyStatus;
+use App\Enums\Terms;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Models\Export;
@@ -19,16 +25,93 @@ class ReportExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-           ExportColumn::make('reports_id'),
-           ExportColumn::make('created_at'),
-           ExportColumn::make('sale_person'),
-           ExportColumn::make('cost_center')
-           ->formatStateUsing(function (CostCenter $state) {
-            return $state->name; // or (string) $state
-    }),
-           ExportColumn::make('arpr_num')
-           ->label('ARPR Number'),
+            ExportColumn::make('reports_id')
+                ->label('REPORTS ID'),
+            ExportColumn::make('created_at')
+                ->label('DATE CREATED'),
+            ExportColumn::make('sale_person')
+                ->label('SALES PERSON'),
+            ExportColumn::make('cost_center')
+                ->label('COST CENTER')
+                ->formatStateUsing(function (CostCenter $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('arpr_num')
+                ->label('ARPR NUMBER'),
+            ExportColumn::make('arpr_date')
+                ->label('ARPR DATE'),
+            ExportColumn::make('inception_date')
+                ->label('INCEPTION DATE'),
+            ExportColumn::make('assured')
+                ->label('ASSURED'),
+            ExportColumn::make('policy_num')
+                ->label('POLICY NUMBER'),
+            ExportColumn::make('insurance_prod')
+                ->label('INSURANCE PROVIDER')
+                ->formatStateUsing(function (InsuranceProd $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('insurance_type')
+                ->label('INSURANCE TYPE')
+                ->formatStateUsing(function (InsuranceType $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('terms')
+                ->label('TERMS')
+                ->formatStateUsing(function (Terms $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('gross_premium')
+                ->label('GROSS PREMIUM'),
+            ExportColumn::make('payment_mode')
+                ->label('MODE OF PAYMENT')
+                ->formatStateUsing(function (Payment $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('total_payment')
+                ->label('TOTAL PAYMENT'),
+            ExportColumn::make('plate_num')
+                ->label('PLATE NO'),
+            ExportColumn::make('car_details')
+                ->label('CAR DETAILS'),
+            ExportColumn::make('policy_status')
+                ->label('POLICY STATUS')
+                ->formatStateUsing(function (PolicyStatus $state) {
+                    return $state->getLabel();
+                }),
+            ExportColumn::make('financing_bank')
+                ->label('MORTAGAGEE/FINANCING'),
+            ExportColumn::make('application')
+                ->label('MODE OF APPLICATION')
+                ->formatStateUsing(function (ModeApplication $state) {
+                    return $state->getLabel();
+                }),
+
         ];
+    }
+
+    public function getXlsxCellStyle(): ?Style
+    {
+        return (new Style())
+            ->setFontSize(12)
+            ->setShouldWrapText()
+            ->setShouldShrinkToFit()
+            ->setFontName('Calibri')
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
+    }
+
+    public function getXlsxHeaderCellStyle(): ?Style
+    {
+        return (new Style())
+            ->setFontBold()
+            ->setShouldWrapText()
+            ->setFontSize(10)
+            ->setFontName('Arial')
+            ->setFontColor(Color::rgb(0, 0, 0))
+            ->setBackgroundColor(Color::rgb(184, 217, 173))
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
     }
 
     public static function getCompletedNotificationBody(Export $export): string

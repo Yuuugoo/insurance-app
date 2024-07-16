@@ -9,6 +9,7 @@ use App\Enums\InsuranceType;
 use App\Enums\PaymentStatus;
 use App\Enums\ModeApplication;
 use App\Enums\Payment;
+use App\Enums\Terms;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
@@ -40,9 +41,6 @@ class Report extends Model
         'payment_status'
     ];
 
-    
-    
-
     protected $casts = [
         'cost_center' => CostCenter::class,
         'insurance_prod' => InsuranceProd::class,
@@ -51,6 +49,7 @@ class Report extends Model
         'payment_status' => PaymentStatus::class,
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
+        'terms' => Terms::class
        // 'depo_slip' => 'encrypted',
       //  'plate_num' => 'encrypted',
       

@@ -242,19 +242,25 @@ class ReportsResource extends Resource
                         ->color('success')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->url(fn (Report $record) => route('pdf', $record))
-                        ->openUrlInNewTab(), 
+                        ->openUrlInNewTab(),
                 ])->color('success')
             ])
 
             ->headerActions([
-                    ExportAction::make()->exporter(ReportExporter::class)
+                ExportAction::make()
+                    ->exporter(ReportExporter::class)
+                    ->label('Export All Records')
+                    ->color('success')
+                    ->chunkSize(100)
                 ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     
                 ]),
-
                 ExportBulkAction::make()->exporter(ReportExporter::class)
+                    ->label('Export Selected Records')
+                    ->color('success')
+                    ->chunkSize(100)
             ]);
     }
 

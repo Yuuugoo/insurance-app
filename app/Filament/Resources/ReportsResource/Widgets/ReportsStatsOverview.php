@@ -11,18 +11,29 @@ class ReportsStatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-
         if (Auth::user()->hasRole('cashier')) {
             $stats [] = Stat::make('All Reports', Report::all()->count());
             $stats [] = Stat::make('Pending Reports', Report::where('payment_status', 'pending')->count());
             $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
         }
-        if (Auth::user()->hasRole('acct-staff')) {
+        elseif (Auth::user()->hasRole('acct-staff')) {
+            $stats [] = Stat::make('All Reports', Report::all()->count());
+            $stats [] = Stat::make('Pending Reports', Report::where('payment_status', 'pending')->count());
+            $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
+        }
+        elseif (Auth::user()->hasRole('acct-manager')) {
+            $stats [] = Stat::make('All Reports', Report::all()->count());
+            $stats [] = Stat::make('Pending Reports', Report::where('payment_status', 'pending')->count());
+            $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
+        }
+        // For Super-Admin
+        elseif (Auth::user()->hasRole('acct-staff')) {
             $stats [] = Stat::make('All Reports', Report::all()->count());
             $stats [] = Stat::make('Pending Reports', Report::where('payment_status', 'pending')->count());
             $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
         
         }
+        else $stats [] = null;
 
         return $stats;
     }

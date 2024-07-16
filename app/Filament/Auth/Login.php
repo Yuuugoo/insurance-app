@@ -18,5 +18,16 @@ class Login extends AuthLogin
     {
         return ('AAP Insurance Report Login');
     }
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->form->fill([
+            'email' => 'cashier@admin.com',
+            'password' => 'password',
+            'remember' => true,
+        ]);
+    }
 }
 
