@@ -45,10 +45,5 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class, 'id', 'user_id');
-    }
-
 
 }

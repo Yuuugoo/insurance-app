@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Casts\AsHtml;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 
@@ -30,7 +31,7 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
-        'user_id',
+        'submitted_by_id', 'approved_by_id',
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 
         'assured', 'policy_num', 'application', 'cashier_remarks', 
@@ -38,7 +39,7 @@ class Report extends Model
         'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
-        'payment_status'
+        'payment_status',
     ];
 
     protected $casts = [
@@ -49,7 +50,7 @@ class Report extends Model
         'payment_status' => PaymentStatus::class,
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
-        'terms' => Terms::class
+        'terms' => Terms::class,
        // 'depo_slip' => 'encrypted',
       //  'plate_num' => 'encrypted',
       
@@ -57,9 +58,14 @@ class Report extends Model
     
 
 
-    public function user_reports(): BelongsTo
+    public function cashier(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'submitted_by_id', 'id');
+    }
+
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_id', 'id');
     }
 
     protected static function boot()
@@ -67,10 +73,17 @@ class Report extends Model
         parent::boot();
 
         static::creating(function ($report) {
-            if (!$report->user_id) {
-                $report->user_id = auth()->id();
+            if (!$report->submitted_by_id) {
+                $report->submitted_by_id = auth()->id();
             }
+
         });
+    }
+
+    public function approveByStaff()
+    {
+        $this->approved_by_id = auth()->id();
+        $this->save();
     }
 
    

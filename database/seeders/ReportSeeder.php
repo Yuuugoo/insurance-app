@@ -19,9 +19,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 16824.54;
         $paymentBalance = $grossPremium - $totalPayment;
         $user = User::where('name', 'Cashier')->first();
-
+        
         Report::create([
-            'user_id' => $user->id,
+            'submitted_by_id' => $user->id,
             'created_at' => now(),
             'updated_at' => now(),
             'cost_center' => 'aurora',
@@ -29,7 +29,7 @@ class ReportSeeder extends Seeder
             'arpr_date' => '2024-06-17',
             'inception_date' => '2024-06-18',
             'assured' => 'REYNALDO A. AUTENTICO',
-            'policy_num' => '1052401004321',
+            'policy_num' => 'MC-AAP-DV-24-0000142-00',
             'insurance_prod' => 'oona',
             'insurance_type' => 'compre',
             'terms' => 'straight',
@@ -50,7 +50,7 @@ class ReportSeeder extends Seeder
         $totalPayment = 8582.66;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
+            'submitted_by_id' => $user->id,
             'created_at' => now(),
             'updated_at' => now(),
             'cost_center' => 'davao',
@@ -79,9 +79,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 4537.24;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-05-05',
+            'updated_at' => '2024-05-05',
             'cost_center' => 'fairview',
             'arpr_num' => 'PR100013',
             'arpr_date' => '2024-06-05',
@@ -108,9 +108,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 10768.54;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-04-05',
+            'updated_at' => '2024-04-05',
             'cost_center' => 'fairview',
             'arpr_num' => 'PR100016',
             'arpr_date' => '2024-06-06',
@@ -137,9 +137,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 11506.08;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-07-05',
+            'updated_at' => '2024-07-05',
             'cost_center' => 'fairview',
             'arpr_num' => 'PR100020',
             'arpr_date' => '2024-06-10',
@@ -168,9 +168,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 16824;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-05-05',
+            'updated_at' => '2024-05-05',
             'cost_center' => 'davao',
             'arpr_num' => 'PR100043',
             'arpr_date' => '2024-06-20',
@@ -197,9 +197,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 5000;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-05-05',
+            'updated_at' => '2024-05-05',
             'cost_center' => 'davao',
             'arpr_num' => 'PR100044',
             'arpr_date' => '2024-06-21',
@@ -226,12 +226,12 @@ class ReportSeeder extends Seeder
         $totalPayment = 17804.86;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
+            'submitted_by_id' => $user->id,
             'created_at' => now(),
             'updated_at' => now(),
             'cost_center' => 'davao',
             'arpr_num' => 'PR100045',
-            'arpr_date' => '2024-06-21',
+            'arpr_date' => '2024-03-05',
             'inception_date' => '2024-06-21',
             'assured' => 'JERRY L. CRISPINO',
             'policy_num' => 'MC-AAP-DV-24-0000129-00',
@@ -255,9 +255,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 10459.62;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-03-05',
+            'updated_at' => '2024-03-05',
             'cost_center' => 'davao',
             'arpr_num' => 'PR100046',
             'arpr_date' => '2024-06-22',
@@ -284,9 +284,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 8550.34;
         $paymentBalance = $grossPremium - $totalPayment;
         Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-04-05',
+            'updated_at' => '2024-04-05',
             'cost_center' => 'davao',
             'arpr_num' => 'PR100047',
             'arpr_date' => '2024-06-22',
@@ -313,9 +313,9 @@ class ReportSeeder extends Seeder
         $totalPayment = 17909.20;
         $paymentBalance = $grossPremium - $totalPayment;
             Report::create([
-            'user_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'submitted_by_id' => $user->id,
+            'created_at' => '2024-07-05',
+            'updated_at' => '2024-07-05',
             'cost_center' => 'davao',
             'arpr_num' => 'PR100050',
             'arpr_date' => '2024-06-24',

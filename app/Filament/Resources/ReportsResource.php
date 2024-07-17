@@ -20,18 +20,23 @@ use App\Enums\PolicyStatus;
 use App\Rules\PolicyNumber;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
+use App\Enums\PaymentStatus;
 use App\Rules\NamewithSpace;
 use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
+
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
+use function Laravel\Prompts\select;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard;
 use App\Enums\Payment as EnumsPayment;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use App\Filament\Exports\ReportExporter;
@@ -46,12 +51,14 @@ use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Actions\Action as ActionsAction;
+
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Set;
 
 class ReportsResource extends Resource
 {
@@ -74,7 +81,6 @@ class ReportsResource extends Resource
                             TextInput::make('sale_person')
                             ->rules([new NamewithSpace()])
                             ->readOnly(Auth::user()->hasRole('acct-staff'))
-                            ->filled()
                             ->label('Sales Person'),
                             Select::make('cost_center') 
                                 ->label('Cost center')
@@ -83,6 +89,7 @@ class ReportsResource extends Resource
                                 ->options(CostCenter::class),
                             TextInput::make('arpr_num')
                                 ->filled()
+                                ->unique(ignoreRecord: true)
                                 ->rules([new ARPRNO()])
                                 ->label('AR/PR No.'),
                             DatePicker::make('arpr_date')
@@ -142,7 +149,6 @@ class ReportsResource extends Resource
                                 ->label('Policy Status')
                                 ->options(PolicyStatus::class),
                             TextInput::make('financing_bank')
-                                ->filled()     
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Mortagagee/Financing'),
                         ])
@@ -168,32 +174,67 @@ class ReportsResource extends Resource
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(function ($state, callable $set, $get) {
                                     $balance = intval($get('gross_premium')) - intval($state);
-                                    $set('payment_balance', $balance); // Store as raw number
+                                    $set('payment_balance', $balance); 
                                 }),
                             TextInput::make('payment_balance')
-                                ->numeric()
                                 ->readOnly() 
                                 ->live(debounce: 500)
-                                ->formatStateUsing(fn ($state) => number_format($state)),
+                                ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
+                                ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
+                            // TextInput::make('payment_balance')
+                            //     ->readOnly() 
+                            //     ->live(debounce: 500)
+                            //     ->formatStateUsing(fn ($state) => number_format($state)),
                             Select::make('payment_mode')
                                 ->filled()
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Mode of Payment')
                                 ->options(Payment::class),
-                           
                             FileUpload::make('depo_slip')       
                                 ->filled()
                                 ->required()
                                 ->openable()
                                 ->downloadable()
-                                ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
+                                ->afterStateUpdated(function ($record) {
+                                    $record->payment_status = 'paid';
+                                    $record->save();
+                                })
+                                ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager'])),
+                            FileUpload::make('policy_file')       
+                                ->openable()
+                                ->downloadable()
+                                ->hidden(fn () => ! Auth::user()->hasRole('cashier')),
+                            DatePicker::make('remit_date')
+                                ->disabled(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                ->label('Remittance Date')
+                                ->native(false)
+                            // DatePicker::make('arpr_date')
+                            //     ->filled()
+                            //     ->disabled(Auth::user()->hasRole('acct-staff'))
+                            //     ->label('AR/PR Date')
+                            //     ->native(false),
 
-                            
                         ]),
                 ])
                 ->columnSpanFull()    
-                ->skippable()                
-
+                ->skippable(),                
+                Section::make('Remarks')
+                ->description('Cashier and Accounting Remarks')
+                ->schema([
+                    MarkdownEditor::make('cashier_remarks')
+                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                        ->label('Cashier Remarks')
+                        ->disableToolbarButtons([
+                            'blockquote',
+                            'strike',
+                            'attachFiles',
+                            'codeBlock',
+                            'link'
+                        ]),
+                    MarkdownEditor::make('acct_remarks')
+                        ->disabled(Auth::user()->hasRole('cashier'))
+                        ->label('Accounting Remarks'),
+                ])
             ]);
     }
 
@@ -253,25 +294,30 @@ class ReportsResource extends Resource
                     ->label('Payment Mode')
                     ->sortable(),
                 TextColumn::make('gross_premium')->label('Gross Premium'),
-                TextColumn::make('total_payment')->label('Total Payment'),
+                TextColumn::make('total_paymenft')->label('Total Payment'),
                 TextColumn::make('payment_balance')->label('Payment Balance'),
                 TextColumn::make('policy_status')
                     ->searchable()
                     ->label('Policy Status')
                     ->sortable()
                     ->badge(),
-                TextColumn::make('user_reports.email')
+                TextColumn::make('cashier.email')
                     ->label('Submitted By'),
-                TextColumn::make('cashier_remarks')
-                    ->label('Cashier Remarks')
-                    ->icon('heroicon-o-calendar-days')
-                    ->visibleFrom('md'),
-                TextColumn::make('acct_remarks')
-                    ->label('Accounting Remarks')
-                    ->icon('heroicon-o-calendar-days')
-                    ->visibleFrom('md'),
+                // To Fix this error: Column staff.email not found in the table
+                // TextColumn::make('staff.email')
+                //     ->label('Approved By'),
+                // Remarks Has been moved to View Page
+                // TextColumn::make('cashier_remarks')
+                //     ->label('Cashier Remarks')
+                //     ->icon('heroicon-o-calendar-days')
+                //     ->visibleFrom('md'),
+                // TextColumn::make('acct_remarks')
+                //     ->label('Accounting Remarks')
+                //     ->icon('heroicon-o-calendar-days')
+                //     ->visibleFrom('md'),
                 
             ])->defaultSort('created_at', 'desc')
+            ->defaultSort('payment_status', 'pending', 'desc')
             ->filters([
                 Filter::make('new_policy')
                     ->label('NEW Policy Status')

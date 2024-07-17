@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id('reports_id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('submitted_by_id')->nullable();
+            $table->foreign('submitted_by_id')->references('id')->on('users');
+            $table->unsignedBigInteger('approved_by_id')->nullable();
+            $table->foreign('approved_by_id')->references('id')->on('users');
             $table->string('cost_center', 50);
             $table->string('arpr_num', 50);
             $table->date('arpr_date');

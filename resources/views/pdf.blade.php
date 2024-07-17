@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ public_path('css/insurance.css') }}">
 </head>
 <body>
-    <h1>Insurance Report <br>{{ $record->assured }}</h1>
+    <h1>Insurance Report <br>{{ $record->arpr_num }}</h1>
 
     <img class="report-logo" src="{{public_path('images/aap-logo.png')}}" alt="aap-logo">
     <!-- General Details -->
