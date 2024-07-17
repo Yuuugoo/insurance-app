@@ -76,7 +76,8 @@ class RolesAndPermissionSeeder extends Seeder
         $superAdminRole->givePermissionTo($createAccountPermission);
 
         User::create([
-            'name' => 'Cashier',
+            'name' => 'Ethan Chen',
+            'username' => 'CSH_EC',
             'email' => 'cashier@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -85,7 +86,8 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($cashierRole);
 
         User::create([
-            'name' => 'Accounting Staff',
+            'name' => 'Michelle Lee',
+            'username' => 'ACC_ML',
             'email' => 'acctstaff@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -94,7 +96,8 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($acctStaffRole);
 
         User::create([
-            'name' => 'Accounting Manager',
+            'name' => 'Sarah Johnson',
+            'username' => 'ACCM_Johnson',
             'email' => 'acctmanager@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -104,6 +107,7 @@ class RolesAndPermissionSeeder extends Seeder
 
         User::create([
             'name' => 'Super Admin',
+            'username' => 'SADM_Admin',
             'email' => 'superadmin@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),

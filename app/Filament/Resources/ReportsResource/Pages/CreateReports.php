@@ -21,24 +21,21 @@ class CreateReports extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
     protected function afterCreate():void {
-        $brand = $this->record;
 
         $users = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['acct-staff', 'acct-manager', 'cashier']);
+            $query->whereIn('name', ['acct-staff', 'acct-manager']);
         })->get();
         
         Notification::make()
-    ->title('asdasdas')
-    ->body("<strong>" . Auth::user()->name . "</strong> submitted a new Insurance Report!")
-           
+            ->title('asdasdas')
+            ->body("<strong>" . Auth::user()->name . "</strong> submitted a new Insurance Report!")
             ->icon('heroicon-o-folder')
-    ->actions([
-        Action::make('view')
-            ->button()
-           
-            ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
-    ])
-    ->sendToDatabase($users);
+            ->actions([
+                Action::make('view')
+                    ->button()
+                    ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
+            ])
+            ->sendToDatabase($users);
             
     }
 

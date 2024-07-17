@@ -18,8 +18,10 @@ class ReportSeeder extends Seeder
         $grossPremium = 16824.54;
         $totalPayment = 16824.54;
         $paymentBalance = $grossPremium - $totalPayment;
-        $user = User::where('name', 'Cashier')->first();
-        
+        $user = User::whereHas('roles', function ($query) {
+            $query->whereIn('name', ['cashier']);
+        })->first();
+
         Report::create([
             'submitted_by_id' => $user->id,
             'created_at' => now(),

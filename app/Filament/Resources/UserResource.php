@@ -36,7 +36,9 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Select::make('roles')
-                    ->relationship('roles', 'name')
+                    ->relationship('roles', 'name', function ($query) {
+                        return $query->where('name', '!=', 'super-admin');
+                    })
                     ->native(false),
                 Forms\Components\TextInput::make('email')
                     ->email()
@@ -50,6 +52,9 @@ class UserResource extends Resource
                     )
                     ->required()
                     ->maxLength(255),
+                TextInput::make('username')
+                    ->required()
+                    ->maxLength(50),
             ]);
     }
 
@@ -63,9 +68,13 @@ class UserResource extends Resource
                     ->description('Name', position: 'above')
                     ->searchable()
                     ->icon('heroicon-o-user'),
-  
+                
                 Panel::make([
                     Split::make([
+                        TextColumn::make('username')
+                            ->searchable()
+                            ->icon('heroicon-o-user')
+                            ->description('username', position: 'below'),
                         TextColumn::make('roles.name')
                             ->icon('heroicon-o-flag')
                             ->description('role', position: 'below'),

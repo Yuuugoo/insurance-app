@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\TextColumn;
 
 class EditProfile extends Page
 {
@@ -36,17 +37,27 @@ class EditProfile extends Page
                     TextInput::make('name')
                         ->required()
                         ->maxLength(255),
+                    TextInput::make('username')
+                        ->label('Username')
+                        ->readOnly(),
                     TextInput::make('email')
                         ->email()
                         ->required()
                         ->unique()
                         ->maxLength(255),
+                    TextInput::make('current_password')
+                        ->password()
+                        ->label('Current Password')
+                        ->required(fn (string $context): bool => $context === 'edit')
+                        ->rule('current_password'),
                     TextInput::make('password')
                         ->password()
+                        ->label('New Password')
                         ->maxLength(255)
                         ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                         ->dehydrated(fn ($state) => filled($state))
                         ->required(fn (string $context): bool => $context === 'create'),
+                    
                     // FileUpload::make('avatar')
                     //     ->image()
                     //     ->directory('avatars'),
