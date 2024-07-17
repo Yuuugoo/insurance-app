@@ -4,10 +4,9 @@
     </div>
 
     <div class="grid gap-6 md:grid-cols-2">
-        <div class="">@livewire(\App\Livewire\MonthlyReportsChart::class)</div>
-        <div>@livewire(\App\Livewire\MonthlyReportsChart::class)</div>
+       
     </div>
-    <div class="">@livewire(\App\Livewire\ReportsTable::class)</div>
+  
 
 
 </x-filament-panels::page>
