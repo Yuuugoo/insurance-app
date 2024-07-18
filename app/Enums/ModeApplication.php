@@ -10,6 +10,7 @@ enum ModeApplication: string implements HasLabel
     case FBOL = 'fb/ol';
     case CALL = 'call';
     case DROPBY = 'dropby';
+    case OTHERS = 'others';
 
     public function getLabel(): ?string
     {
@@ -17,6 +18,7 @@ enum ModeApplication: string implements HasLabel
             self::FBOL =>'FACEBOOK/ONLINE',
             self::CALL =>'CALL',
             self::DROPBY =>'DROPBY',
+            self::OTHERS =>'OTHERS',
         };
     }
 

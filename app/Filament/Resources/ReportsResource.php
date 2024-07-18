@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use view;
+use Carbon\Carbon;
 use App\Enums\mode;
 use Filament\Forms;
 use App\Enums\Terms;
@@ -26,10 +27,10 @@ use App\Rules\NamewithSpace;
 use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
-use Barryvdh\DomPDF\Facade\Pdf;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
-use Illuminate\Http\UploadedFile;
+
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\select;
@@ -41,6 +42,7 @@ use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Exports\ReportExporter;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
@@ -50,6 +52,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Actions\ExportAction;
+
 use Illuminate\Database\Eloquent\Builder;
 
 use Filament\Forms\Components\Wizard\Step;
@@ -93,13 +96,14 @@ class ReportsResource extends Resource
                                 ->unique(ignoreRecord: true)
                                 ->rules([new ARPRNO()])
                                 ->label('AR/PR No.'),
-                            DatePicker::make('arpr_date')
-                                ->filled()
-                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                ->label('AR/PR Date')
-                                ->native(false),
+                         DatePicker::make('arpr_date')
+                            ->filled()
+                               
+                             ->disabled(Auth::user()->hasRole('acct-staff'))
+                            ->label('AR/PR Date')
+                            ->native(false),
                             DatePicker::make('inception_date')
-                                ->afterOrEqual('arpr_date')
+                                
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Inception/Effectivity')
                                 ->native(false)
@@ -112,7 +116,6 @@ class ReportsResource extends Resource
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->label('Assured'),
                             TextInput::make('policy_num')
-                                ->rules([new PolicyNumber()])
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->filled()
                                 ->label('Policy Number'),                        
@@ -139,7 +142,7 @@ class ReportsResource extends Resource
                             TextInput::make('plate_num')
                                 ->filled()       
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
-                                ->label('Plate Number'),
+                                ->label('Plate Number/ CS Number'),
                             TextInput::make('car_details')
                                 ->filled()       
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
@@ -193,14 +196,18 @@ class ReportsResource extends Resource
                                 ->options(Payment::class),
                             FileUpload::make('depo_slip')       
                                 ->filled()
+                                ->label('Deposit Slip')
                                 ->required()
                                 ->openable()
                                 ->downloadable()
-                                ->afterStateUpdated(function ($record) {
-                                    $record->payment_status = 'paid';
-                                    $record->save();
-                                })
-                                ->hidden(fn () => ! Auth::user()->hasAnyRole(['acct-staff', 'acct-manager'])),
+                                ->hidden(Auth::user()->hasRole('cashier')),
+
+                            Select::make('payment_status')
+                                ->required()
+                                ->label('Payment Status')
+                                ->options(PaymentStatus::class),
+                                
+                              
                             FileUpload::make('policy_file')       
                                 ->openable()
                                 ->downloadable()
@@ -209,33 +216,29 @@ class ReportsResource extends Resource
                                 ->disabled(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
                                 ->label('Remittance Date')
                                 ->native(false)
-                            // DatePicker::make('arpr_date')
-                            //     ->filled()
-                            //     ->disabled(Auth::user()->hasRole('acct-staff'))
-                            //     ->label('AR/PR Date')
-                            //     ->native(false),
-
+                          
                         ]),
                 ])
                 ->columnSpanFull()    
                 ->skippable(),                
                 Section::make('Remarks')
-                    ->description('Cashier and Accounting Remarks')
-                    ->schema([
-                        MarkdownEditor::make('cashier_remarks')
-                            ->disabled(Auth::user()->hasRole('acct-staff'))
-                            ->label('Cashier Remarks')
-                            ->disableToolbarButtons([
-                                'blockquote',
-                                'strike',
-                                'attachFiles',
-                                'codeBlock',
-                                'link'
-                            ]),
-                        MarkdownEditor::make('acct_remarks')
-                            ->disabled(Auth::user()->hasRole('cashier'))
-                            ->label('Accounting Remarks'),
-                    ])
+                ->description('Cashier and Accounting Remarks')
+                ->schema([
+                    MarkdownEditor::make('cashier_remarks')
+                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                        ->label('Cashier Remarks')
+                        ->disableToolbarButtons([
+                            'blockquote',
+                            'strike',
+                            'attachFiles',
+                            'codeBlock',
+                            'link'
+                        ]),
+                    MarkdownEditor::make('acct_remarks')
+                        ->disabled(Auth::user()->hasRole('cashier'))
+                        ->label('Accounting Remarks'),
+                ])
+                
             ]);
     }
 
@@ -246,7 +249,7 @@ class ReportsResource extends Resource
             ->columns([
                 TextColumn::make('created_at')
                     ->searchable()
-                    ->dateTime()
+                    ->dateTime('d-M-Y')
                     ->label('Date Created')
                     ->icon('heroicon-o-calendar-days'),
                 TextColumn::make('sale_person')
@@ -337,7 +340,8 @@ class ReportsResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()
-                        ->hidden(fn (Report $record): bool => $record->payment_status == 'paid'),
+                        ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'warning')
+                        ->disabled(fn (Report $record) => $record->canEdit()),
                     Tables\Actions\ViewAction::make()
                         ->color('info'),
                     Tables\Actions\Action::make('pdf') 

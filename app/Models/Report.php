@@ -11,6 +11,8 @@ use App\Enums\ModeApplication;
 use App\Enums\Payment;
 use App\Enums\Terms;
 use App\Traits\Systemencryption;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,6 +57,18 @@ class Report extends Model
         return $this->belongsTo(User::class, 'submitted_by_id', 'id');
     }
 
+    public function canEdit(): bool //REFUNDED TEMPLATE
+    {
+        if ($this->payment_status == PaymentStatus::PAID) {
+            return true;
+        }
+
+        return false;
+    }
+
+    
+    
+
     public function staff(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_id', 'id');
@@ -64,6 +78,8 @@ class Report extends Model
     {
         parent::boot();
 
+        
+
         static::creating(function ($report) {
             if (!$report->submitted_by_id) {
                 $report->submitted_by_id = auth()->id();
@@ -71,6 +87,8 @@ class Report extends Model
 
         });
     }
+
+    
 
     public function approveByStaff()
     {

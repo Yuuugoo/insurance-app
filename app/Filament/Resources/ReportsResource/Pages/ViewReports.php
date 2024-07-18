@@ -32,6 +32,8 @@ class ViewReports extends ViewRecord
                     return redirect('/reports');
                 }),
             EditAction::make('edit')
+                ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'warning')
+                ->disabled(fn (Report $record) => $record->canEdit())
                 ->label('Edit this Report'),
             Action::make('pdf')
                 ->label('Export to PDF')

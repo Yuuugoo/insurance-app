@@ -10,12 +10,17 @@ enum PaymentStatus: string implements HasLabel, HasColor, HasIcon
 {
     case PAID = 'paid';
     case PENDING = 'pending';
+    case PARTIAL = 'partial';
+    case REFUND = 'refund';
+   
    
     public function getLabel(): ?string
     {
         return match ($this) {
             self::PAID =>'PAID',
             self::PENDING =>'PENDING',
+            self::PARTIAL =>'PARTIAL',
+            self::REFUND =>'REFUND',
         };
     }
 
@@ -25,6 +30,8 @@ enum PaymentStatus: string implements HasLabel, HasColor, HasIcon
         return match ($this) {
             self::PAID =>'success',
             self::PENDING =>'warning',
+            self::PARTIAL =>'info',
+            self::REFUND =>'danger',
         };
     }
 
@@ -32,7 +39,9 @@ enum PaymentStatus: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::PENDING => 'heroicon-m-sparkles',
-            self::PAID => 'heroicon-m-check-badge',
+            self::PAID => 'heroicon-m-check-badge', 
+            self::PARTIAL => 'heroicon-m-information-circle',
+            self::REFUND => 'heroicon-m-information-circle'
         };
     }
     
