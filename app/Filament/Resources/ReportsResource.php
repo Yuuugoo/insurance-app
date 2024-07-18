@@ -194,6 +194,10 @@ class ReportsResource extends Resource
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Mode of Payment')
                                 ->options(Payment::class),
+                            FileUpload::make('policy_file')       
+                                ->openable()
+                                ->downloadable()
+                                ->disabled(fn () => ! Auth::user()->hasRole('cashier')),
                             FileUpload::make('depo_slip')       
                                 ->filled()
                                 ->label('Deposit Slip')
@@ -201,19 +205,13 @@ class ReportsResource extends Resource
                                 ->openable()
                                 ->downloadable()
                                 ->hidden(Auth::user()->hasRole('cashier')),
-
                             Select::make('payment_status')
                                 ->required()
                                 ->label('Payment Status')
                                 ->options(PaymentStatus::class),
                                 
-                              
-                            FileUpload::make('policy_file')       
-                                ->openable()
-                                ->downloadable()
-                                ->hidden(fn () => ! Auth::user()->hasRole('cashier')),
                             DatePicker::make('remit_date')
-                                ->disabled(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
                                 ->label('Remittance Date')
                                 ->native(false)
                           
@@ -225,7 +223,7 @@ class ReportsResource extends Resource
                 ->description('Cashier and Accounting Remarks')
                 ->schema([
                     MarkdownEditor::make('cashier_remarks')
-                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                        ->hidden(Auth::user()->hasRole('acct-staff'))
                         ->label('Cashier Remarks')
                         ->disableToolbarButtons([
                             'blockquote',
@@ -235,7 +233,14 @@ class ReportsResource extends Resource
                             'link'
                         ]),
                     MarkdownEditor::make('acct_remarks')
-                        ->disabled(Auth::user()->hasRole('cashier'))
+                        ->hidden(Auth::user()->hasRole('cashier'))
+                        ->disableToolbarButtons([
+                            'blockquote',
+                            'strike',
+                            'attachFiles',
+                            'codeBlock',
+                            'link'
+                        ])
                         ->label('Accounting Remarks'),
                 ])
                 

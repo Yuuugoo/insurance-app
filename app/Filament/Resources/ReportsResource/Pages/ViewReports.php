@@ -72,7 +72,7 @@ class ViewReports extends ViewRecord
                                 ->color('primary')
                                 ->label('Date Updated')
                                 ->icon('heroicon-o-calendar-days'),
-                            TextEntry::make('cashier.email')->label('Submitted By')->icon('heroicon-o-user')->color('primary'),
+                            TextEntry::make('cashier.name')->label('Submitted By')->icon('heroicon-o-user')->color('primary'),
                         ])->grow(false),
                         
                 ])->from('md')->columnSpan('full'),

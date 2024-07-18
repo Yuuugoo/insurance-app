@@ -35,7 +35,8 @@ class EditProfile extends Page
                 Card::make()
                     ->schema([
                     TextInput::make('name')
-                        ->required()
+                        ->ReadOnly()
+                       
                         ->maxLength(255),
                     TextInput::make('username')
                         ->label('Username')
