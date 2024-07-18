@@ -22,10 +22,10 @@ enum InsuranceType: string implements HasLabel
     {
         return match ($this) {
             self::COMPRE =>'COMPRE',
-            self::TPL =>'OONA',
+            self::TPL =>'TPL',
             self::FIRE =>'FPG',
-            self::TRAVEL =>'OAC',
-            self::PA =>'CIBELES',
+            self::TRAVEL =>'TRAVEL',
+            self::PA =>'PA',
             self::HOME =>'HOME',
             self::CASUALTY =>'CASUALTY',
             self::MARINE =>'MARINE',

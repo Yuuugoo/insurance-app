@@ -8,9 +8,10 @@ use Filament\Actions\CreateAction;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\ReportsResource;
-use Filament\Notifications\Actions\Action;
+
 
 class CreateReports extends CreateRecord
 {
@@ -20,20 +21,24 @@ class CreateReports extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+    // Send Notifications to other users after creation of record
     protected function afterCreate():void {
 
         $users = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['acct-staff', 'acct-manager']);
-        })->get();
+        })->where('id', '!=', auth()->id())->get();
         
         Notification::make()
-            ->title('asdasdas')
+            ->title('New Insurance Report Submitted')
             ->body("<strong>" . Auth::user()->name . "</strong> submitted a new Insurance Report!")
             ->icon('heroicon-o-folder')
             ->actions([
                 Action::make('view')
                     ->button()
                     ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
+                Action::make('markAsRead')
+                    ->label('Mark as Read')
+                    ->markAsRead(),
             ])
             ->sendToDatabase($users);
             

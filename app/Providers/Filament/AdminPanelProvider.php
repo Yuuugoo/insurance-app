@@ -80,6 +80,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotificationsPolling('5s')
             ->databaseNotifications()// Database Notifications
             // ->plugins([
             //     StickyHeaderPlugin::make()

@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\DownloadPdfController;
+use App\Http\Controllers\DownloadReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\ViewPDFController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +22,5 @@ use App\Http\Controllers\PDFController;
 //     return view('welcome');
 // });
 
-Route::get('pdf/report/{record}', PDFController::class)->name('pdf'); 
+Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
+Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload'); 

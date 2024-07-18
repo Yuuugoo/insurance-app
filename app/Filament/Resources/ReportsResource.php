@@ -12,6 +12,7 @@ use App\Enums\payment;
 use App\Models\Report;
 use App\Models\Reports;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Enums\CostCenter;
 use App\Enums\ModePayment;
@@ -26,8 +27,9 @@ use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Resources\Resource;
 
+use Filament\Resources\Resource;
+use Illuminate\Http\UploadedFile;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\select;
@@ -49,16 +51,15 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Actions\Action as ActionsAction;
-
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Set;
 
 class ReportsResource extends Resource
 {
@@ -79,9 +80,9 @@ class ReportsResource extends Resource
                     Wizard\Step::make('Report Details')
                         ->schema([
                             TextInput::make('sale_person')
-                            ->rules([new NamewithSpace()])
-                            ->readOnly(Auth::user()->hasRole('acct-staff'))
-                            ->label('Sales Person'),
+                                ->rules([new NamewithSpace()])
+                                ->readOnly(Auth::user()->hasRole('acct-staff'))
+                                ->label('Sales Person'),
                             Select::make('cost_center') 
                                 ->label('Cost center')
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
@@ -219,22 +220,22 @@ class ReportsResource extends Resource
                 ->columnSpanFull()    
                 ->skippable(),                
                 Section::make('Remarks')
-                ->description('Cashier and Accounting Remarks')
-                ->schema([
-                    MarkdownEditor::make('cashier_remarks')
-                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                        ->label('Cashier Remarks')
-                        ->disableToolbarButtons([
-                            'blockquote',
-                            'strike',
-                            'attachFiles',
-                            'codeBlock',
-                            'link'
-                        ]),
-                    MarkdownEditor::make('acct_remarks')
-                        ->disabled(Auth::user()->hasRole('cashier'))
-                        ->label('Accounting Remarks'),
-                ])
+                    ->description('Cashier and Accounting Remarks')
+                    ->schema([
+                        MarkdownEditor::make('cashier_remarks')
+                            ->disabled(Auth::user()->hasRole('acct-staff'))
+                            ->label('Cashier Remarks')
+                            ->disableToolbarButtons([
+                                'blockquote',
+                                'strike',
+                                'attachFiles',
+                                'codeBlock',
+                                'link'
+                            ]),
+                        MarkdownEditor::make('acct_remarks')
+                            ->disabled(Auth::user()->hasRole('cashier'))
+                            ->label('Accounting Remarks'),
+                    ])
             ]);
     }
 
@@ -294,7 +295,7 @@ class ReportsResource extends Resource
                     ->label('Payment Mode')
                     ->sortable(),
                 TextColumn::make('gross_premium')->label('Gross Premium'),
-                TextColumn::make('total_paymenft')->label('Total Payment'),
+                TextColumn::make('total_payment')->label('Total Payment'),
                 TextColumn::make('payment_balance')->label('Payment Balance'),
                 TextColumn::make('policy_status')
                     ->searchable()
@@ -336,16 +337,15 @@ class ReportsResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make()
-                        ->color('warning'),
+                        ->hidden(fn (Report $record): bool => $record->payment_status == 'paid'),
                     Tables\Actions\ViewAction::make()
                         ->color('info'),
                     Tables\Actions\Action::make('pdf') 
                         ->label('PDF')
                         ->color('success')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->url(fn (Report $record) => route('pdf', $record))
+                        ->url(fn (Report $record) => route('pdfview', $record))
                         ->openUrlInNewTab(),
-                        
                 ])->color('success')
             ])
 

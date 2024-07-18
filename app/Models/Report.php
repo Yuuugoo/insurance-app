@@ -10,24 +10,17 @@ use App\Enums\PaymentStatus;
 use App\Enums\ModeApplication;
 use App\Enums\Payment;
 use App\Enums\Terms;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Crypt;
+use App\Traits\Systemencryption;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Casts\AsHtml;
-use Illuminate\Contracts\Encryption\DecryptException;
 
 
 
 class Report extends Model
 {
     use HasFactory;
-    
+
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
@@ -51,12 +44,11 @@ class Report extends Model
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
         'terms' => Terms::class,
-       // 'depo_slip' => 'encrypted',
-      //  'plate_num' => 'encrypted',
+       'depo_slip' => 'encrypted',
+       'policy_file' => 'encrypted',
       
     ];
     
-
 
     public function cashier(): BelongsTo
     {
