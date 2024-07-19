@@ -16,12 +16,11 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Report extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $primaryKey = 'reports_id';
 
@@ -34,7 +33,8 @@ class Report extends Model
         'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
-        'payment_status',
+        'payment_status', 'remit_date_partial', 'add_remarks','others_insurance_type', 
+        'others_insurance_prod', 'others_application', 'final_depo_slip'
     ];
 
     protected $casts = [
@@ -46,9 +46,10 @@ class Report extends Model
         'policy_status' => PolicyStatus::class,
         'payment_mode' => Payment::class,
         'terms' => Terms::class,
-       'depo_slip' => 'encrypted',
-       'policy_file' => 'encrypted',
-      
+        'add_remarks' => 'boolean',
+        'depo_slip' => 'encrypted',
+        'policy_file' => 'encrypted',
+        'final_depo_slip' => 'encrypted',
     ];
     
 

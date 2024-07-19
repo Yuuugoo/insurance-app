@@ -45,16 +45,16 @@ class ReportPolicy
      */
     public function delete(User $user, Report $report): bool
     {
-        return $user->hasRole(['super-admin']);
+        return $user->hasRole(['cashier', 'acc-staff', 'acct-manager']);
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    // public function restore(User $user, Report $report): bool
-    // {
-    //     //
-    // }
+    public function restore(User $user, Report $report): bool
+    {
+        return $user->hasRole(['acct-staff', 'acct-manager']);
+    }
 
     /**
      * Determine whether the user can permanently delete the model.

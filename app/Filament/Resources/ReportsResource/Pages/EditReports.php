@@ -41,7 +41,7 @@ class EditReports extends EditRecord
         Notification::make()
             ->success()
             ->title('Insurance Report Updated')
-            ->body("<strong>" . Auth::user()->name . "</strong> edited <strong>Insurance Report $arpr_num</strong>!")
+            ->body("<strong>" . Auth::user()->name . "</strong> updated <strong>Insurance Report $arpr_num</strong>!")
             ->icon('heroicon-o-folder')
             ->actions([
                 Action::make('view')

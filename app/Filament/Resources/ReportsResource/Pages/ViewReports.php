@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ReportsResource\Pages;
 
 use App\Models\Report;
+use Filament\Forms\Get;
 use Filament\Actions\Action;
 use Dompdf\FrameDecorator\Text;
 use Filament\Actions\EditAction;
@@ -28,7 +29,6 @@ class ViewReports extends ViewRecord
                 ->label('Back')
                 ->color('warning')
                 ->action(function () {
-            
                     return redirect('/reports');
                 }),
             EditAction::make('edit')
@@ -51,28 +51,25 @@ class ViewReports extends ViewRecord
                 Split::make([
                     Section::make('General Details')
                         ->schema([
-                            // General Application
-                            TextEntry::make('arpr_num')->label('AR/PR No.')->color('primary'),
-                            TextEntry::make('arpr_date')->label('AR/PR Date')->date('m-d-Y')->color('primary'),
-                            TextEntry::make('inception_date')->label('Inception Date')->date('m-d-Y')->color('primary'),
-                            TextEntry::make('sale_person')->label('Sales Person')->icon('heroicon-o-user')->color('primary'),   
-                            TextEntry::make('cost_center')->label('Cost Center')->icon('heroicon-o-map-pin')->color('primary'),
-                            TextEntry::make('policy_num')->label('Policy Number')->color('primary'),
+                            TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel(),
+                            TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel(),
+                            TextEntry::make('inception_date')->label('Inception Date:')->date('m-d-Y')->inlineLabel(),
+                            TextEntry::make('sale_person')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   
+                            TextEntry::make('cost_center')->label('Cost Center:')->icon('heroicon-o-map-pin')->inlineLabel(),
+                            TextEntry::make('policy_num')->label('Policy Number:')->inlineLabel(),
                         ])->columnSpan('full')->columns(2),
                         
                         // Dates
                         Section::make([
                             TextEntry::make('created_at')
-                                ->color('primary')
                                 ->date('m-d-Y')
                                 ->label('Date Created')
                                 ->icon('heroicon-o-calendar-days'),
                             TextEntry::make('updated_at')
                                 ->date('m-d-Y')
-                                ->color('primary')
                                 ->label('Date Updated')
                                 ->icon('heroicon-o-calendar-days'),
-                            TextEntry::make('cashier.name')->label('Submitted By')->icon('heroicon-o-user')->color('primary'),
+                            TextEntry::make('cashier.name')->label('Submitted By')->icon('heroicon-o-user'),
                         ])->grow(false),
                         
                 ])->from('md')->columnSpan('full'),
@@ -81,18 +78,40 @@ class ViewReports extends ViewRecord
                     Section::make('Insurance Details')
                         ->schema([
                         // Insurance Details
-                        TextEntry::make('insurance_prod')->label('Insurance Provider')->color('primary'),
-                        TextEntry::make('insurance_type')->label('Insurance Type')->color('primary'),
-                        TextEntry::make('assured')->label('Assured')->color('primary'),
-                        TextEntry::make('application')->label('Mode of Application')->color('primary'),
-                    ]),
+                        Section::make()
+                            ->schema([
+                                TextEntry::make('insurance_type')->label('Insurance Type'),
+                                TextEntry::make('others_insurance_type')
+                                    ->label('Other Type of Insurance')
+                                    ->hidden(fn ($record) => $record->others_insurance_type === null),
+                            ])->columns(2),
+                        Section::make()
+                            ->schema([
+                                TextEntry::make('insurance_prod')->label('Insurance Provider'),
+                                TextEntry::make('others_insurance_prod')
+                                    ->label('Other Insurance Provider')
+                                    ->hidden(fn ($record) => $record->others_insurance_prod === null),
+                            ])->columns(2),
+                        Section::make()
+                            ->schema([
+                                TextEntry::make('application')->label('Mode of Application'),
+                                TextEntry::make('others_application')
+                                    ->label('Other Mode of Application')
+                                    ->hidden(fn ($record) => $record->others_insurance_prod === null),
+                            ])->columns(2),
+                        Section::make()
+                            ->schema([
+                                TextEntry::make('assured')->label('Assured'),
+                            ])->columnSpanFull(),
+                        
+                    ])->columns(2),
                     Section::make('Payment Details')
                         ->schema([
                         // Payment Details
-                        TextEntry::make('payment_mode')->label('Payment Mode')->color('primary'),
-                        TextEntry::make('gross_premium')->label('Gross Premium')->color('primary'),
-                        TextEntry::make('total_payment')->label('Total Payment')->color('primary'),
-                        TextEntry::make('payment_balance')->label('Payment Balance')->color('primary'),
+                        TextEntry::make('payment_mode')->label('Payment Mode'),
+                        TextEntry::make('gross_premium')->label('Gross Premium'),
+                        TextEntry::make('total_payment')->label('Total Payment'),
+                        TextEntry::make('payment_balance')->label('Payment Balance'),
                         TextEntry::make('policy_status')->label('Policy Status')->badge(),
                         TextEntry::make('payment_status')->label('Payment Status')->badge(),
                         
@@ -103,9 +122,9 @@ class ViewReports extends ViewRecord
                     Section::make('Vehicle Details')
                             ->schema([
                             // Vehicle Details
-                            TextEntry::make('plate_num')->label('Vehicle Plate No.')->color('primary'),
-                            TextEntry::make('car_details')->label('Car Details')->color('primary'),
-                            TextEntry::make('financing_bank')->label('Mortgagee/Financing Bank')->color('primary'),
+                            TextEntry::make('plate_num')->label('Vehicle Plate No.:')->inlineLabel(),
+                            TextEntry::make('car_details')->label('Car Details:')->inlineLabel(),
+                            TextEntry::make('financing_bank')->label('Mortgagee/Financing:')->inlineLabel(),
                         ]),
                     Section::make('Uploaded Files')
                         ->schema([
@@ -137,15 +156,37 @@ class ViewReports extends ViewRecord
                                         ->icon('heroicon-m-arrow-down-tray')
                                         ->url(fn (Report $record) => route('pdfdownload', $record))
                                         ->openUrlInNewTab(false),
-                            ]),
+                                ]),
+                            TextEntry::make('final_depo_slip')
+                                ->label('Final Deposit Slip')
+                                ->color('primary')
+                                ->icon('heroicon-o-paper-clip')
+                                ->suffixActions([
+                                    InfolistAction::make('View')
+                                        ->icon('heroicon-m-eye')
+                                        ->url(fn (Report $record) => route('pdfview', $record))
+                                        ->openUrlInNewTab(),
+                                    InfolistAction::make('Download')
+                                        ->icon('heroicon-m-arrow-down-tray')
+                                        ->url(fn (Report $record) => route('pdfdownload', $record))
+                                        ->openUrlInNewTab(false),
+                                ]),
 
                         ]),
                 ])->columnSpan('full')  ,
                         // Remarks
                     Section::make('REMARKS')
                         ->schema([
-                            TextEntry::make('cashier_remarks')->label('Cashier Remarks')->markdown()->prose(),
-                            TextEntry::make('acct_remarks')->label('Accounting Remarks')->markdown()->prose(),
+                            TextEntry::make('cashier_remarks')
+                                ->label('Cashier Remarks')
+                                ->markdown()
+                                ->hidden(fn ($record) => $record->cashier_remarks === null)
+                                ->prose(),
+                            TextEntry::make('acct_remarks')
+                                ->label('Accounting Remarks')
+                                ->markdown()
+                                ->prose()
+                                ->hidden(fn ($record) => $record->acct_remarks === null),
 
                     ])->grow(false),
 

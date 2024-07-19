@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreign('approved_by_id')->references('id')->on('users');
             $table->string('cost_center', 50);
             $table->string('arpr_num', 50);
-            $table->date('arpr_date');
+            $table->string('arpr_date', 50);
             $table->date('inception_date')->nullable();
             $table->string('assured', 50);
             $table->string('policy_num', 50);

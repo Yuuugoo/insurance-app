@@ -41,6 +41,15 @@ class ListReports extends ListRecords
             null => Tab::make('All'),
             'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
             'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
+            // 'aurora' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'aurora')),
+            // 'fairview' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'fairview')),
+            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
+            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
+            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
+            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
+            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
+            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
         ];
     }
+    
 }

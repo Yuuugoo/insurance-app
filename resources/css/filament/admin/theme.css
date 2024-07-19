@@ -14,7 +14,9 @@
     .fi-sidebar-nav-groups::before {
         content: '';
         border-top: 1px solid rgba(153, 147, 147, 0.25);
-    }   
+    }
+    .fi-in-text-item{ @apply underline !important }
+    .fi-ta-text-item-label{ @apply text-black !important }  
     
 }
 
