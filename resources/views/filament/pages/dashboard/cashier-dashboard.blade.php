@@ -3,8 +3,9 @@
         @livewire(\App\Livewire\AccountDashboardWidget::class)
     </div>
 
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class>
         @livewire(\App\Livewire\BarChart::class)
+      
     </div>
   
 
