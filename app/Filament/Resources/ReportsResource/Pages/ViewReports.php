@@ -136,12 +136,14 @@ class ViewReports extends ViewRecord
                                 ->suffixActions([
                                     InfolistAction::make('View')
                                         ->icon('heroicon-m-eye')
-                                        ->url(fn (Report $record) => route('pdfview', $record))
+                                        ->url(fn (Report $record) => asset('storage/' . $record->policy_file))                        
+                                        //->url(fn (Report $record) => route('pdfview', $record))
                                         ->openUrlInNewTab(),
                                     InfolistAction::make('Download')
                                         ->icon('heroicon-m-arrow-down-tray')
-                                        ->url(fn (Report $record) => route('pdfdownload', $record))
-                                        ->openUrlInNewTab(false),
+                                        ->url(fn (Report $record) => asset('storage/' . $record->policy_file), shouldOpenInNewTab: false)
+                                        //->url(fn (Report $record) => route('pdfdownload', $record))
+                                        ->extraAttributes(['download' => ''])
                                 ]),
                             TextEntry::make('depo_slip')
                                 ->label('Deposit Slip')
@@ -149,13 +151,17 @@ class ViewReports extends ViewRecord
                                 ->icon('heroicon-o-paper-clip')
                                 ->suffixActions([
                                     InfolistAction::make('View')
-                                        ->icon('heroicon-m-eye')
-                                        ->url(fn (Report $record) => route('pdfview', $record))
-                                        ->openUrlInNewTab(),
+                                        ->icon('heroicon-m-eye')           
+                                        ->url(fn (Report $record) => asset('storage/' . $record->depo_slip))                        
+                                       // ->url(fn (Report $record) => route('pdfview', $record))
+                                        ->openUrlInNewTab(),     
                                     InfolistAction::make('Download')
-                                        ->icon('heroicon-m-arrow-down-tray')
-                                        ->url(fn (Report $record) => route('pdfdownload', $record))
-                                        ->openUrlInNewTab(false),
+                                        ->icon('heroicon-m-arrow-down-tray') 
+                                        ->url(fn (Report $record) => asset('storage/' . $record->depo_slip), shouldOpenInNewTab: false)
+                                        //->url(fn (Report $record) => route('pdfdownload', $record))
+                                        ->extraAttributes(['download' => ''])
+                                        
+                                        
                                 ]),
                             TextEntry::make('final_depo_slip')
                                 ->label('Final Deposit Slip')
@@ -164,12 +170,14 @@ class ViewReports extends ViewRecord
                                 ->suffixActions([
                                     InfolistAction::make('View')
                                         ->icon('heroicon-m-eye')
-                                        ->url(fn (Report $record) => route('pdfview', $record))
+                                        ->url(fn (Report $record) => asset('storage/' . $record->final_depo_slip))                        
+                                        //->url(fn (Report $record) => route('pdfview', $record))
                                         ->openUrlInNewTab(),
                                     InfolistAction::make('Download')
                                         ->icon('heroicon-m-arrow-down-tray')
-                                        ->url(fn (Report $record) => route('pdfdownload', $record))
-                                        ->openUrlInNewTab(false),
+                                        ->url(fn (Report $record) => asset('storage/' . $record->final_depo_slip), shouldOpenInNewTab: false)
+                                        //->url(fn (Report $record) => route('pdfdownload', $record))
+                                        ->extraAttributes(['download' => ''])
                                 ]),
 
                         ]),

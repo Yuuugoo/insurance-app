@@ -204,7 +204,7 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))       
                                         ->options(ModeApplication::class)
                                         ->live(),
-                                    TextInput::make('others_appplication')
+                                    TextInput::make('others_application')
                                         ->label('Enter Other Mode of Application')
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->inlineLabel()
@@ -248,40 +248,49 @@ class ReportsResource extends Resource
                         ->schema([
                             Section::make()
                                 ->schema([
-                                    Select::make('terms')
-                                        ->filled()
-                                        ->label('Select Terms')
-                                        ->inlineLabel()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->options(Terms::class),
-                                    TextInput::make('gross_premium')
-                                        ->gte('total_payment')
-                                        ->label('Enter Gross Premium')
-                                        ->inlineLabel()
-                                        ->numeric()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->required()
-                                        ->reactive(),
-                                    TextInput::make('total_payment')
-                                        ->label('Enter Total Payment')
-                                        ->inlineLabel()
-                                        ->numeric()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->required()
-                                        ->live(onBlur: true)
-                                        ->afterStateUpdated(function ($state, callable $set, $get) {
-                                            $balance = intval($get('gross_premium')) - intval($state);
-                                            $set('payment_balance', $balance); 
-                                        }),
-                                    TextInput::make('payment_balance')
-                                        ->label('Total Payment Balance')
-                                        ->inlineLabel()
-                                        ->readOnly()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->live(debounce: 500)
-                                        ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
-                                        ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
-                                        ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
+                            Select::make('terms')
+                                ->filled()
+                                ->label('Select Terms')
+                                ->inlineLabel()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->options(Terms::class)
+                                ->reactive()
+                                ->afterStateUpdated(function (callable $set, $get) {
+                                    if ($get('terms') === 'straight') {
+                                        $set('total_payment', $get('gross_premium'));
+                                    }
+                                }),
+                            TextInput::make('gross_premium')
+                                ->label('Enter Gross Premium')
+                                ->inlineLabel()
+                                ->numeric()
+                                ->required()
+                                ->reactive()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->afterStateUpdated(function (callable $set, $get) {
+                                    if ($get('terms') === 'straight') {
+                                        $set('total_payment', $get('gross_premium'));
+                                    }
+                                }),
+                            TextInput::make('total_payment')
+                                ->label('Total Payment')
+                                ->inlineLabel()
+                                ->numeric()
+                                ->disabled(fn ($get) => $get('terms') === 'straight' || Auth::user()->hasRole('acct-staff'))
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set, $get) {
+                                    $balance = intval($get('gross_premium')) - intval($state);
+                                    $set('payment_balance', $balance);
+                                }),
+                            TextInput::make('payment_balance')
+                                ->label('Total Payment Balance')
+                                ->inlineLabel()
+                                ->readOnly()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->live(debounce: 500)
+                                ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
+                                ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
+                                ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
                                     Select::make('payment_mode')
                                         ->filled()
                                         ->live()

@@ -32,7 +32,7 @@ enum Terms: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::STRAIGHT => 'Straight',
+            self::STRAIGHT => 'straight',
             self::ONE => '1/2',
             self::TWO => '2/2',
             self::THREE => '1/3',

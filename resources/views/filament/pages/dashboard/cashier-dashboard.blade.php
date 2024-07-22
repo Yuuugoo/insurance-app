@@ -3,8 +3,10 @@
         @livewire(\App\Livewire\AccountDashboardWidget::class)
     </div>
 
-    <div class>
+    <div class="grid gap-6 md:grid-cols-2">
         @livewire(\App\Livewire\BarChart::class)
+        @livewire(\App\Livewire\PreviousMonth::class)
+
       
     </div>
   
