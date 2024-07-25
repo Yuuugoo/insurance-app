@@ -71,6 +71,8 @@ class RolesAndPermissionSeeder extends Seeder
             $permissions
         ]);
 
+        $agentRole = Role::create(['name' => 'agent']);
+
         $createAccountPermission = Permission::create(['name' => 'create: account']);
 
         $superAdminRole->givePermissionTo($createAccountPermission);
@@ -80,7 +82,7 @@ class RolesAndPermissionSeeder extends Seeder
             'username' => 'CSH_EC',
             'email' => 'cashier@admin.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
 
         ])->assignRole($cashierRole);
@@ -90,7 +92,7 @@ class RolesAndPermissionSeeder extends Seeder
             'username' => 'ACC_ML',
             'email' => 'acctstaff@admin.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
 
         ])->assignRole($acctStaffRole);
@@ -100,7 +102,7 @@ class RolesAndPermissionSeeder extends Seeder
             'username' => 'ACCM_Johnson',
             'email' => 'acctmanager@admin.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
 
         ])->assignRole($acctManagerRole);
@@ -110,10 +112,20 @@ class RolesAndPermissionSeeder extends Seeder
             'username' => 'SADM_Admin',
             'email' => 'superadmin@admin.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
 
         ])->assignRole($superAdminRole);
+
+        User::create([
+            'name' => 'Mark Daniel',
+            'username' => 'AGN_MD',
+            'email' => 'agentview@user.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+
+        ])->assignRole($agentRole);
 
         
 

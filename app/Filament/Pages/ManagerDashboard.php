@@ -14,19 +14,10 @@ class ManagerDashboard extends Page
     protected static ?string $title = 'Dashboard';
     protected static string $view = 'filament.pages.dashboard.manager-dashboard';
 
-    
-
     public static function canAccess(): bool
     {       
         $user = Auth::user();
         return $user->hasRole('acct-manager');
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return[
-            AccountWidget::class
-        ];
     }
 
     public function getTitle(): string|Htmlable

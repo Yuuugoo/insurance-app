@@ -5,15 +5,17 @@ namespace App\Livewire;
 use App\Enums\CostCenter;
 use App\Models\Report;
 use Carbon\Carbon;
+use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
 
-class PreviousMonth extends ApexChartWidget
+class CurrentMonthReports extends ApexChartWidget
 {
-    protected static ?string $chartId = 'previousMonthReportsChart';
-    protected static ?string $heading = 'Previous Month Reports';
+    protected static ?string $chartId = 'currentMonthReportsChart';
+    protected static ?string $heading = 'Current Month Reports';
 
     protected function getOptions(): array
     {
@@ -90,7 +92,7 @@ class PreviousMonth extends ApexChartWidget
     protected function getData(): array
     {
         $filters = $this->getFilters();
-        $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
+        $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now();
         $costCenter = $filters['filter'] ?? 'all';
 
         if ($costCenter !== 'all') {
@@ -98,6 +100,11 @@ class PreviousMonth extends ApexChartWidget
         }
 
         return $this->getMonthlyDataForAllCostCenters($selectedDate);
+    }
+
+    protected function getSelectedDate(): Carbon
+    {
+        return $this->selectedDate ? Carbon::parse($this->selectedDate) : now();
     }
 
     protected function getMonthlyDataForAllCostCenters(Carbon $selectedDate): array
@@ -193,11 +200,11 @@ class PreviousMonth extends ApexChartWidget
 
     public function getHeading(): ?string
     {
-        $filters = $this->getFilters();
-        $costCenter = $filters['filter'] ?? 'all';
-        $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
-        $costCenter = ucfirst($costCenter);
+    $filters = $this->getFilters();
+    $costCenter = $filters['filter'] ?? 'all';
+    $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now();
+    $costCenter = ucfirst($costCenter);
 
-        return $costCenter . " Reports for " . $selectedDate->format('F Y');
+    return $costCenter." Reports for ". $selectedDate->format('F Y');
     }
 }

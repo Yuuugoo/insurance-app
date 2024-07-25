@@ -19,7 +19,7 @@
     .fi-ta-text-item-label{ @apply text-black !important }  
     
 }
-
+.apex-charts-single-filter{  display: none !important; }
 @layer utilities {
     /* For Webkit-based browsers (Chrome, Safari) */
 

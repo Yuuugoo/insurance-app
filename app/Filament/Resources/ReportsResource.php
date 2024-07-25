@@ -27,10 +27,8 @@ use App\Enums\PaymentStatus;
 use App\Rules\NamewithSpace;
 use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
-
 use Filament\Facades\Filament;
 use Barryvdh\DomPDF\Facade\Pdf;
-
 use Filament\Resources\Resource;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Filters\Filter;
@@ -52,9 +50,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use App\Filament\Exports\ProductExporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-
 use Filament\Forms\Components\RichEditor;
-
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Wizard\Step;
@@ -96,6 +92,7 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->filled()
+                                        ->reactive()
                                         ->live()
                                         ->native(false)
                                         ->options(InsuranceProd::class),
@@ -103,7 +100,9 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->filled()
                                         ->unique(ignoreRecord: true)
-                                        ->rules([new ARPRNO()])
+                                        ->rules([
+                                            fn ($get, $record) => new ARPRNO($get('insurance_prod'), $record?->id)
+                                        ])
                                         ->label('AR/PR No.')
                                         ->inlineLabel()
                                         ->visible(fn (Get $get) => !empty($get('insurance_prod')))
@@ -404,9 +403,11 @@ class ReportsResource extends Resource
                 //     ->icon('heroicon-o-calendar-days'),
                 TextColumn::make('arpr_date')
                     ->sortable()
+                    ->searchable()
                     ->label('AR/PR Date'),
                 TextColumn::make('inception_date')
                     ->label('Inception Date')
+                    ->searchable()
                     ->date('m-d-Y')
                     ->visibleFrom('md'),
                 // TextColumn::make('sale_person')
@@ -415,6 +416,7 @@ class ReportsResource extends Resource
                 //     ->visibleFrom('md'),    
                 TextColumn::make('cost_center')
                     ->label('Cost Center')
+                    ->searchable()
                     ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
@@ -477,26 +479,55 @@ class ReportsResource extends Resource
             ->defaultSort('arpr_date', 'desc')
             ->defaultPaginationPageOption(5)
             ->filters([
-                TrashedFilter::make(),
-                Filter::make('new_policy')
-                    ->label('NEW Policy Status')
-                    ->query(fn (Builder $query): Builder => $query->where('policy_status', 'new')),
-                Filter::make('renewal_policy')
-                    ->label('RENEWAL Policy Status')
-                    ->query(fn (Builder $query): Builder => $query->where('policy_status', 'renewal')),
-                Filter::make('paid_payment')
-                    ->label('PAID Payment')
-                    ->query(fn (Builder $query): Builder => $query->where('payment_status', 'paid')),
-                Filter::make('pending_payment')
-                    ->label('PENDING Payment')
-                    ->query(fn (Builder $query): Builder => $query->where('payment_status', 'pending')),
+                TrashedFilter::make()
+                    ->placeholder('All Records w/o Archived')
+                    ->label('Archived')
+                    ->trueLabel('All Records w/ Archived')
+                    ->falseLabel('Archived Records'),
+                Filter::make('arpr_date')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From Date')
+                            ->placeholder('Select start date')
+                            ->native(false)
+                            ->displayFormat('d.m.Y')
+                            ->format('m-d-Y'),
+                        DatePicker::make('until')
+                            ->label('To Date')
+                            ->placeholder('Select end date')
+                            ->native(false)
+                            ->displayFormat('d.m.Y')
+                            ->format('m-d-Y'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                function (Builder $query, $date) {
+                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%m-%d-%Y') >= ?", [Carbon::parse($date)->format('Y-m-d')]);
+                                }
+                            )
+                            ->when(
+                                $data['until'],
+                                function (Builder $query, $date) {
+                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%m-%d-%Y') <= ?", [Carbon::parse($date)->format('Y-m-d')]);
+                                }
+                            );
+                    })
             ])
             
             ->actions([
                 ActionGroup::make([
-                    ActionsDeleteAction::make(),
-                    ForceDeleteAction::make(), 
-                    RestoreAction::make(),
+                    ActionsDeleteAction::make()
+                        ->label('Archive')
+                        ->icon('heroicon-m-archive-box-arrow-down')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalHeading('Archive this Report?')
+                        ->modalIcon('heroicon-m-archive-box-arrow-down')
+                        ->successNotificationTitle('Report Archived Successfully'),
+                    RestoreAction::make()
+                        ->color('success'),
                     Tables\Actions\EditAction::make()
                         ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'warning')
                         ->disabled(fn (Report $record) => $record->canEdit()),

@@ -39,7 +39,7 @@ class ViewReports extends ViewRecord
                 ->label('Export to PDF')
                 ->color('success')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->url(fn (Report $record) => route('pdfview', $record))
+                ->url(fn (Report $record) => route('pdfdownload', $record))
                 ->openUrlInNewTab(),
         ];
     }

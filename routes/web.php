@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarChartController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DownloadPdfController;
 use App\Http\Controllers\DownloadReportController;
@@ -24,3 +25,11 @@ use App\Http\Controllers\ViewPDFController;
 
 Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
 Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload'); 
+Route::fallback(function () {
+    return redirect()->route('filament.admin.auth.login');
+});
+
+
+// Route::get('/login',
+//     fn() => redirect(route('filament.admin.auth.login'))
+// )->name('login');

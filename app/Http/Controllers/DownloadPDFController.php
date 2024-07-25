@@ -14,7 +14,6 @@ class DownloadPdfController extends Controller
     public function __invoke(Report $record)
     {
         $pdf = App::make('dompdf.wrapper');
-
         $pdf->loadView('pdf', ['record' => $record]);
         $pdf->setPaper('legal', 'portrait');
         return $pdf->download();

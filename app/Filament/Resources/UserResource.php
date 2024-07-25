@@ -8,18 +8,18 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\UserResource\RelationManagers;
-use Filament\Tables\Columns\ImageColumn;
 
 class UserResource extends Resource
 {
@@ -50,7 +50,7 @@ class UserResource extends Resource
                     ->password()
                     ->dehydrateStateUsing(static fn(null|string $state):
                         null|string =>
-                        filled($state) ? Hash::make($state): null,
+                        filled($state) ? hash('sha512', $state) : null,
                     )
                     ->required()
                     ->maxLength(255),
@@ -85,29 +85,52 @@ class UserResource extends Resource
                             ->icon('heroicon-o-envelope')
                             ->description('email', position: 'below'),
                         Tables\Columns\TextColumn::make('created_at')
-                            ->dateTime(now())
+                            ->date('m-d-Y')
                             ->sortable()
                             ->description('date created', position: 'below'),
                         Tables\Columns\TextColumn::make('updated_at')
-                            ->dateTime()
+                            ->date('m-d-Y')
                             ->sortable()
                             ->description('date updated', position: 'below'),
                     ])->from('md'),
                 ])->collapsed(false)
             ])
             ->filters([
-                //
+                TrashedFilter::make()
+                    ->placeholder('All Users')
+                    ->label('Archived')
+                    ->trueLabel('All Users w/ Deleted')
+                    ->falseLabel('Deleted Users'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    RestoreAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Archive')
+                        ->icon('heroicon-m-archive-box-arrow-down')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalHeading('Archive this User?')
+                        ->modalIcon('heroicon-m-archive-box-arrow-down')
+                        ->successNotificationTitle('User Archived Successfully')
+                    ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    
                 ]),
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
+    
     public static function getRelations(): array
     {
         return [

@@ -27,6 +27,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -82,11 +83,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->databaseNotificationsPolling('5s')
             ->databaseNotifications()// Database Notifications
-            // ->plugins([
-            //     StickyHeaderPlugin::make()
-            //         ->floating()
-            //         ->colored(),
-            // ])
+            ->plugins([
+                // StickyHeaderPlugin::make()
+                //     ->floating()
+                //     ->colored(),
+                FilamentApexChartsPlugin::make()
+            ])
             ;
     }
 }

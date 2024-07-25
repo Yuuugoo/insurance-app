@@ -21,13 +21,6 @@ class StaffDashboard extends Page
         return Auth::user()->hasRole('acct-staff');
     }
     
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            ReportsStatsOverview::class
-        ];
-    }
-
     public function getTitle(): string|Htmlable
     {
         return ('Accounting Staff Dashboard');

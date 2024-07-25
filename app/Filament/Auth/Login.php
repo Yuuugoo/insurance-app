@@ -2,6 +2,7 @@
 namespace App\Filament\Auth;
 
 use Filament\Forms\Form;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Support\Htmlable;
@@ -59,30 +60,29 @@ class Login extends AuthLogin
 
     protected function getCredentialsFromFormData(array $data): array
     {
-        $login_type = filter_var($data['login'], FILTER_VALIDATE_EMAIL ) ? 'username' : 'username';
- 
         return [
-            $login_type => $data['login'],
-            'password'  => $data['password'],
+            'username' => $data['login'],
+            'password' => $data['password'],
         ];
-    }
-
-    protected function throwFailureValidationException(): never
-    {
-        throw ValidationException::withMessages([
-            'data.login' => __('filament-panels::pages/auth/login.messages.failed'),
-        ]);
     }
 
     public function authenticate(): ?LoginResponse
     {
-        try {
-            return parent::authenticate();
-        } catch (ValidationException) {
-            throw ValidationException::withMessages([
-                'data.login' => 'Incorrect username or password',
-            ]);
+        $credentials = $this->getCredentialsFromFormData($this->form->getState());
+
+        $user = \App\Models\User::whereRaw('BINARY username = ?', [$credentials['username']])->first();
+
+        if ($user && hash('sha512', $credentials['password']) === $user->password) {
+            Auth::login($user, $formData['remember'] ?? false);
+
+            session()->regenerate();
+
+            return app(LoginResponse::class);
         }
+
+        throw ValidationException::withMessages([
+            'data.login' => 'Incorrect username or password',
+        ]);
     }
 }
 
