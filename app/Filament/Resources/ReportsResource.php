@@ -25,6 +25,7 @@ use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
 use App\Enums\PaymentStatus;
 use App\Rules\NamewithSpace;
+use Doctrine\DBAL\Types\Type;
 use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
@@ -40,6 +41,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard;
 use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -64,7 +66,7 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
-use Filament\Forms\Components\Checkbox;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 
 class ReportsResource extends Resource
@@ -72,7 +74,7 @@ class ReportsResource extends Resource
     protected static ?string $model = Report::class;
     protected static ?string $navigationGroup = 'REPORTS';
     protected static ?string $recordTitleAttribute = 'arpr_num';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
 
 
 
@@ -97,12 +99,12 @@ class ReportsResource extends Resource
                                         ->native(false)
                                         ->options(InsuranceProd::class),
                                     TextInput::make('arpr_num')
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        // ->prefix('PR')
+                                        // ->dehydrateStateUsing(fn (string $state) => 'PR' . $state)
+                                        // ->formatStateUsing(fn (string $state) => str_starts_with($state, 'PR') ? substr($state, 2) : $state)
+                                        ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
                                         ->filled()
                                         ->unique(ignoreRecord: true)
-                                        ->rules([
-                                            fn ($get, $record) => new ARPRNO($get('insurance_prod'), $record?->id)
-                                        ])
                                         ->label('AR/PR No.')
                                         ->inlineLabel()
                                         ->visible(fn (Get $get) => !empty($get('insurance_prod')))
@@ -211,8 +213,8 @@ class ReportsResource extends Resource
                                             $paymentStatus = $get('application');
                                             return strtolower($paymentStatus) === 'others';
                                         })
-                            ])->columns(2),                        
-                        ])
+                                ])->columns(2),                        
+                            ])
                             ->description('View Report Details')
                             ->columns(['md' => 2, 'xl' => 3]),
                     Wizard\Step::make('Vehicle Details')
@@ -247,64 +249,64 @@ class ReportsResource extends Resource
                         ->schema([
                             Section::make()
                                 ->schema([
-                            Select::make('terms')
-                                ->filled()
-                                ->label('Select Terms')
-                                ->inlineLabel()
-                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                ->options(Terms::class)
-                                ->reactive()
-                                ->afterStateUpdated(function (callable $set, $get) {
-                                    if ($get('terms') === 'straight') {
-                                        $set('total_payment', $get('gross_premium'));
-                                    }
-                                }),
-                            TextInput::make('gross_premium')
-                                ->label('Enter Gross Premium')
-                                ->inlineLabel()
-                                ->numeric()
-                                ->required()
-                                ->reactive()
-                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                ->afterStateUpdated(function (callable $set, $get) {
-                                    if ($get('terms') === 'straight') {
-                                        $set('total_payment', $get('gross_premium'));
-                                    }
-                                }),
-                            TextInput::make('total_payment')
-                                ->label('Total Payment')
-                                ->inlineLabel()
-                                ->numeric()
-                                ->disabled(fn ($get) => $get('terms') === 'straight' || Auth::user()->hasRole('acct-staff'))
-                                ->reactive()
-                                ->afterStateUpdated(function ($state, callable $set, $get) {
-                                    $balance = intval($get('gross_premium')) - intval($state);
-                                    $set('payment_balance', $balance);
-                                }),
-                            TextInput::make('payment_balance')
-                                ->label('Total Payment Balance')
-                                ->inlineLabel()
-                                ->readOnly()
-                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                ->live(debounce: 500)
-                                ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
-                                ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
-                                ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
-                                    Select::make('payment_mode')
+                                    Select::make('terms')
                                         ->filled()
-                                        ->live()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->label('Select Payment Mode')
+                                        ->label('Select Terms')
                                         ->inlineLabel()
-                                        ->options(Payment::class),
-                                    FileUpload::make('policy_file')
-                                        ->label('Upload Policy File')
-                                        ->inlineLabel()       
-                                        ->openable()
-                                        ->visible(fn (Get $get) => !empty($get('payment_mode')))
-                                        ->downloadable()
-                                        ->hidden(fn () => ! Auth::user()->hasRole('cashier')),
-                                ])->columns(2),
+                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->options(Terms::class)
+                                        ->reactive()
+                                        ->afterStateUpdated(function (callable $set, $get) {
+                                            if ($get('terms') === 'straight') {
+                                                $set('total_payment', $get('gross_premium'));
+                                            }
+                                        }),
+                                    TextInput::make('gross_premium')
+                                        ->label('Enter Gross Premium')
+                                        ->inlineLabel()
+                                        ->numeric()
+                                        ->required()
+                                        ->reactive()
+                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->afterStateUpdated(function (callable $set, $get) {
+                                            if ($get('terms') === 'straight') {
+                                                $set('total_payment', $get('gross_premium'));
+                                            }
+                                        }),
+                                    TextInput::make('total_payment')
+                                        ->label('Total Payment')
+                                        ->inlineLabel()
+                                        ->numeric()
+                                        ->disabled(fn ($get) => $get('terms') === 'straight' || Auth::user()->hasRole('acct-staff'))
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, $get) {
+                                            $balance = intval($get('gross_premium')) - intval($state);
+                                            $set('payment_balance', $balance);
+                                        }),
+                                    TextInput::make('payment_balance')
+                                        ->label('Total Payment Balance')
+                                        ->inlineLabel()
+                                        ->readOnly()
+                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->live(debounce: 500)
+                                        ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
+                                        ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
+                                        ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
+                                            Select::make('payment_mode')
+                                                ->filled()
+                                                ->live()
+                                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                                ->label('Select Payment Mode')
+                                                ->inlineLabel()
+                                                ->options(Payment::class),
+                                            FileUpload::make('policy_file')
+                                                ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
+                                                ->label('Upload Policy File')
+                                                ->inlineLabel()       
+                                                ->openable()
+                                                ->downloadable()
+                                                ->hidden(fn () => ! Auth::user()->hasRole('cashier')),
+                            ])->columns(2),
                             Section::make()
                                 ->schema([
                                     Select::make('payment_status')
@@ -333,6 +335,7 @@ class ReportsResource extends Resource
                                         }),
                                     FileUpload::make('depo_slip')       
                                         ->filled()
+                                        ->acceptedFileTypes(['text/csv','image/jpeg','image/png','application/pdf'])
                                         ->label('Deposit Slip')
                                         ->required()
                                         ->openable()
@@ -340,15 +343,19 @@ class ReportsResource extends Resource
                                         ->hidden(Auth::user()->hasRole('cashier')),
                                     FileUpload::make('final_depo_slip')       
                                         ->filled()
+                                        ->acceptedFileTypes(['text/csv','image/jpeg','image/png','application/pdf'])
                                         ->label('Final Deposit Slip')
-                                        ->required()
                                         ->openable()
                                         ->downloadable()
                                         ->visible(function (callable $get) {
                                             $paymentStatus = $get('payment_status');
                                             return strtolower($paymentStatus) === 'partial';
                                         })
-                                        ->hidden(Auth::user()->hasRole('cashier')),
+                                        ->hidden(Auth::user()->hasRole('cashier'))
+                                        ->required(function (Model $record) {
+                                            return $record->exists && $record->depo_slip !== null;
+                                        })
+                            
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
@@ -386,7 +393,7 @@ class ReportsResource extends Resource
                                         ]),
                                 ]),
                                 
-                        ])->columns(2),
+                            ])->columns(2),
                 ])->columnSpanFull()->skippable(),                
             ]);
     }
@@ -394,6 +401,7 @@ class ReportsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->deferLoading()
         ->defaultSort('created_at', 'desc')
             ->columns([
                 // TextColumn::make('created_at')

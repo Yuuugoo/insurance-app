@@ -20,6 +20,6 @@ class SuperAdminDashboard extends Page
 
     public function getTitle(): string|Htmlable
     {
-        return ('Super Admin Dashboard');
+        return ('');
     }
 }

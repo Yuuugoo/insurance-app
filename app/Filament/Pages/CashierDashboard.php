@@ -2,10 +2,15 @@
 
 namespace App\Filament\Pages;
 
-
+use App\Livewire\AccountDashboardWidget;
+use App\Livewire\ReportStats;
 use Filament\Pages\Page;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
+use Illuminate\Console\View\Components\Info;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 
 class CashierDashboard extends Page
 {
@@ -22,7 +27,8 @@ class CashierDashboard extends Page
 
     public function getTitle(): string|Htmlable
     {
-        return ('Cashier Dashboard');
+        return ('');
     }
+
 
 }

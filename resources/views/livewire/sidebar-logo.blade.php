@@ -17,7 +17,7 @@
             {{ route('filament.admin.auth.login') }}
         @endif
     ">
-        <img src="{{ asset('images/aap-logo.png') }}" alt="aap-logo">
+        <img src="{{ asset('images/aap-logo-2.png') }}" alt="aap-logo">
     </a>
 
 </div>

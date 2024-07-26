@@ -23,6 +23,6 @@ class StaffDashboard extends Page
     
     public function getTitle(): string|Htmlable
     {
-        return ('Accounting Staff Dashboard');
+        return ('');
     }
 }

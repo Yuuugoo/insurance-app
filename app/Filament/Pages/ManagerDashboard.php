@@ -22,6 +22,6 @@ class ManagerDashboard extends Page
 
     public function getTitle(): string|Htmlable
     {
-        return ('Accounting Manager Dashboard');
+        return ('');
     }
 }

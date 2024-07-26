@@ -28,8 +28,6 @@ class EditProfile extends Page
     public function mount(): void
     {
         $this->form->fill(auth()->user()->toArray());
-
-
     }
 
     public function form(Form $form): Form
@@ -39,8 +37,8 @@ class EditProfile extends Page
                 Section::make()
                     ->schema([
                         TextInput::make('name')
+                            ->label('Full Name')
                             ->ReadOnly()
-                        
                             ->maxLength(255),
                         TextInput::make('username')
                             ->label('Username')
@@ -54,6 +52,7 @@ class EditProfile extends Page
                             ->password()
                             ->label('Current Password')
                             ->required()
+                            ->revealable()
                             ->dehydrated(false)
                             ->rule(function () {
                                 return function ($attribute, $value, $fail) {
@@ -65,10 +64,11 @@ class EditProfile extends Page
                             }),
                         TextInput::make('password')
                             ->password()
+                            ->required()
                             ->label('New Password')
+                            ->revealable()
                             ->dehydrated(fn ($state) => filled($state))
                             ->rules([
-                                'nullable',
                                 'min:8',
                                 'different:current_password'
                             ]),
@@ -78,6 +78,7 @@ class EditProfile extends Page
                         //     ->directory('avatars'),
                 ])
             ])
+            ->columns(2)
             ->statePath('data');
     }
     
