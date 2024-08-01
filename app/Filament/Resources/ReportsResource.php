@@ -90,40 +90,42 @@ class ReportsResource extends Resource
                             Section::make()
                                 ->schema([
                                     Select::make('insurance_prod')
-                                        ->label('Insurance Provider')
-                                        ->inlineLabel()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->required()
-                                        ->reactive()
-                                        ->live()
-                                        ->native(false)
-                                        ->options(InsuranceProd::class),
-                                    TextInput::make('arpr_num')
-                                        ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
-                                        ->label('AR/PR No.')
-                                        ->inlineLabel()
-                                        ->visible(fn (Get $get) => !empty($get('insurance_prod')))
-                                        ->required(fn (Get $get) => !empty($get('insurance_prod')))
-                                        ->helperText('Enter AR/PR No.')
-                                        ->rules([
-                                            'required',
-                                            function (Get $get) {
-            
-                                                $rule = Rule::unique('reports', 'arpr_num');
-                                                if (strtolower($get('insurance_prod')) !== 'others') {
-                                                    $rule->where('insurance_prod', $get('insurance_prod'));
-                                                    return $rule;
+                                    ->label('Insurance Provider')
+                                    ->inlineLabel()
+                                    ->disabled(Auth::user()->hasRole('acct-staff'))
+                                    ->required()
+                                    ->reactive()
+                                    ->live()
+                                    ->native(false)
+                                    ->options(InsuranceProd::class),
+                                TextInput::make('arpr_num')
+                                    ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
+                                    ->label('AR/PR No.')
+                                    ->inlineLabel()
+                                    ->visible(fn (Get $get) => !empty($get('insurance_prod')))
+                                    ->required(fn (Get $get) => !empty($get('insurance_prod')))
+                                    ->helperText('Enter AR/PR No.')
+                                    ->rules([
+                                        'required',
+                                        function (Get $get) {
+                                            $rule = Rule::unique('reports', 'arpr_num');
 
-                                                }
-                                                elseif(strtolower($get('insurance_prod')) !== 'others'){
-                                                    $rule->where('others_insurance_prod', $get('others_insurance_prod'));
-                                                    return $rule;
-                                                }
-                                                
-                                                
+                                            // Get the current record's ID
+                                            $currentRecordId = $get('reports_id');
 
-                                            },
-                                        ]),
+                                            if (strtolower($get('insurance_prod')) !== 'others') {
+                                                $rule->where('insurance_prod', $get('insurance_prod'))
+                                                    ->ignore($currentRecordId, 'reports_id'); // Use the correct primary key column name
+                                                return $rule;
+                                            } elseif (strtolower($get('insurance_prod')) === 'others') {
+                                                $rule->where('others_insurance_prod', $get('others_insurance_prod'))
+                                                    ->ignore($currentRecordId, 'reports_id'); // Use the correct primary key column name
+                                                return $rule;
+                                            }
+
+                                            return $rule;
+                                        },
+                                    ]),
                                     TextInput::make('others_insurance_prod')
                                         ->helperText('Enter Other Insurance Provider')
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
@@ -445,6 +447,17 @@ class ReportsResource extends Resource
                                                         return "uploads/users/{$userId}/deposit_slips";
                                                     }),
                                             ])->columns(2),
+                                            Checkbox::make('is_admin')
+                                                    ->live()
+                                                    ->default(0)
+                                                    ->label('Check if Fully Paid')
+                                                    ->afterStateUpdated(function (callable $set, $state) {
+                                                        if ($state) {
+                                                            $set('payment_status', PaymentStatus::PAID->value);
+                                                        } else {
+                                                            $set('payment_status', PaymentStatus::PARTIAL->value); // or any other default value
+                                                        }
+                                                    })
                                 ])->columnSpanFull()->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager'])),
                             Section::make()
                                 ->schema([
