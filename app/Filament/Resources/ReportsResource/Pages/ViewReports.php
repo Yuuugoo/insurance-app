@@ -130,8 +130,10 @@ class ViewReports extends ViewRecord
                         ->schema([
                             // Uploaded Files
                             TextEntry::make('policy_file')
+                            ->label('Policy File')
                                 ->label('Policy File')
                                 ->color('primary')
+                                ->formatStateUsing(fn ($state) => basename($state))
                                 ->icon('heroicon-o-paper-clip')
                                 ->suffixActions([
                                     InfolistAction::make('View')
@@ -145,41 +147,17 @@ class ViewReports extends ViewRecord
                                         //->url(fn (Report $record) => route('pdfdownload', $record))
                                         ->extraAttributes(['download' => ''])
                                 ]),
-                            TextEntry::make('depo_slip')
-                                ->label('Deposit Slip')
-                                ->color('primary')
-                                ->icon('heroicon-o-paper-clip')
-                                ->suffixActions([
-                                    InfolistAction::make('View')
-                                        ->icon('heroicon-m-eye')           
-                                        ->url(fn (Report $record) => asset('storage/' . $record->depo_slip))                        
-                                       // ->url(fn (Report $record) => route('pdfview', $record))
-                                        ->openUrlInNewTab(),     
-                                    InfolistAction::make('Download')
-                                        ->icon('heroicon-m-arrow-down-tray') 
-                                        ->url(fn (Report $record) => asset('storage/' . $record->depo_slip), shouldOpenInNewTab: false)
-                                        //->url(fn (Report $record) => route('pdfdownload', $record))
-                                        ->extraAttributes(['download' => ''])
-                                        
-                                        
-                                ]),
-                            TextEntry::make('final_depo_slip')
-                                ->label('Final Deposit Slip')
-                                ->color('primary')
-                                ->icon('heroicon-o-paper-clip')
-                                ->suffixActions([
-                                    InfolistAction::make('View')
-                                        ->icon('heroicon-m-eye')
-                                        ->url(fn (Report $record) => asset('storage/' . $record->final_depo_slip))                        
-                                        //->url(fn (Report $record) => route('pdfview', $record))
-                                        ->openUrlInNewTab(),
-                                    InfolistAction::make('Download')
-                                        ->icon('heroicon-m-arrow-down-tray')
-                                        ->url(fn (Report $record) => asset('storage/' . $record->final_depo_slip), shouldOpenInNewTab: false)
-                                        //->url(fn (Report $record) => route('pdfdownload', $record))
-                                        ->extraAttributes(['download' => ''])
-                                ]),
-
+                            TextEntry::make('remit_deposit')
+                                ->label('')
+                                ->html()
+                                ->getStateUsing(function ($record) {
+                                    $depo_slip = $record->remit_deposit ?? [];
+                                    foreach ($depo_slip as &$item) {
+                                        $item['depo_slip_filename'] = basename($item['depo_slip']);
+                                    }
+                                    $remit_depo = $depo_slip;
+                                    return view('filament.pages.remit-deposit', ['remit_depo' => $remit_depo])->render();
+                                })
                         ]),
                 ])->columnSpan('full')  ,
                         // Remarks

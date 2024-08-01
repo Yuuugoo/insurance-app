@@ -27,16 +27,15 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
-        'submitted_by_id', 'approved_by_id',
+        'submitted_by_id',
         'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 
         'assured', 'policy_num', 'application', 'cashier_remarks', 
-        'remit_date', 'acct_remarks', 'depo_slip', 
-        'policy_file', 'terms', 'gross_premium','payment_balance',
+        'acct_remarks', 'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
-        'payment_status', 'remit_date_partial', 'add_remarks','others_insurance_type', 
-        'others_insurance_prod', 'others_application', 'final_depo_slip', 'remit_deposit'
+        'payment_status', 'add_remarks','others_insurance_type', 
+        'others_insurance_prod', 'others_application', 'remit_deposit'
     ];
 
     protected $casts = [
@@ -49,9 +48,7 @@ class Report extends Model
         'payment_mode' => Payment::class,
         'terms' => Terms::class,
         'add_remarks' => 'boolean',
-        'depo_slip' => 'encrypted',
         'policy_file' => 'encrypted',
-        'final_depo_slip' => 'encrypted',
         'sale_person' => 'encrypted',
         'assured' => 'encrypted',
         'policy_num' => 'encrypted',
@@ -61,7 +58,6 @@ class Report extends Model
         'remit_deposit' => 'array',
     ];
     
-
     public function cashier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by_id', 'id');
@@ -117,5 +113,30 @@ class Report extends Model
 
     }
 
+
+    public function getRemitDepositAttribute($value)
+    {
+        $decodedValue = json_decode($value, true);
+        if (is_array($decodedValue)) {
+            foreach ($decodedValue as &$item) {
+                if (isset($item['depo_slip'])) {
+                    $item['depo_slip'] = Crypt::decryptString($item['depo_slip']);
+                }
+            }
+        }
+        return $decodedValue;
+    }
+
+    public function setRemitDepositAttribute($value)
+    {
+        if (is_array($value)) {
+            foreach ($value as &$item) {
+                if (isset($item['depo_slip'])) {
+                    $item['depo_slip'] = Crypt::encryptString($item['depo_slip']);
+                }
+            }
+        }
+        $this->attributes['remit_deposit'] = json_encode($value);
+    }
     
 }
