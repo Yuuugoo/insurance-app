@@ -19,7 +19,7 @@ export default {
           xl: '1440px',
         },
         colors: {
-        'black': '#000',
+          'black': '#000',
           'blue': '#1fb6ff',
           'purple': '#7e5bef',
           'pink': '#ff49db',

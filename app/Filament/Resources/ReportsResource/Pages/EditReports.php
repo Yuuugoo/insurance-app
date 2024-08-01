@@ -36,17 +36,23 @@ class EditReports extends EditRecord
 
 
         $arpr_num = $this->record->arpr_num;
-
+        $userRole = Auth::user()->roles->first()->name;
         
         Notification::make()
-            ->success()
+            ->info()
             ->title('Insurance Report Updated')
-            ->body("<strong>" . Auth::user()->name . "</strong> updated <strong>Insurance Report $arpr_num</strong>!")
+            ->body("<strong>" . Auth::user()->name ." ($userRole)". "</strong> updated <strong>Insurance Report $arpr_num</strong>!")
             ->icon('heroicon-o-folder')
             ->actions([
-                Action::make('view')
+                // Action::make('view')
+                //     ->label('View Report')
+                //     ->button()
+                //     ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
+                Action::make('activities')
+                    ->label('View Changes')
+                    ->color('info')
                     ->button()
-                    ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
+                    ->url(fn () => route('filament.admin.resources.reports.activities', $this->record)),
                 Action::make('markAsRead')
                     ->label('Mark as Read')
                     ->markAsRead(),

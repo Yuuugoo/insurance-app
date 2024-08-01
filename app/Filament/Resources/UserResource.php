@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Resources\UserResource\Pages;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 
 class UserResource extends Resource
 {
@@ -64,13 +66,20 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('avatar')
-                    ->circular(),
+                ImageColumn::make('avatar_url')
+                    ->circular()
+                    ->getStateUsing(function ($record) {
+                        if ($record->avatar_url) {
+                            return asset(url($record->avatar_url));
+                        }
+                    
+                        return Filament::getUserAvatarUrl($record);
+                    }),
+        
                 Tables\Columns\TextColumn::make('name')
                     ->description('Name', position: 'above')
                     ->searchable()
                     ->icon('heroicon-o-user'),
-                
                 Panel::make([
                     Split::make([
                         TextColumn::make('username')

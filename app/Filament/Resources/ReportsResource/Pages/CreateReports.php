@@ -28,12 +28,18 @@ class CreateReports extends CreateRecord
             $query->whereIn('name', ['acct-staff', 'acct-manager']);
         })->where('id', '!=', auth()->id())->get();
         
+        $arpr_num = $this->record->arpr_num;
+        $userRole = Auth::user()->roles->first()->name;
+
         Notification::make()
+            ->success()
             ->title('New Insurance Report Submitted')
-            ->body("<strong>" . Auth::user()->name . "</strong> submitted a new Insurance Report!")
+            ->body("<strong>" . Auth::user()->name ." ($userRole)". "</strong> created <strong>Insurance Report $arpr_num</strong>!")
             ->icon('heroicon-o-folder')
             ->actions([
                 Action::make('view')
+                    ->color('success')
+                    ->label('View Created Report')
                     ->button()
                     ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
                 Action::make('markAsRead')

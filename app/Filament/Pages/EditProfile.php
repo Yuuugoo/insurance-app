@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Session;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Get;
+use Illuminate\Support\Facades\Log;
 
 class EditProfile extends Page
 {
@@ -37,48 +40,62 @@ class EditProfile extends Page
                 Section::make()
                     ->schema([
                         TextInput::make('name')
+                            ->inlineLabel()
                             ->label('Full Name')
                             ->ReadOnly()
                             ->maxLength(255),
                         TextInput::make('username')
+                            ->inlineLabel()
                             ->label('Username')
                             ->readOnly(),
                         TextInput::make('email')
+                            ->inlineLabel()
                             ->email()
                             ->required()
                             ->unique()
                             ->maxLength(255),
-                        TextInput::make('current_password')
-                            ->password()
-                            ->label('Current Password')
-                            ->required()
-                            ->revealable()
-                            ->dehydrated(false)
-                            ->rule(function () {
-                                return function ($attribute, $value, $fail) {
-                                    $user = auth()->user();
-                                    if (!$user || hash('sha512', $value) !== $user->password) {
-                                        $fail('The current password is incorrect.');
-                                    }
-                                };
+                        FileUpload::make('avatar_url')
+                            ->inlineLabel()
+                            ->image()
+                            ->avatar()
+                            ->label('Change Profile Picture')
+                            ->imageEditor()
+                            ->directory(function () {
+                                $userId = auth()->id(); 
+                                return "uploads/users/{$userId}/avatars";
                             }),
-                        TextInput::make('password')
-                            ->password()
-                            ->required()
-                            ->label('New Password')
-                            ->revealable()
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->rules([
-                                'min:8',
-                                'different:current_password'
-                            ]),
-                        
-                        // FileUpload::make('avatar')
-                        //     ->image()
-                        //     ->directory('avatars'),
-                ])
+                        Section::make()
+                            ->heading('Change Password')
+                            ->schema([
+                            TextInput::make('current_password')
+                                ->password()
+                                ->label('Enter Current Password')
+                                ->revealable()
+                                ->dehydrated(false)
+                                ->reactive()
+                                ->rule(function () {
+                                    return function ($value, $fail) {
+                                        $user = auth()->user();
+                                        if (!$user || hash('sha512', $value) !== $user->password) {
+                                            $fail('The current password is incorrect.');
+                                        }
+                                    };
+                                }),
+                            TextInput::make('password')
+                                ->password()
+                                ->label('Enter New Password')
+                                ->revealable()
+                                ->reactive()
+                                ->hidden(fn (Get $get) => ($get('current_password')) === null)
+                                ->required()
+                                ->dehydrated(fn ($state) => filled($state))
+                                ->rules([
+                                    'min:8',
+                                    'different:current_password',
+                                ]),
+                        ]),
+                ])->columns(2)
             ])
-            ->columns(2)
             ->statePath('data');
     }
     
@@ -86,6 +103,7 @@ class EditProfile extends Page
     public function submit()
     {
         $data = $this->form->getState();
+       
         
         $user = auth()->user();
 
@@ -103,15 +121,20 @@ class EditProfile extends Page
         ];
 
         $passwordChanged = false;
-        if (filled($data['password'])) {
+
+        if (isset($data['password']) && filled($data['password'])) {
             $updateData['password'] = hash('sha512', $data['password']);
             $passwordChanged = true;
+        }
+
+        if (isset($data['avatar_url'])) {
+            $updateData['avatar_url'] = asset('storage/' . $data['avatar_url']);
         }
 
         $user->update($updateData);
 
         Notification::make()
-            ->title('Profile updated successfully. Please log in again.')
+            ->title('Profile updated successfully')
             ->success()
             ->send();
 
@@ -122,11 +145,6 @@ class EditProfile extends Page
         }
 
         return redirect()->to(EditProfile::getUrl());
-    }
-
-    protected function redirectToLogin()
-    {
-        return redirect()->route('filament.admin.auth.login');
     }
 
 }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->text('final_depo_slip')->nullable();
+            $table->unique(['insurance_prod','arpr_num']);
         });
     }
 

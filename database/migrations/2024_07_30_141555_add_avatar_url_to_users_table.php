@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            $table->text('final_depo_slip')->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('avatar_url')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

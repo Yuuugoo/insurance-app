@@ -53,7 +53,7 @@ class ReportPolicy
      */
     public function restore(User $user, Report $report): bool
     {
-        return $user->hasRole(['acct-staff', 'acct-manager']);
+        return $user->hasRole(['acct-manager']);
     }
 
     /**

@@ -7,6 +7,7 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Filament\Auth\Login;
+use App\Filament\Pages\ActivityLog;
 use Filament\Actions\Action;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
@@ -16,6 +17,9 @@ use App\Filament\Pages\StaffDashboard;
 use App\Filament\Widgets\TotalReports;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\CashierDashboard;
+use App\Filament\Resources\ReportsResource;
+use App\Livewire\AccountDashboardWidget;
+use App\Livewire\ReportStats;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -27,7 +31,9 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Livewire\Attributes\Lazy;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -59,13 +65,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-
+                
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -84,10 +89,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('5s')
             ->databaseNotifications()// Database Notifications
             ->plugins([
-                // StickyHeaderPlugin::make()
-                //     ->floating()
-                //     ->colored(),
-                FilamentApexChartsPlugin::make()
+                FilamentApexChartsPlugin::make(),
             ])
             ;
     }

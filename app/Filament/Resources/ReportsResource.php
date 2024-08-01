@@ -21,6 +21,7 @@ use App\Enums\ModePayment;
 use Filament\Tables\Table;
 use App\Enums\PolicyStatus;
 use App\Rules\PolicyNumber;
+use Illuminate\Support\Str;
 use App\Enums\InsuranceProd;
 use App\Enums\InsuranceType;
 use App\Enums\PaymentStatus;
@@ -45,6 +46,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use App\Filament\Exports\ReportExporter;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
@@ -66,8 +68,10 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
+use Filament\Forms\Components\Repeater;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
+use Illuminate\Validation\Rule;
 
 class ReportsResource extends Resource
 {
@@ -76,42 +80,54 @@ class ReportsResource extends Resource
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
-
-
     public static function form(Form $form): Form
     {
         return $form
-          
             ->schema([
-
                 Wizard::make([
                     Wizard\Step::make('Report Details')
                         ->schema([
                             Section::make()
                                 ->schema([
                                     Select::make('insurance_prod')
-                                        ->label('Select Insurance Provider')
+                                        ->label('Insurance Provider')
                                         ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->filled()
+                                        ->required()
                                         ->reactive()
                                         ->live()
                                         ->native(false)
                                         ->options(InsuranceProd::class),
                                     TextInput::make('arpr_num')
-                                        // ->prefix('PR')
-                                        // ->dehydrateStateUsing(fn (string $state) => 'PR' . $state)
-                                        // ->formatStateUsing(fn (string $state) => str_starts_with($state, 'PR') ? substr($state, 2) : $state)
                                         ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
-                                        ->filled()
-                                        ->unique(ignoreRecord: true)
                                         ->label('AR/PR No.')
                                         ->inlineLabel()
                                         ->visible(fn (Get $get) => !empty($get('insurance_prod')))
-                                        ->required(fn (Get $get) => !empty($get('insurance_prod'))),
+                                        ->required(fn (Get $get) => !empty($get('insurance_prod')))
+                                        ->helperText('Enter AR/PR No.')
+                                        ->rules([
+                                            'required',
+                                            function (Get $get) {
+            
+                                                $rule = Rule::unique('reports', 'arpr_num');
+                                                if (strtolower($get('insurance_prod')) !== 'others') {
+                                                    $rule->where('insurance_prod', $get('insurance_prod'));
+                                                    return $rule;
+
+                                                }
+                                                elseif(strtolower($get('insurance_prod')) !== 'others'){
+                                                    $rule->where('others_insurance_prod', $get('others_insurance_prod'));
+                                                    return $rule;
+                                                }
+                                                
+                                                
+
+                                            },
+                                        ]),
                                     TextInput::make('others_insurance_prod')
+                                        ->helperText('Enter Other Insurance Provider')
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->label('Enter Insurance Provider (Others)')
+                                        ->label('Insurance Provider (OTHERS)')
                                         ->visible(fn (Get $get) => strtolower($get('insurance_prod')) === 'others')
                                         ->required(fn (Get $get) => strtolower($get('insurance_prod')) === 'others')
                                         ->dehydrateStateUsing(function (Get $get, $state) {
@@ -132,7 +148,7 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->filled()
+                                        ->required()
                                         ->options(CostCenter::class),
                                     TextInput::make('arpr_date')
                                         ->default(now()->format('m-d-Y'))
@@ -158,13 +174,13 @@ class ReportsResource extends Resource
                                         ->label('Inception Date')
                                         ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->default(now())
+                                        ->required()
                                         ->label('Inception/Effectivity')
                                         ->displayFormat('m-d-Y' )
                                         ->native(false),
                                     TextInput::make('assured')
                                         ->rules([new NamewithSpace()])
-                                        ->filled()
+                                        ->required()
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Assured')
@@ -172,7 +188,7 @@ class ReportsResource extends Resource
                                     TextInput::make('policy_num')
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->filled()
+                                        ->required()
                                         ->label('Policy Number')
                                         ->inlineLabel(),
                                 ])->columns(2),
@@ -181,7 +197,7 @@ class ReportsResource extends Resource
                                     Select::make('insurance_type')
                                         ->label('Select Insurance Type')
                                         ->inlineLabel()
-                                        ->filled()
+                                        ->required()
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->options(InsuranceType::class)
@@ -193,20 +209,24 @@ class ReportsResource extends Resource
                                         }),
                                     TextInput::make('others_insurance_type')
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->label('Enter Other Insurance Type')
+                                        ->label('Insurance Type (OTHERS)')
+                                        ->helperText('Enter Other Insurance Type')
                                         ->inlineLabel()
+                                        ->required()
                                         ->visible(fn (Get $get) => strtolower($get('insurance_type')) === 'others')
                                         ->required(fn (Get $get) => strtolower($get('insurance_type')) === 'others'),
                                     Select::make('application')
                                         ->native(false)
                                         ->label('Select Mode of Application')
                                         ->inlineLabel()
-                                        ->filled()              
+                                        ->required()            
                                         ->disabled(Auth::user()->hasRole('acct-staff'))       
                                         ->options(ModeApplication::class)
                                         ->live(),
                                     TextInput::make('others_application')
-                                        ->label('Enter Other Mode of Application')
+                                        ->label('Mode of Application (OTHERS)')
+                                        ->helperText('Enter Other Insurance Type')
+                                        ->required()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->inlineLabel()
                                         ->visible(function (callable $get) {
@@ -220,19 +240,19 @@ class ReportsResource extends Resource
                     Wizard\Step::make('Vehicle Details')
                         ->schema([                     
                             TextInput::make('plate_num')
-                                ->filled()       
+                                ->required() 
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Plate Number / CS Number')
                                 ->inlineLabel(),
                             TextInput::make('car_details')
-                                ->filled()       
+                                ->required()      
                                 ->readOnly(Auth::user()->hasRole('acct-staff'))
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Car Details')
                                 ->inlineLabel(),
                             Select::make('policy_status')
-                                ->filled()     
+                                ->required()    
                                 ->disabled(Auth::user()->hasRole('acct-staff'))
                                 ->label('Select Policy Status')
                                 ->inlineLabel()
@@ -250,7 +270,7 @@ class ReportsResource extends Resource
                             Section::make()
                                 ->schema([
                                     Select::make('terms')
-                                        ->filled()
+                                        ->required()
                                         ->label('Select Terms')
                                         ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
@@ -267,17 +287,17 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->required()
                                         ->reactive()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->afterStateUpdated(function (callable $set, $get) {
-                                            if ($get('terms') === 'straight') {
-                                                $set('total_payment', $get('gross_premium'));
-                                            }
-                                        }),
+                                        ->disabled(Auth::user()->hasRole('acct-staff')),
+                                        // ->afterStateUpdated(function (callable $set, $get) {
+                                        //     if ($get('terms') === 'straight') {
+                                        //         $set('total_payment', $get('gross_premium'));
+                                        //     }
+                                        // }), Commented Out since Accounting Staff will edit this field
                                     TextInput::make('total_payment')
                                         ->label('Total Payment')
                                         ->inlineLabel()
                                         ->numeric()
-                                        ->disabled(fn ($get) => $get('terms') === 'straight' || Auth::user()->hasRole('acct-staff'))
+                                        ->disabled(Auth::user()->hasRole('cashier'))
                                         ->reactive()
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $balance = intval($get('gross_premium')) - intval($state);
@@ -292,71 +312,140 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
                                         ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
                                         ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
-                                            Select::make('payment_mode')
-                                                ->filled()
-                                                ->live()
-                                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                                ->label('Select Payment Mode')
-                                                ->inlineLabel()
-                                                ->options(Payment::class),
-                                            FileUpload::make('policy_file')
-                                                ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
-                                                ->label('Upload Policy File')
-                                                ->inlineLabel()       
-                                                ->openable()
-                                                ->downloadable()
-                                                ->hidden(fn () => ! Auth::user()->hasRole('cashier')),
+                                    Select::make('payment_mode')
+                                        ->required()
+                                        ->live()
+                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->label('Select Payment Mode')
+                                        ->inlineLabel()
+                                        ->options(Payment::class),
+                                    FileUpload::make('policy_file')
+                                        ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
+                                        ->helperText('Supported File Types: .jpeg, .png, .pdf')
+                                        ->label('Upload Policy File')
+                                        ->inlineLabel()
+                                        ->hidden(Auth::user()->hasAnyRole(['acct-staff', 'acct-manager']))
+                                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
+                                            $extension = $file->getClientOriginalExtension();
+                                            $uuid = (string) Str::uuid();
+                                            return "depo_{$uuid}.{$extension}";
+                                        })
+                                        ->directory(function () {
+                                            $userId = auth()->id(); 
+                                            return "uploads/users/{$userId}/policies";
+                                        }),
+                                    Select::make('payment_status')
+                                        ->required()
+                                        ->inlineLabel()
+                                        ->hidden(Auth::user()->hasRole('cashier'))
+                                        ->live()
+                                        ->label('Select Payment Status')
+                                        ->native(false)
+                                        ->options(collect(PaymentStatus::cases())
+                                        ->reject(fn ($status) => strtolower($status->value) === 'pending')
+                                            ->pluck('name', 'value')
+                                            ->toArray()),
                             ])->columns(2),
                             Section::make()
                                 ->schema([
-                                    Select::make('payment_status')
-                                        ->required()
-                                        ->hidden(Auth::user()->hasRole('cashier'))
-                                        ->live()
-                                        ->label('Payment Status')
-                                        ->native(false)
-                                        ->options(collect(PaymentStatus::cases())
-                                        ->reject(fn ($status) => strtolower($status->name) === 'pending')
-                                            ->pluck('name', 'value')
-                                            ->toArray()),
-                                    DatePicker::make('remit_date')
-                                        ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
-                                        ->label('Remittance Date')
-                                        ->native(false)
-                                        ->displayFormat('m-d-Y'),
-                                    DatePicker::make('remit_date_partial')
-                                        ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
-                                        ->label('Final Remittance Date')
-                                        ->native(false)
-                                        ->displayFormat('m-d-Y')
-                                        ->visible(function (callable $get) {
-                                            $paymentStatus = $get('payment_status');
-                                            return strtolower($paymentStatus) === 'partial';
-                                        }),
-                                    FileUpload::make('depo_slip')       
-                                        ->filled()
-                                        ->acceptedFileTypes(['text/csv','image/jpeg','image/png','application/pdf'])
-                                        ->label('Deposit Slip')
-                                        ->required()
-                                        ->openable()
-                                        ->downloadable()
-                                        ->hidden(Auth::user()->hasRole('cashier')),
-                                    FileUpload::make('final_depo_slip')       
-                                        ->filled()
-                                        ->acceptedFileTypes(['text/csv','image/jpeg','image/png','application/pdf'])
-                                        ->label('Final Deposit Slip')
-                                        ->openable()
-                                        ->downloadable()
-                                        ->visible(function (callable $get) {
-                                            $paymentStatus = $get('payment_status');
-                                            return strtolower($paymentStatus) === 'partial';
-                                        })
-                                        ->hidden(Auth::user()->hasRole('cashier'))
-                                        ->required(function (Model $record) {
-                                            return $record->exists && $record->depo_slip !== null;
-                                        })
-                            
-                                ])->columns(2),
+                                    
+                                    // DatePicker::make('remit_date')
+                                    //     ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                    //     ->label('Remittance Date')
+                                    //     ->native(false)
+                                    //     ->displayFormat('m-d-Y'),
+                                    // DatePicker::make('remit_date_partial')
+                                    //     ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                    //     ->label('Final Remittance Date')
+                                    //     ->native(false)
+                                    //     ->displayFormat('m-d-Y')
+                                    //     ->visible(function (callable $get) {
+                                    //         $paymentStatus = $get('payment_status');
+                                    //         return strtolower($paymentStatus) === 'partial';
+                                    //     }),
+                                    // FileUpload::make('depo_slip')       
+                                    //     ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
+                                    //     ->helperText('Supported File Types: .jpeg, .png, .pdf')
+                                    //     ->label('Upload Deposit Slip')
+                                    //     ->required()
+                                    //     ->openable()
+                                    //     ->downloadable()
+                                    //     ->hidden(Auth::user()->hasRole('cashier'))
+                                    //     ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
+                                    //         $extension = $file->getClientOriginalExtension();
+                                    //         $uuid = (string) Str::uuid();
+                                    //         return "depo_{$uuid}.{$extension}";
+                                    //     })
+                                    //     ->afterStateUpdated(function ($state,$record) {
+                                    //         if ($state && !$record->id) {
+                                    //             $record->save(); 
+                                    //         }
+                                    //     })
+                                    //     ->directory(function () {
+                                    //         $userId = auth()->id(); 
+                                    //         return "uploads/users/{$userId}/deposit_slips";
+                                    //     }),
+                                    // FileUpload::make('final_depo_slip')       
+                                    //     ->required()
+                                    //     ->helperText('Supported File Types: .jpeg, .png, .pdf')
+                                    //     ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
+                                    //     ->label('Upload Another Deposit Slip')
+                                    //     ->openable()
+                                    //     ->downloadable()
+                                    //     ->visible(function (callable $get) {
+                                    //         $paymentStatus = $get('payment_status');
+                                    //         return strtolower($paymentStatus) === 'partial';
+                                    //     })
+                                    //     ->hidden(Auth::user()->hasRole('cashier'))
+                                    //     ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
+                                    //         $extension = $file->getClientOriginalExtension();
+                                    //         $uuid = (string) Str::uuid();
+                                    //         return "final-depo_{$uuid}.{$extension}";
+                                    //     })
+                                    //     ->afterStateUpdated(function ($state,$record) {
+                                    //         if ($state && !$record->id) {
+                                    //             $record->save(); 
+                                    //         }
+                                    //     })
+                                    //     ->directory(function () {
+                                    //         $userId = auth()->id(); 
+                                    //         return "uploads/users/{$userId}/final-deposit_slips";
+                                    //     }),
+                                        Repeater::make('remit_deposit')
+                                            ->label('')
+                                            ->required()
+                                            ->addActionLabel('Add Another Deposit Slip')
+                                            ->minItems(1)
+                                            ->schema([
+                                                DatePicker::make('remit_date')
+                                                    ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                                    ->label('Remittance Date')
+                                                    ->native(false)
+                                                    ->displayFormat('m-d-Y'),
+                                                FileUpload::make('depo_slip')       
+                                                    ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
+                                                    ->helperText('Supported File Types: .jpeg, .png, .pdf')
+                                                    ->label('Upload Deposit Slip')
+                                                    ->required()
+                                                    ->openable()
+                                                    ->downloadable()
+                                                    ->hidden(Auth::user()->hasRole('cashier'))
+                                                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
+                                                        $extension = $file->getClientOriginalExtension();
+                                                        $uuid = (string) Str::uuid();
+                                                        return "depo_{$uuid}.{$extension}";
+                                                    })
+                                                    ->afterStateUpdated(function ($state,$record) {
+                                                        if ($state && !$record->id) {
+                                                            $record->save(); 
+                                                        }
+                                                    })
+                                                    ->directory(function () {
+                                                        $userId = auth()->id(); 
+                                                        return "uploads/users/{$userId}/deposit_slips";
+                                                    }),
+                                            ])->columns(2),
+                                ])->columnSpanFull()->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager'])),
                             Section::make()
                                 ->schema([
                                     Toggle::make('add_remarks')
@@ -425,11 +514,11 @@ class ReportsResource extends Resource
                 TextColumn::make('cost_center')
                     ->label('Cost Center')
                     ->searchable()
+                    ->visibleFrom('md')
                     ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
-                    ->searchable()
-                    ->visibleFrom('md'),
+                    ->searchable(),
                 TextColumn::make('insurance_prod')
                     ->label('Insurance Provider')
                     ->grow(false)
@@ -450,9 +539,11 @@ class ReportsResource extends Resource
                 TextColumn::make('plate_num')
                     ->label('Vehicle Plate No.')
                     ->searchable()
+                    ->visibleFrom('md')
                     ->grow(false),
                 TextColumn::make('car_details')
-                    ->label('Car Details'),
+                    ->label('Car Details')
+                    ->visibleFrom('md'),
                 // TextColumn::make('payment_mode')
                 //     ->label('Payment Mode')
                 //     ->sortable(),
@@ -466,9 +557,11 @@ class ReportsResource extends Resource
                     ->searchable()
                     ->label('Policy Status')
                     ->sortable()
+                    ->visibleFrom('md')
                     ->badge(),
                 TextColumn::make('cashier.name')
-                    ->label('Submitted By'),
+                    ->label('Submitted By')
+                    ,
                 // To Fix this error: Column staff.email not found in the table
                 // TextColumn::make('staff.email')
                 //     ->label('Approved By'),
@@ -523,7 +616,6 @@ class ReportsResource extends Resource
                             );
                     })
             ])
-            
             ->actions([
                 ActionGroup::make([
                     ActionsDeleteAction::make()
@@ -547,6 +639,10 @@ class ReportsResource extends Resource
                         ->icon('heroicon-o-arrow-down-tray')
                         ->url(fn (Report $record) => route('pdfview', $record))
                         ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('activities')
+                        ->label('View Recent Changes')
+                        ->hidden(fn (Report $record) => Auth::user()->hasAnyRole(['acct-staff', 'cashier']))
+                        ->url(fn ($record) => ReportsResource::getUrl('activities', ['record' => $record])) 
                 ])->color('success')
             ])
 
@@ -587,7 +683,7 @@ class ReportsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            
         ];
     }
 
@@ -597,8 +693,6 @@ class ReportsResource extends Resource
             
         ];
     }
-    
-    
 
     public static function getPages(): array
     {
@@ -607,7 +701,7 @@ class ReportsResource extends Resource
             'create' => Pages\CreateReports::route('/create'),
             'edit' => Pages\EditReports::route('/{record}/edit'),
             'view' => Pages\ViewReports::route('/{record}'),
-            
+            'activities' => Pages\ReportsChanges::route('/{record}/activities'),
         ];
     }
 }
