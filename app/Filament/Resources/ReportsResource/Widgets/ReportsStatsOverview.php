@@ -31,14 +31,10 @@ class ReportsStatsOverview extends BaseWidget
             $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
 
             return $stats;
+        }else{
+            return [];
         }
 
-        // elseif (Auth::user()->hasRole('acct-staff')) {
-        //     $stats [] = Stat::make('All Reports', Report::all()->count());
-        //     $stats [] = Stat::make('Pending Reports', Report::where('payment_status', 'pending')->count());
-        //     $stats [] = Stat::make('Paid Reports', Report::where('payment_status', 'paid')->count());
-        
-        // }
 
     }
 }

@@ -7,8 +7,5 @@ use pxlrbt\FilamentActivityLog\Pages\ListActivities;
  
 class ReportsChanges extends ListActivities
 {
-    protected static string $resource = ReportsResource::class;
-
-
-    
+    protected static string $resource = ReportsResource::class; 
 }

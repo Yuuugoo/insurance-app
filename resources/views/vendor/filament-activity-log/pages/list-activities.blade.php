@@ -48,7 +48,7 @@
                             <x-filament-panels::avatar.user
                                 :user="$activityItem->causer"
                                 :src="asset($activityItem->causer->avatar_url)"
-                                class="w-10 h-10"
+                                class="w-2 h-2"
                             />
                         @else
                             <img src="{{ asset('default-avatar.png') }}" class="w-10 h-10 rounded-full">

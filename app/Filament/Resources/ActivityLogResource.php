@@ -29,6 +29,7 @@ class ActivityLogResource extends Resource
     protected static ?string $title = 'Activity Log';
     protected static ?string $navigationGroup = 'SETTINGS';
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
+    protected static ?string $recordTitleAttribute = 'description';
 
     public static function canAccess(): bool
     {       
@@ -65,8 +66,8 @@ class ActivityLogResource extends Resource
                                 $action = strtolower($record->description);
                                 $subjectType = class_basename($record->subject_type);
                                 $arprNum = $record->subject->arpr_num ?? 'N/A';
-                                
-                                return "{$username} {$action} {$subjectType} '{$arprNum}'";
+                                $updatedAt = $record->created_at->format('m/d/Y h:i A');
+                                return "{$username} {$action} {$subjectType} '{$arprNum}' at {$updatedAt}";
                             }),
                         
                             

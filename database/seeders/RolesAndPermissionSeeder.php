@@ -72,6 +72,7 @@ class RolesAndPermissionSeeder extends Seeder
         ]);
 
         $agentRole = Role::create(['name' => 'agent']);
+        $cfoRole = Role::create(['name' => 'cfo']);
 
         $createAccountPermission = Permission::create(['name' => 'create: account']);
 
@@ -126,6 +127,17 @@ class RolesAndPermissionSeeder extends Seeder
             'remember_token' => Str::random(10),
 
         ])->assignRole($agentRole);
+
+        
+        User::create([
+            'name' => 'John Lawrence',
+            'username' => 'CFO_JL',
+            'email' => 'agentview@user.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+
+        ])->assignRole($cfoRole);
 
         
 

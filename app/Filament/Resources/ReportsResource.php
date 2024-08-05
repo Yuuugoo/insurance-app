@@ -105,6 +105,10 @@ class ReportsResource extends Resource
                                     ->visible(fn (Get $get) => !empty($get('insurance_prod')))
                                     ->required(fn (Get $get) => !empty($get('insurance_prod')))
                                     ->helperText('Enter AR/PR No.')
+                                    ->live()
+                                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                        $livewire->validateOnly($component->getStatePath());
+                                    })
                                     ->rules([
                                         'required',
                                         function (Get $get) {
@@ -138,6 +142,10 @@ class ReportsResource extends Resource
                                 ->schema([
                                     TextInput::make('sale_person')
                                         ->rules([new NamewithSpace()])
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Sales Person')

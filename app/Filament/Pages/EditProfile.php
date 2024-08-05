@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Auth\Login;
 use App\Models\User;
+use Closure;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
@@ -15,8 +17,10 @@ use Illuminate\Support\Facades\Session;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 
 class EditProfile extends Page
 {
@@ -27,6 +31,11 @@ class EditProfile extends Page
     protected static string $view = 'filament.pages.edit-profile';
 
     public ?array $data = [];
+
+    protected function getRedirectUrl(): string
+    {
+        return 'filament.admin.pages.edit-profile';
+    }
 
     public function mount(): void
     {
@@ -69,30 +78,36 @@ class EditProfile extends Page
                             ->schema([
                             TextInput::make('current_password')
                                 ->password()
-                                ->label('Enter Current Password')
+                                ->helperText('Enter your current password to change your password.')
+                                ->label('Current Password')
                                 ->revealable()
-                                ->dehydrated(false)
                                 ->reactive()
-                                ->rule(function () {
-                                    return function ($value, $fail) {
-                                        $user = auth()->user();
-                                        if (!$user || hash('sha512', $value) !== $user->password) {
-                                            $fail('The current password is incorrect.');
-                                        }
-                                    };
-                                }),
+                                ->dehydrated(false)
+                                ->rules([
+                                    function ($get) {
+                                        return function (string $attribute, $value, Closure $fail) use ($get){
+                                            $actualPassword = $get('current_password');
+                                            $hashedInputPassword = hash('sha512', $actualPassword);
+                                            if ($hashedInputPassword !== (auth()->user()->password)) {
+                                                $fail('Current password is incorrect.');
+                                            }
+                                        };
+                                    },
+                                ]),
                             TextInput::make('password')
                                 ->password()
-                                ->label('Enter New Password')
+                                ->helperText('Enter a new password to change your password.')
+                                ->label('New Password')
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
+                                    $livewire->validateOnly($component->getStatePath());
+                                })
                                 ->revealable()
                                 ->reactive()
                                 ->hidden(fn (Get $get) => ($get('current_password')) === null)
                                 ->required()
                                 ->dehydrated(fn ($state) => filled($state))
-                                ->rules([
-                                    'min:8',
-                                    'different:current_password',
-                                ]),
+                                ->rules(['regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).*$/']),
                         ]),
                 ])->columns(2)
             ])
@@ -133,18 +148,18 @@ class EditProfile extends Page
 
         $user->update($updateData);
 
-        Notification::make()
-            ->title('Profile updated successfully')
-            ->success()
-            ->send();
-
         if ($passwordChanged) {
             Auth::logoutCurrentDevice();
             Session::flush();
-            return $this->redirectToLogin();
+            return 'filament.admin.auth.login';
+        }else{
+            Notification::make()
+            ->title('Profile updated successfully')
+            ->success()
+            ->send();
+            return redirect()->to(EditProfile::getRedirectUrl());
         }
 
-        return redirect()->to(EditProfile::getUrl());
     }
 
 }

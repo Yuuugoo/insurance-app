@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RolesResource\Pages;
 use App\Filament\Resources\RolesResource\RelationManagers;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,7 +25,26 @@ class RolesResource extends Resource
     {
         return $form
             ->schema([
-                
+                TextInput::make('id')
+                    ->label('Role ID ')
+                    ->helperText('Enter Role ID')
+                    ->numeric()
+                    ->minValue(1)
+                    ->unique(ignoreRecord: true)
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                        $livewire->validateOnly($component->getStatePath());
+                    })
+                    ->required(),
+                TextInput::make('name')
+                    ->label('Name')
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                        $livewire->validateOnly($component->getStatePath());
+                    })
+                    ->unique(ignoreRecord: true)
+                    ->rules (['lowercase'])
             ]);
     }
 
@@ -61,8 +81,8 @@ class RolesResource extends Resource
     {
         return [
             'index' => Pages\ListRoles::route('/'),
-            'create' => Pages\CreateRoles::route('/create'),
-            'edit' => Pages\EditRoles::route('/{record}/edit'),
+            // 'create' => Pages\CreateRoles::route('/create'),
+            // 'edit' => Pages\EditRoles::route('/{record}/edit'),
         ];
     }
 }

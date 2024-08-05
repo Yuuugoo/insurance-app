@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\App;
 
 class PDFController extends Controller
 {
+    
     public function __invoke(Report $record)
     {   
 
