@@ -72,20 +72,9 @@ class Report extends Model
         return false;
     }
 
-    
-    
-
-    public function staff(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by_id', 'id');
-    }
-
-    protected static function boot()
+    protected static function boot() // This gets the id of the user who submitted the report
     {
         parent::boot();
-
-        
-
         static::creating(function ($report) {
             if (!$report->submitted_by_id) {
                 $report->submitted_by_id = auth()->id();

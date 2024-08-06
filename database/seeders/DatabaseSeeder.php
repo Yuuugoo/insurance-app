@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RolesAndPermissionSeeder::class);
         $this->call(ReportSeeder::class);
+        $this->call(CostCenterSeeder::class);
+        $this->call(InsuranceTypeSeeder::class);
+        $this->call(InsuranceProviderSeeder::class);
         // \App\Models\User::factory(1)->create();
 
         // \App\Models\User::factory()->create([

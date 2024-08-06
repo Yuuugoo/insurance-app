@@ -39,7 +39,7 @@ class ListReports extends ListRecords
     {
         return [
             null => Tab::make('All'),
-            'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
+            'pending' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
             'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
             // 'aurora' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'aurora')),
             // 'fairview' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'fairview')),

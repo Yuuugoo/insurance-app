@@ -13,7 +13,7 @@ class ReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['acct-staff', 'cashier', 'acct-manager', 'agent']);
+        return $user->hasRole(['acct-staff', 'cashier', 'acct-manager', 'agent']);
     }
 
     /**
@@ -21,7 +21,7 @@ class ReportPolicy
      */
     public function view(User $user, Report $report): bool
     {
-        return $user->hasAnyRole(['acct-staff', 'cashier', 'acct-manager', 'agent']);
+        return $user->hasRole(['acct-staff', 'cashier', 'acct-manager', 'agent']);
     }
 
     /**
@@ -37,7 +37,7 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        return $user->hasAnyRole(['cashier', 'acct-staff']);
+        return $user->hasRole(['cashier', 'acct-staff']);
     }
 
     /**
@@ -45,7 +45,7 @@ class ReportPolicy
      */
     public function delete(User $user, Report $report): bool
     {
-        return $user->hasAnyRole(['acct-staff', 'acct-manager']);
+        return $user->hasRole(['acct-staff', 'acct-manager']);
     }
 
     /**

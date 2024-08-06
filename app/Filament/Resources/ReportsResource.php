@@ -68,6 +68,7 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
+use App\Models\CostCenter as ModelsCostCenter;
 use Filament\Forms\Components\Repeater;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
@@ -156,7 +157,8 @@ class ReportsResource extends Resource
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
-                                        ->options(CostCenter::class),
+                                        ->options(ModelsCostCenter::all()->pluck('name', 'id'))
+                                        ->getOptionLabelUsing(fn ($value): ?string => ModelsCostCenter::find($value)?->name),
                                     TextInput::make('arpr_date')
                                         ->default(now()->format('m-d-Y'))
                                         ->label('AR/PR Date')
@@ -301,6 +303,7 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->disabled(Auth::user()->hasRole('cashier'))
                                         ->reactive()
+                                        ->live(onBlur: true)
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $balance = intval($get('gross_premium')) - intval($state);
                                             $set('payment_balance', $balance);
@@ -310,7 +313,7 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->readOnly()
                                         ->hidden()
-                                        ->live(debounce: 500)
+                                        ->live(onBlur: true)
                                         ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
                                         ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
                                         ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
@@ -347,21 +350,21 @@ class ReportsResource extends Resource
                                         ->reject(fn ($status) => strtolower($status->value) === 'pending')
                                             ->pluck('name', 'value')
                                             ->toArray()),
-                                    Checkbox::make('is_paid')
-                                        ->live()
-                                        ->default(0)
-                                        ->label('Check once Fully Paid')
-                                        ->visible(function (callable $get) {
-                                            $paymentStatus = $get('payment_status');
-                                            return strtolower($paymentStatus) === 'partial';
-                                        })
-                                        ->afterStateUpdated(function (callable $set, $state) {
-                                            if ($state) {
-                                                $set('payment_status', PaymentStatus::PAID->value);
-                                            } else {
-                                                $set('payment_status', PaymentStatus::PARTIAL->value);
-                                            }
-                                        })
+                                    // Checkbox::make('is_paid')
+                                    //     ->live()
+                                    //     ->default(0)
+                                    //     ->label('Check once Fully Paid')
+                                    //     ->visible(function (callable $get) {
+                                    //         $paymentStatus = $get('payment_status');
+                                    //         return strtolower($paymentStatus) === 'partial';
+                                    //     })
+                                    //     ->afterStateUpdated(function (callable $set, $state) {
+                                    //         if ($state) {
+                                    //             $set('payment_status', PaymentStatus::PAID->value);
+                                    //         } else {
+                                    //             $set('payment_status', PaymentStatus::PARTIAL->value);
+                                    //         }
+                                    //     })
                             ])->columns(2),
                             Section::make()
                                 ->schema([
@@ -451,44 +454,15 @@ class ReportsResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label('AR/PR Date'),
-                TextColumn::make('inception_date')
-                    ->label('Inception Date')
-                    ->searchable()
-                    ->date('m-d-Y')
-                    ->visibleFrom('md'),
-                TextColumn::make('cost_center')
-                    ->label('Cost Center')
-                    ->searchable()
-                    ->visibleFrom('md')
-                    ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
                     ->searchable(),
                 TextColumn::make('insurance_prod')
                     ->label('Insurance Provider')
-                    ->grow(false)
-                    ->visibleFrom('md'),
+                    ->searchable(),
                 TextColumn::make('insurance_type')
                     ->label('Insurance Type')
-                    ->icon('heroicon-o-calendar-days')
-                    ->visibleFrom('md'),
-                TextColumn::make('assured')
-                    ->label('Assured')
-                    ->visibleFrom('md'),
-                TextColumn::make('policy_num')
-                    ->label('Policy Number')
-                    ->visibleFrom('md'),
-                TextColumn::make('application')
-                    ->label('Mode of Application')
-                    ->visibleFrom('md'),
-                TextColumn::make('plate_num')
-                    ->label('Vehicle Plate No.')
-                    ->searchable()
-                    ->visibleFrom('md')
-                    ->grow(false),
-                TextColumn::make('car_details')
-                    ->label('Car Details')
-                    ->visibleFrom('md'),
+                    ->searchable(),
                 TextColumn::make('payment_status')
                     ->label('Payment Status')
                     ->badge(),
