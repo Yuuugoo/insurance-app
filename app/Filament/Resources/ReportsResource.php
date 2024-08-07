@@ -69,7 +69,11 @@ use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ReportsResource\RelationManagers;
 use App\Models\CostCenter as ModelsCostCenter;
+use App\Models\InsuranceProvider;
+use App\Models\InsuranceType as ModelsInsuranceType;
+use App\Models\PaymentMode;
 use Filament\Forms\Components\Repeater;
+use Filament\Support\Enums\MaxWidth;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 use Illuminate\Validation\Rule;
@@ -91,53 +95,37 @@ class ReportsResource extends Resource
                             Section::make()
                                 ->schema([
                                     Select::make('insurance_prod')
-                                    ->label('Insurance Provider')
-                                    ->inlineLabel()
-                                    ->disabled(Auth::user()->hasRole('acct-staff'))
-                                    ->required()
-                                    ->reactive()
-                                    ->live()
-                                    ->native(false)
-                                    ->options(InsuranceProd::class),
-                                TextInput::make('arpr_num')
-                                    ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
-                                    ->label('AR/PR No.')
-                                    ->inlineLabel()
-                                    ->visible(fn (Get $get) => !empty($get('insurance_prod')))
-                                    ->required(fn (Get $get) => !empty($get('insurance_prod')))
-                                    ->helperText('Enter AR/PR No.')
-                                    ->live()
-                                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
-                                        $livewire->validateOnly($component->getStatePath());
-                                    })
-                                    ->rules([
-                                        'required',
-                                        function (Get $get) {
-                                            $rule = Rule::unique('reports', 'arpr_num');
-                                            $currentRecordId = $get('reports_id');
-
-                                            if (strtolower($get('insurance_prod')) !== 'others') {
-                                                $rule->where('insurance_prod', $get('insurance_prod'))
-                                                    ->ignore($currentRecordId, 'reports_id');
-                                                return $rule;
-                                            } elseif (strtolower($get('insurance_prod')) === 'others') {
-                                                $rule->where('others_insurance_prod', $get('others_insurance_prod'))
-                                                    ->ignore($currentRecordId, 'reports_id');
-                                                return $rule;
-                                            }
-                                            return $rule;
-                                        },
-                                    ]),
-                                    TextInput::make('others_insurance_prod')
-                                        ->helperText('Enter Other Insurance Provider')
+                                        ->label('Insurance Provider')
+                                        ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->label('Insurance Provider (OTHERS)')
-                                        ->visible(fn (Get $get) => strtolower($get('insurance_prod')) === 'others')
-                                        ->required(fn (Get $get) => strtolower($get('insurance_prod')) === 'others')
-                                        ->dehydrateStateUsing(function (Get $get, $state) {
-                                            return strtolower($get('insurance_prod')) === 'others' ? $state : null;
+                                        ->required()
+                                        ->reactive()
+                                        ->live()
+                                        ->native(false)
+                                        ->options(InsuranceProvider::all()->pluck('name','name')),
+                                    TextInput::make('arpr_num')
+                                        ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
+                                        ->label('AR/PR No.')
+                                        ->inlineLabel()
+                                        ->visible(fn (Get $get) => !empty($get('insurance_prod')))
+                                        ->required(fn (Get $get) => !empty($get('insurance_prod')))
+                                        ->helperText('Enter AR/PR No.')
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
                                         })
-                                        ->dehydrated(fn (Get $get) => strtolower($get('insurance_prod')) === 'others'),
+                                        ->rules([
+                                            'required',
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', 'arpr_num');
+                                                $currentRecordId = $get('reports_id');
+
+                                                $rule->where('insurance_prod', $get('insurance_prod'))
+                                                ->ignore($currentRecordId, 'reports_id');
+    
+                                                return $rule;
+                                            },
+                                        ]),
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
@@ -157,8 +145,7 @@ class ReportsResource extends Resource
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
-                                        ->options(ModelsCostCenter::all()->pluck('name', 'id'))
-                                        ->getOptionLabelUsing(fn ($value): ?string => ModelsCostCenter::find($value)?->name),
+                                        ->options(ModelsCostCenter::all()->pluck('name','name')),
                                     TextInput::make('arpr_date')
                                         ->default(now()->format('m-d-Y'))
                                         ->label('AR/PR Date')
@@ -209,21 +196,8 @@ class ReportsResource extends Resource
                                         ->required()
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->options(InsuranceType::class)
-                                        ->live()
-                                        ->afterStateUpdated(function (Get $get, Set $set) {
-                                            if (strtolower($get('insurance_type')) !== 'others') {
-                                                $set('others_insurance_type', null);
-                                            }
-                                        }),
-                                    TextInput::make('others_insurance_type')
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->label('Insurance Type (OTHERS)')
-                                        ->helperText('Enter Other Insurance Type')
-                                        ->inlineLabel()
-                                        ->required()
-                                        ->visible(fn (Get $get) => strtolower($get('insurance_type')) === 'others')
-                                        ->required(fn (Get $get) => strtolower($get('insurance_type')) === 'others'),
+                                        ->options(ModelsInsuranceType::all()->pluck('name','name'))
+                                        ->live(),
                                     Select::make('application')
                                         ->native(false)
                                         ->label('Select Mode of Application')
@@ -232,16 +206,6 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))       
                                         ->options(ModeApplication::class)
                                         ->live(),
-                                    TextInput::make('others_application')
-                                        ->label('Mode of Application (OTHERS)')
-                                        ->helperText('Enter Other Insurance Type')
-                                        ->required()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->inlineLabel()
-                                        ->visible(function (callable $get) {
-                                            $paymentStatus = $get('application');
-                                            return strtolower($paymentStatus) === 'others';
-                                        })
                                 ])->columns(2),                        
                             ])
                             ->description('View Report Details')
@@ -323,7 +287,7 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Select Payment Mode')
                                         ->inlineLabel()
-                                        ->options(Payment::class),
+                                        ->options(PaymentMode::all()->pluck('name','name')),
                                     FileUpload::make('policy_file')
                                         ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
                                         ->helperText('Supported File Types: .jpeg, .png, .pdf')
@@ -350,21 +314,6 @@ class ReportsResource extends Resource
                                         ->reject(fn ($status) => strtolower($status->value) === 'pending')
                                             ->pluck('name', 'value')
                                             ->toArray()),
-                                    // Checkbox::make('is_paid')
-                                    //     ->live()
-                                    //     ->default(0)
-                                    //     ->label('Check once Fully Paid')
-                                    //     ->visible(function (callable $get) {
-                                    //         $paymentStatus = $get('payment_status');
-                                    //         return strtolower($paymentStatus) === 'partial';
-                                    //     })
-                                    //     ->afterStateUpdated(function (callable $set, $state) {
-                                    //         if ($state) {
-                                    //             $set('payment_status', PaymentStatus::PAID->value);
-                                    //         } else {
-                                    //             $set('payment_status', PaymentStatus::PARTIAL->value);
-                                    //         }
-                                    //     })
                             ])->columns(2),
                             Section::make()
                                 ->schema([
@@ -453,10 +402,16 @@ class ReportsResource extends Resource
                 TextColumn::make('arpr_date')
                     ->sortable()
                     ->searchable()
+                    ->grow(false)
                     ->label('AR/PR Date'),
+                TextColumn::make('cost_center')
+                    ->searchable()
+                    ->grow(false)
+                    ->label('Cost Centers'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
-                    ->searchable(),
+                    ->searchable()
+                    ->grow(false),
                 TextColumn::make('insurance_prod')
                     ->label('Insurance Provider')
                     ->searchable(),
@@ -473,32 +428,29 @@ class ReportsResource extends Resource
                     ->visibleFrom('md')
                     ->badge(),
                 TextColumn::make('cashier.name')
-                    ->label('Submitted By'),
+                    ->label('Submitted By')
+                    ->grow(false),
             ])
             ->openRecordUrlInNewTab()
             ->defaultSort('arpr_date', 'desc')
             ->defaultPaginationPageOption(5)
             ->filters([
-                TrashedFilter::make()
-                    ->placeholder('All Records w/o Archived')
-                    ->label('Archived')
-                    ->trueLabel('All Records w/ Archived')
-                    ->falseLabel('Archived Records'),
                 Filter::make('arpr_date')
                     ->form([
                         DatePicker::make('from')
-                            ->label('From Date')
+                            ->label('From')
                             ->placeholder('Select start date')
                             ->native(false)
                             ->displayFormat('d.m.Y')
                             ->format('m-d-Y'),
                         DatePicker::make('until')
-                            ->label('To Date')
+                            ->label('To')
                             ->placeholder('Select end date')
                             ->native(false)
                             ->displayFormat('d.m.Y')
                             ->format('m-d-Y'),
                     ])
+                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
@@ -513,14 +465,68 @@ class ReportsResource extends Resource
                                     return $query->whereRaw("STR_TO_DATE(arpr_date, '%m-%d-%Y') <= ?", [Carbon::parse($date)->format('Y-m-d')]);
                                 }
                             );
-                    })
-            ])
+                    }),
+                Filter::make('insurance_prod_type')
+                    ->form([
+                        Select::make('insurance_prod')
+                            ->label('Insurance Provider')
+                            ->placeholder('Select Insurance Provider')
+                            ->options(InsuranceProvider::all()->pluck('name','name'))
+                            ->native(false)
+                            ->reactive()
+                            ->searchable()
+                            ->multiple(),
+                        Select::make('insurance_type')
+                            ->label('Insurance Type')
+                            ->placeholder('Select Insurance Type')
+                            ->options(ModelsInsuranceType::all()->pluck('name','name'))
+                            ->native(false)
+                            ->reactive()
+                            ->searchable()
+                            ->multiple(),
+
+                    ])
+                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['insurance_type'],
+                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_type', $insuranceTypes)
+                            );
+                    }),
+                Filter::make('cost_center')
+                    ->form([
+                        Select::make('cost_center')
+                            ->label('Cost Center')
+                            ->placeholder('Select Cost Center')
+                            ->options(ModelsCostCenter::all()->pluck('name','name'))
+                            ->native(false)
+                            ->reactive()
+                            ->searchable()
+                            ->multiple(),
+                    ])
+                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['cost_center'],
+                            fn (Builder $query, array $costCenters) => $query->whereIn('cost_center', $costCenters)
+                        );
+                    }),
+                TrashedFilter::make()
+                    ->placeholder('All Records w/o Archived')
+                    ->label('Archived')
+                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
+                    ->trueLabel('All Records w/ Archived')
+                    ->falseLabel('Archived Records'),
+            ],layout: FiltersLayout::AboveContentCollapsible)
+            ->filtersFormColumns(4)
+            ->filtersFormWidth('FiveExtraLarge')
             ->actions([
                 ActionGroup::make([
                     ActionsDeleteAction::make()
                         ->label('Archive')
                         ->icon('heroicon-m-archive-box-arrow-down')
-                        ->color('info')
+                        ->color('aap-blue')
                         ->requiresConfirmation()
                         ->modalHeading('Archive this Report?')
                         ->modalIcon('heroicon-m-archive-box-arrow-down')
@@ -528,28 +534,31 @@ class ReportsResource extends Resource
                     RestoreAction::make()
                         ->color('success'),
                     Tables\Actions\EditAction::make()
-                        ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'warning')
+                        ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'aap-blue')
                         ->disabled(fn (Report $record) => $record->canEdit()),
                     Tables\Actions\ViewAction::make()
-                        ->color('info'),
+                        ->color('aap-blue'),
                     Tables\Actions\Action::make('pdf') 
                         ->label('PDF')
-                        ->color('success')
+                        ->color('aap-blue')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->url(fn (Report $record) => route('pdfview', $record))
                         ->openUrlInNewTab(),
                     Tables\Actions\Action::make('activities')
                         ->label('View Recent Changes')
-                        ->hidden(fn (Report $record) => Auth::user()->hasAnyRole(['acct-staff', 'cashier']))
+                        ->icon('heroicon-s-bookmark')
+                        ->color('aap-blue')
+                        ->hidden(fn () => Auth::user()->hasAnyRole(['acct-staff', 'cashier', 'agent']))
                         ->url(fn ($record) => ReportsResource::getUrl('activities', ['record' => $record])) 
-                ])->color('success')
+                ])->color('aap-blue')
             ])
 
             ->headerActions([
                 ExportAction::make()
                     ->exporter(ReportExporter::class)
+                    ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
                     ->label('Export All Records')
-                    ->color('success')
+                    ->color('aap-blue')
                     ->columnMapping(false)
                     ->chunkSize(250)
                     ->formats([
@@ -563,6 +572,7 @@ class ReportsResource extends Resource
                 ExportBulkAction::make()->exporter(ReportExporter::class)
                     ->label('Export Selected Records')
                     ->color('success')
+                    ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
                     ->columnMapping(false)
                     ->chunkSize(250)
                     ->formats([

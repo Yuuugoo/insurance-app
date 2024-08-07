@@ -18,7 +18,7 @@ class EditReports extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+           
         ];
     }
 
@@ -50,7 +50,7 @@ class EditReports extends EditRecord
                 //     ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),
                 Action::make('activities')
                     ->label('View Changes')
-                    ->color('info')
+                    ->color('aap-blue')
                     ->button()
                     ->url(fn () => route('filament.admin.resources.reports.activities', $this->record)),
                 Action::make('markAsRead')

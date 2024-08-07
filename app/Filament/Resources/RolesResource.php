@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
@@ -52,10 +53,16 @@ class RolesResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID'),
-                TextColumn::make('name')
-                    ->icon('heroicon-o-flag'),
+                Stack::make([
+                    TextColumn::make('id')->label('ID'),
+                    TextColumn::make('name')
+                        ->icon('heroicon-o-shield-check'),
+                ])
+
+            ])
+            ->contentGrid([
+                'md' => 5,
+                'xl' => 5,
             ])
             ->filters([
                 //

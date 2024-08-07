@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Enums\CostCenter;
+use App\Models\CostCenter;
 use App\Models\Report;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
@@ -91,10 +91,10 @@ class PreviousMonth extends ApexChartWidget
     {
         $filters = $this->getFilters();
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
-        $costCenter = $filters['filter'] ?? 'all';
+        $costCenter = $filters['filter'] ?? 'All';
 
-        if ($costCenter !== 'all') {
-            return $this->getDailyDataForCostCenter($selectedDate, CostCenter::from($costCenter));
+        if ($costCenter !== 'All') {
+            return $this->getDailyDataForCostCenter($selectedDate, $costCenter);
         }
 
         return $this->getMonthlyDataForAllCostCenters($selectedDate);
@@ -102,8 +102,8 @@ class PreviousMonth extends ApexChartWidget
 
     protected function getMonthlyDataForAllCostCenters(Carbon $selectedDate): array
     {
-        $costCenters = CostCenter::cases();
-        $labels = array_map(fn($cc) => $cc->getLabel(), $costCenters);
+        $costCenters = CostCenter::distinct('name')->pluck('name')->sort()->values();
+        $labels = $costCenters->toArray();
 
         $data = Report::select('cost_center', DB::raw('count(*) as total'))
             ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
@@ -111,9 +111,9 @@ class PreviousMonth extends ApexChartWidget
             ->pluck('total', 'cost_center')
             ->toArray();
 
-        $dataset = array_map(function($cc) use ($data) {
-            return $data[$cc->value] ?? 0;
-        }, $costCenters);
+        $dataset = $costCenters->map(function($cc) use ($data) {
+            return $data[$cc] ?? 0;
+        })->toArray();
 
         $colors = [
             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
@@ -133,7 +133,7 @@ class PreviousMonth extends ApexChartWidget
         ];
     }
 
-    protected function getDailyDataForCostCenter(Carbon $selectedDate, CostCenter $costCenter): array
+    protected function getDailyDataForCostCenter(Carbon $selectedDate, $costCenter): array
     {
         $daysInMonth = $selectedDate->daysInMonth;
         $labels = range(1, $daysInMonth);
@@ -143,7 +143,7 @@ class PreviousMonth extends ApexChartWidget
             DB::raw('count(*) as total')
         )
             ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
-            ->where('cost_center', $costCenter->value)
+            ->whereRaw('LOWER(cost_center) = ?', [strtolower($costCenter)])
             ->groupBy('day')
             ->pluck('total', 'day')
             ->toArray();
@@ -159,7 +159,7 @@ class PreviousMonth extends ApexChartWidget
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => $costCenter->getLabel(),
+                    'label' => $costCenter,
                     'data' => $dataset,
                     'backgroundColor' => $color,
                     'borderColor' => $color,
@@ -179,14 +179,8 @@ class PreviousMonth extends ApexChartWidget
             Select::make('filter')
                 ->label('Cost Center')
                 ->native(false)
-                ->options(array_merge(
-                    ['all' => 'All'],
-                    array_combine(
-                        array_map(fn($case) => $case->value, CostCenter::cases()),
-                        array_map(fn($case) => $case->getLabel(), CostCenter::cases())
-                    )
-                ))
-                ->default('all')
+                ->options(CostCenter::pluck('name', 'name')->prepend('All', 'All')->toArray())
+                ->default('All')
                 ->reactive(),
         ];
     }
@@ -194,9 +188,8 @@ class PreviousMonth extends ApexChartWidget
     public function getHeading(): ?string
     {
         $filters = $this->getFilters();
-        $costCenter = $filters['filter'] ?? 'all';
+        $costCenter = $filters['filter'] ?? 'All';
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
-        $costCenter = ucfirst($costCenter);
 
         return $costCenter . " Reports for " . $selectedDate->format('F Y');
     }

@@ -38,7 +38,7 @@ class CreateReports extends CreateRecord
             ->icon('heroicon-o-folder')
             ->actions([
                 Action::make('view')
-                    ->color('success')
+                    ->color('warning')
                     ->label('View Created Report')
                     ->button()
                     ->url(fn () => route('filament.admin.resources.reports.view', $this->record)),

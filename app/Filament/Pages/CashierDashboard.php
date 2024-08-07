@@ -30,5 +30,4 @@ class CashierDashboard extends Page
         return ('');
     }
 
-
 }

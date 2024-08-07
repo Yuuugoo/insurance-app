@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CostCenterSeeder::class);
         $this->call(InsuranceTypeSeeder::class);
         $this->call(InsuranceProviderSeeder::class);
+        $this->call(PaymentSeeder::class);
         // \App\Models\User::factory(1)->create();
 
         // \App\Models\User::factory()->create([

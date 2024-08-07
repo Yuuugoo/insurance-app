@@ -11,10 +11,10 @@ class CostCenter extends Model
 
     protected $primaryKey = 'cost_center_id';
 
-    protected $fillable = ['cost_center_id' ,'name'];
+    protected $fillable = ['name'];
 
     public function reports()
     {
-        return $this->hasMany(Report::class, 'cost_center');
+        return $this->belongsTo(Report::class, 'cost_center');
     }
 }

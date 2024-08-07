@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Enums\CostCenter;
 use App\Enums\PolicyStatus;
-use App\Enums\InsuranceProd;
-use App\Enums\InsuranceType;
 use App\Enums\PaymentStatus;
 use App\Enums\ModeApplication;
-use App\Enums\Payment;
 use App\Enums\Terms;
+use App\Models\CostCenter as ModelsCostCenter;
+use App\Models\InsuranceType as ModelsInsuranceType;
 use App\Traits\Systemencryption;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
@@ -39,13 +37,9 @@ class Report extends Model
     ];
 
     protected $casts = [
-        'cost_center' => CostCenter::class,
-        'insurance_prod' => InsuranceProd::class,
-        'insurance_type' => InsuranceType::class,
         'application' => ModeApplication::class,
         'payment_status' => PaymentStatus::class,
         'policy_status' => PolicyStatus::class,
-        'payment_mode' => Payment::class,
         'terms' => Terms::class,
         'add_remarks' => 'boolean',
         'policy_file' => 'encrypted',
@@ -127,5 +121,24 @@ class Report extends Model
         }
         $this->attributes['remit_deposit'] = json_encode($value);
     }
+
+    public function providers()
+    {
+        return $this->hasMany(InsuranceProvider::class, 'insurance_prod_id');
+    }
     
+    public function types()
+    {
+        return $this->hasMany(ModelsInsuranceType::class, 'insurance_type_id');
+    }
+
+    public function costCenters()
+    {
+        return $this->hasMany(ModelsCostCenter::class, 'cost_center_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(PaymentMode::class, 'payment_mode_id');
+    }
 }

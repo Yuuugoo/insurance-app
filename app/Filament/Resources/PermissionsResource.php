@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PermissionsResource\Pages;
 use App\Filament\Resources\PermissionsResource\RelationManagers;
+use Filament\Tables\Columns\Layout\Stack;
 
 class PermissionsResource extends Resource
 {
@@ -33,9 +34,16 @@ class PermissionsResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
-                TextColumn::make('name')
-                    ->icon('heroicon-o-shield-check'),
+                Stack::make([
+                    TextColumn::make('id')->label('ID'),
+                    TextColumn::make('name')
+                        ->icon('heroicon-o-shield-check'),
+                ])
+
+            ])
+            ->contentGrid([
+                'md' => 5,
+                'xl' => 5,
             ])
             ->filters([
                 //

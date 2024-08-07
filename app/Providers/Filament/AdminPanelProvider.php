@@ -29,6 +29,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Support\Facades\FilamentColor;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
@@ -91,6 +92,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentApexChartsPlugin::make(),
             ])
-            ;
+            ->colors([
+                'aap-blue' => Color::hex('#002C69'),
+                'aap-yellow' => Color::hex('#FAE100'),
+            ]);
     }
 }

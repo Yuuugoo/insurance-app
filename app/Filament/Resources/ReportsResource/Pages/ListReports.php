@@ -6,7 +6,7 @@ use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\ReportsResource;
-use Filament\Resources\Pages\ListRecords\Tab;
+use Filament\Resources\Components\Tab;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsOverview;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
 
@@ -18,6 +18,7 @@ class ListReports extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->color('aap-blue')
                 ->label('Create Report')
                 ->successNotification(
                     Notification::make()
@@ -41,14 +42,6 @@ class ListReports extends ListRecords
             null => Tab::make('All'),
             'pending' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
             'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
-            // 'aurora' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'aurora')),
-            // 'fairview' => Tab::make()->query(fn ($query) => $query->where('cost_center', 'fairview')),
-            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
-            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
-            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
-            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
-            // 'new' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
-            // 'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
         ];
     }
     

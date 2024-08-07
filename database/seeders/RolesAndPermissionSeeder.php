@@ -85,6 +85,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
 
         ])->assignRole($cashierRole);
 
@@ -95,6 +96,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/teen.png'
 
         ])->assignRole($acctStaffRole);
 
@@ -105,6 +107,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/woman.png'
 
         ])->assignRole($acctManagerRole);
 
@@ -115,6 +118,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/boy.png'
 
         ])->assignRole($superAdminRole);
 
@@ -125,6 +129,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
 
         ])->assignRole($agentRole);
 
@@ -136,6 +141,7 @@ class RolesAndPermissionSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
 
         ])->assignRole($cfoRole);
 

@@ -9,10 +9,10 @@
     .aap-login-logo { @apply w-48 -mt-24 !important }
     .fi-sidebar-header { @apply static !important }
     .fi-sidebar-collapsed{ @apply max-w-12 h-auto }
-    .fi-sidebar-item { @apply mb-1 !important }
-    .fi-sidebar-item-button{ @apply hover:bg-aap-blue active:bg-aap-blue focus:ring focus:ring-aap-yellow !important }
-    .fi-sidebar-item-label{ @apply text-black !important }
-    .fi-sidebar-item-icon{ @apply text-black !important }
+    .fi-sidebar-item { @apply mb-1 active:bg-aap-blue !important }
+    .fi-sidebar-item-button{ @apply hover:bg-aap-blue  focus:ring  !important }
+    .fi-sidebar-item-label{ @apply text-black hover:text-aap-yellow !important }
+    .fi-sidebar-item-icon{ @apply text-black hover:text-aap-yellow !important }
     .fi-sidebar-nav-groups{ @apply gap-y-4 !important}
     .fi-sidebar-nav-groups::before {
         margin-bottom: -1px;
@@ -23,7 +23,8 @@
     .fi-ta-text-item-label{ @apply text-black !important }  
     .fi-topbar-database-notifications-btn{ @apply text-aap-blue !important }
     .fi-topbar { @apply static !important }
-    .fi-ac-icon-btn-action {@apply text-aap-blue !important }
+    .fi-ac-icon-btn-action { @apply text-aap-blue !important }
+    .fi-pagination-item-label { @apply text-aap-blue !important }
 }
 .apex-charts-single-filter{  display: none !important; }
 @layer utilities {

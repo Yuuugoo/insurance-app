@@ -9,12 +9,12 @@ class InsuranceProvider extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'cost_center_id';
+    protected $primaryKey = 'insurance_provider_id';
 
-    protected $fillable = ['insurance_type_id' ,'name'];
+    protected $fillable = ['name'];
 
     public function providers()
     {
-        return $this->hasMany(Report::class, 'cost_center');
+        return $this->belongsTo(Report::class, 'insurance_provider');
     }
 }

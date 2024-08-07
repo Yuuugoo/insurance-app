@@ -21,6 +21,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Resources\UserResource\Pages;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class UserResource extends Resource
@@ -38,6 +39,7 @@ class UserResource extends Resource
                 // Super Admin Create Users
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Select::make('roles')
                     ->relationship('roles', 'name', function ($query) {
@@ -46,6 +48,7 @@ class UserResource extends Resource
                     ->native(false),
                 Forms\Components\TextInput::make('email')
                     ->email()
+                    ->unique(ignoreRecord: true)
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
@@ -59,6 +62,18 @@ class UserResource extends Resource
                 TextInput::make('username')
                     ->required()
                     ->maxLength(50),
+                TextInput::make('avatar_url')
+                    ->readOnly(fn () => Auth::user()->hasRole('super-admin'))
+                    ->maxLength(255)
+                    ->dehydrated(true)
+                    ->afterStateHydrated(function (TextInput $component, $state) {
+                        if (empty($state)) {
+                            $component->state('/storage/default_avatar/default.png');
+                        }
+                    })
+                    ->dehydrateStateUsing(function ($state) {
+                        return $state ?: '/storage/default_avatar/default.png';
+                    }),
             ]);
     }
 
@@ -84,23 +99,23 @@ class UserResource extends Resource
                         TextColumn::make('username')
                             ->searchable()
                             ->icon('heroicon-s-user')
-                            ->description('username', position: 'below'),
+                            ->description('Username', position: 'below'),
                         TextColumn::make('roles.name')
                             ->searchable()
                             ->icon('heroicon-s-flag')
-                            ->description('role', position: 'below'),
+                            ->description('Role', position: 'below'),
                         Tables\Columns\TextColumn::make('email')
                             ->searchable()
                             ->icon('heroicon-s-envelope')
-                            ->description('email', position: 'below'),
+                            ->description('Email', position: 'below'),
                         Tables\Columns\TextColumn::make('created_at')
                             ->date('m-d-Y')
-                            ->sortable()
-                            ->description('date created', position: 'below'),
+                            ->icon('heroicon-s-calendar-days')
+                            ->description('Date Created', position: 'below'),
                         Tables\Columns\TextColumn::make('updated_at')
                             ->date('m-d-Y')
-                            ->sortable()
-                            ->description('date updated', position: 'below'),
+                            ->icon('heroicon-s-calendar-days')
+                            ->description('Date Updated', position: 'below'),
                     ])->from('md'),
                 ])->collapsed(false)
             ])
@@ -108,8 +123,8 @@ class UserResource extends Resource
                 TrashedFilter::make()
                     ->placeholder('All Users')
                     ->label('Archived')
-                    ->trueLabel('All Users w/ Deleted')
-                    ->falseLabel('Deleted Users'),
+                    ->trueLabel('All Users w/ Archived')
+                    ->falseLabel('Archived Users'),
             ])
             ->actions([
                 ActionGroup::make([

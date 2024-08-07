@@ -27,17 +27,17 @@ class ViewReports extends ViewRecord
         return [
             Action::make('back')
                 ->label('Back')
-                ->color('warning')
+                ->color('gray')
                 ->action(function () {
                     return redirect('/reports');
                 }),
             EditAction::make('edit')
-                ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'warning')
+                ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'aap-blue')
                 ->disabled(fn (Report $record) => $record->canEdit())
                 ->label('Edit this Report'),
             Action::make('pdf')
                 ->label('Export to PDF')
-                ->color('success')
+                ->color('aap-blue')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn (Report $record) => route('pdfdownload', $record))
                 ->openUrlInNewTab(),
@@ -80,29 +80,22 @@ class ViewReports extends ViewRecord
                         // Insurance Details
                         Section::make()
                             ->schema([
-                                TextEntry::make('insurance_type')->label('Insurance Type'),
-                                TextEntry::make('others_insurance_type')
-                                    ->label('Other Type of Insurance')
-                                    ->hidden(fn ($record) => $record->others_insurance_type === null),
-                            ])->columns(2),
+                                TextEntry::make('insurance_type')
+                                ->inlineLabel()
+                                ->label('Insurance Type'),
+                            ]),
                         Section::make()
                             ->schema([
-                                TextEntry::make('insurance_prod')->label('Insurance Provider'),
-                                TextEntry::make('others_insurance_prod')
-                                    ->label('Other Insurance Provider')
-                                    ->hidden(fn ($record) => $record->others_insurance_prod === null),
-                            ])->columns(2),
+                                TextEntry::make('insurance_prod')->inlineLabel()->label('Insurance Provider'),
+                            ]),
                         Section::make()
                             ->schema([
-                                TextEntry::make('application')->label('Mode of Application'),
-                                TextEntry::make('others_application')
-                                    ->label('Other Mode of Application')
-                                    ->hidden(fn ($record) => $record->others_insurance_prod === null),
-                            ])->columns(2),
+                                TextEntry::make('application')->inlineLabel()->label('Mode of Application'),
+                            ]),
                         Section::make()
                             ->schema([
-                                TextEntry::make('assured')->label('Assured'),
-                            ])->columnSpanFull(),
+                                TextEntry::make('assured')->inlineLabel()->label('Assured'),
+                            ]),
                         
                     ])->columns(2),
                     Section::make('Payment Details')

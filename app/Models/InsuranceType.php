@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InsuranceType extends Model
 {
@@ -15,6 +16,6 @@ class InsuranceType extends Model
 
     public function types()
     {
-        return $this->hasMany(Report::class, 'cost_center');
+        return $this->BelongsTo(Report::class, 'insurance_type');
     }
 }

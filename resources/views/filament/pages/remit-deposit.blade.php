@@ -25,12 +25,12 @@
                                     <div class="flex lg:flex-row flex-col items-start lg:items-center gap-2">
                                         <a href="/storage/{{ $remitDepo['depo_slip'] }}"
                                             target="_blank"
-                                            class="px-3 py-1 md:w-auto lg:w-auto w-full text-center" style="background-color: #004CB5; color: white; border-radius: 0.25rem; transition-property: background-color; transition-duration: 300ms; transition-timing-function: ease-in-out;">
+                                            class="px-3 py-1 md:w-auto lg:w-auto w-full text-center" style="background-color: #002C69; color: white; border-radius: 0.25rem; transition-property: background-color; transition-duration: 300ms; transition-timing-function: ease-in-out;">
                                             View
                                         </a>
                                         <a href="/storage/{{ $remitDepo['depo_slip'] }}"
                                             download
-                                            class="px-3 py-1 lg:w-auto w-full text-center" style="background-color: #004CB5; color: white; border-radius: 0.25rem; transition-property: background-color; transition-duration: 300ms; transition-timing-function: ease-in-out;">
+                                            class="px-3 py-1 lg:w-auto w-full text-center" style="background-color: #002C69; color: white; border-radius: 0.25rem; transition-property: background-color; transition-duration: 300ms; transition-timing-function: ease-in-out;">
                                             Download
                                         </a>
                                     </div>

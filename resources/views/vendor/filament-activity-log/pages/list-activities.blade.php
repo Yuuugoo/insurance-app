@@ -61,15 +61,6 @@
                                 </div>
                             </div>
                         </div>
-                        @if ($this->canRestoreActivity() && $changes->isNotEmpty())
-                            <x-filament::button
-                                size="sm"
-                                icon="heroicon-o-arrow-path"
-                                wire:click="restoreActivity({{ \Illuminate\Support\Js::from($activityItem->getKey()) }})"
-                            >
-                                @lang('filament-activity-log::activities.table.restore')
-                            </x-filament::button>
-                        @endif
                     </div>
                 </div>
                 @if ($changes->isNotEmpty())

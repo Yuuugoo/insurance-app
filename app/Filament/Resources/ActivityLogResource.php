@@ -6,8 +6,10 @@ use App\Filament\Resources\ActivityLogResource\Pages;
 use App\Filament\Resources\ActivityLogResource\RelationManagers;
 use App\Models\ActivityLog;
 use App\Models\Report;
+use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -15,6 +17,9 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -51,6 +56,7 @@ class ActivityLogResource extends Resource
             ->columns([
                 Panel::make([
                     Split::make([
+                        // Image Column Bug. User needs to have an avatar for activity logs to be viewed
                         ImageColumn::make('causer.avatar_url')
                             ->circular()
                             ->grow(false)
@@ -58,7 +64,6 @@ class ActivityLogResource extends Resource
                                 if ($record->causer) {
                                     return asset(url($record->causer->avatar_url));
                                 }
-                                return null;
                             }),
                         TextColumn::make('description')
                             ->formatStateUsing(function ($record) {
@@ -75,18 +80,49 @@ class ActivityLogResource extends Resource
                 ])->collapsed(false)
             ])->defaultSort('created_at', 'desc')
             ->filters([
-                //
-            ])
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From')
+                            ->placeholder('Select start date')
+                            ->native(false)
+                            ->displayFormat('m.d.Y')
+                            ->format('Y-m-d'),
+                        DatePicker::make('until')
+                            ->label('To')
+                            ->placeholder('Select end date')
+                            ->native(false)
+                            ->displayFormat('m.d.Y')
+                            ->format('Y-m-d'),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                function (Builder $query, $date) {
+                                    return $query->whereDate('created_at', '>=', $date);
+                                }
+                            )
+                            ->when(
+                                $data['until'],
+                                function (Builder $query, $date) {
+                                    return $query->whereDate('created_at', '<=', $date);
+                                }
+                            );
+                    }),
+            ],layout: FiltersLayout::AboveContentCollapsible)
             ->actions([
                 Tables\Actions\Action::make('activities')
                         ->label('View Recent Changes')
+                        ->color('aap-blue')
                         ->button()
                         ->hidden(fn (Activity $record) => Auth::user()->hasAnyRole(['acct-staff', 'cashier']))
                         ->url(fn ($record) => route('filament.admin.resources.reports.activities', ['record' => $record->subject_id])),
                 Tables\Actions\Action::make('view')
                         ->label('View Report')
-                        ->color('info')
-                        ->button()
+                        ->color('aap-blue')
                         ->hidden(fn (Activity $record) => Auth::user()->hasAnyRole(['acct-staff', 'cashier']))
                         ->url(fn ($record) => route('filament.admin.resources.reports.view', ['record' => $record->subject_id]))
             ])

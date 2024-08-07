@@ -68,7 +68,8 @@ class Login extends AuthLogin
 
     public function authenticate(): ?LoginResponse
     {
-        $credentials = $this->getCredentialsFromFormData($this->form->getState());
+        $formData = $this->form->getState();
+        $credentials = $this->getCredentialsFromFormData($formData);
 
         $user = \App\Models\User::whereRaw('BINARY username = ?', [$credentials['username']])->first();
 

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            $table->string('others_insurance_type', 50)->nullable();
-            $table->string('others_application', 50)->nullable();
-            $table->string('others_insurance_prod', 50)->nullable();
+        Schema::create('payment_modes', function (Blueprint $table) {
+            $table->id('payment_id');
+            $table->string('name', 50)->nullable();
+            $table->timestamps();
         });
     }
 
@@ -23,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('payment_modes');
     }
 };
