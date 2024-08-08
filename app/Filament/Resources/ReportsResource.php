@@ -74,6 +74,7 @@ use App\Models\InsuranceType as ModelsInsuranceType;
 use App\Models\PaymentMode;
 use Filament\Forms\Components\Repeater;
 use Filament\Support\Enums\MaxWidth;
+use Filament\Forms\Components\Textarea;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 use Illuminate\Validation\Rule;
@@ -146,26 +147,21 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
                                         ->options(ModelsCostCenter::all()->pluck('name','name')),
-                                    TextInput::make('arpr_date')
-                                        ->default(now()->format('m-d-Y'))
+                                    DatePicker::make('arpr_date')
                                         ->label('AR/PR Date')
                                         ->inlineLabel()
-                                        ->readOnly()
-                                        ->formatStateUsing(function ($state) {
-                                            if (!$state) return now()->format('m-d-Y');
-                                            return $state instanceof Carbon ? $state->format('m-d-Y') : $state;
-                                        })
-                                        ->dehydrateStateUsing(function ($state) {
-                                            if (!$state) return now()->format('m-d-Y');
-                                            try {
-                                                return Carbon::createFromFormat('m-d-Y', $state)->format('m-d-Y');
-                                            } catch (\Exception $e) {
-                                                return Date::parse($state)->format('m-d-Y');
+                                        ->disabled(function ($get, $record) {
+                                            // If the record exists and has an arpr_date
+                                            if ($record && $get('arpr_date')) {
+                                                // Disable for everyone except acct-staff
+                                                return !Auth::user()->hasRole('acct-staff');
                                             }
+                                            // For new records or empty arpr_date, disable only for acct-staff
+                                            return Auth::user()->hasRole('acct-staff');
                                         })
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->extraAttributes(['readonly' => true, 'style' => 'pointer-events: none;'])
-                                        ->rules(['date_format:m-d-Y']),
+                                        ->required()
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false),
                                     DatePicker::make('inception_date')
                                         ->label('Inception Date')
                                         ->inlineLabel()
@@ -180,6 +176,10 @@ class ReportsResource extends Resource
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Assured')
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                            })
                                         ->inlineLabel(),
                                     TextInput::make('policy_num')
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
@@ -254,31 +254,33 @@ class ReportsResource extends Resource
                                                 $set('total_payment', $get('gross_premium'));
                                             }
                                         }),
-                                    TextInput::make('gross_premium')
+                                        TextInput::make('gross_premium')
                                         ->label('Enter Gross Premium')
                                         ->inlineLabel()
                                         ->numeric()
                                         ->required()
                                         ->reactive()
                                         ->disabled(Auth::user()->hasRole('acct-staff')),
+                                    
                                     TextInput::make('total_payment')
                                         ->label('Total Payment')
                                         ->inlineLabel()
                                         ->numeric()
                                         ->disabled(Auth::user()->hasRole('cashier'))
                                         ->reactive()
-                                        ->live(onBlur: true)
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
-                                            $balance = intval($get('gross_premium')) - intval($state);
+                                            $grossPremium = floatval($get('gross_premium'));
+                                            $totalPayment = floatval($state);
+                                            $balance = $grossPremium - $totalPayment;
                                             $set('payment_balance', $balance);
                                         }),
+                                    
                                     TextInput::make('payment_balance')
-                                        ->label('Total Payment Balance')
+                                        ->label('Outstanding Balance')
                                         ->inlineLabel()
                                         ->readOnly()
-                                        ->hidden()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => !empty($get('total_payment') && ($get('gross_premium'))))
+                                        ->live(debounce: 500)
+                                        ->visible(fn (Get $get) => !empty($get('total_payment')) && !empty($get('gross_premium')))
                                         ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
                                         ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
                                     Select::make('payment_mode')
@@ -408,16 +410,45 @@ class ReportsResource extends Resource
                     ->searchable()
                     ->grow(false)
                     ->label('Cost Centers'),
+                TextColumn::make('inception_date')
+                    ->label('Inception Date')
+                    ->searchable()
+                    ->date('m-d-Y')
+                    ->visibleFrom('md'),
+                TextColumn::make('cost_center')
+                    ->label('Cost Center')
+                    ->searchable()
+                    ->visibleFrom('md')
+                    ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
                     ->searchable()
                     ->grow(false),
                 TextColumn::make('insurance_prod')
                     ->label('Insurance Provider')
-                    ->searchable(),
+                    ->grow(false)
+                    ->visibleFrom('md'),
                 TextColumn::make('insurance_type')
                     ->label('Insurance Type')
-                    ->searchable(),
+                    ->icon('heroicon-o-calendar-days')
+                    ->visibleFrom('md'),
+                TextColumn::make('assured')
+                    ->label('Assured')
+                    ->visibleFrom('md'),
+                TextColumn::make('policy_num')
+                    ->label('Policy Number')
+                    ->visibleFrom('md'),
+                TextColumn::make('application')
+                    ->label('Mode of Application')
+                    ->visibleFrom('md'),
+                TextColumn::make('plate_num')
+                    ->label('Vehicle Plate No.')
+                    ->searchable()
+                    ->visibleFrom('md')
+                    ->grow(false),
+                TextColumn::make('car_details')
+                    ->label('Car Details')
+                    ->visibleFrom('md'),
                 TextColumn::make('payment_status')
                     ->label('Payment Status')
                     ->badge(),
