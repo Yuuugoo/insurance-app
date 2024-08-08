@@ -13,12 +13,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        $this->call(RolesAndPermissionSeeder::class);
-        $this->call(ReportSeeder::class);
         $this->call(CostCenterSeeder::class);
         $this->call(InsuranceTypeSeeder::class);
         $this->call(InsuranceProviderSeeder::class);
         $this->call(PaymentSeeder::class);
+        $this->call(RolesAndPermissionSeeder::class);
+        $this->call(ReportSeeder::class);
         // \App\Models\User::factory(1)->create();
 
         // \App\Models\User::factory()->create([

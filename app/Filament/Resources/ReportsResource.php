@@ -140,23 +140,20 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Sales Person')
                                         ->inlineLabel(),
-                                    Select::make('cost_center') 
+                                    Select::make('report_cost_center_id') 
                                         ->label('Cost Center')
                                         ->inlineLabel()
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
-                                        ->options(ModelsCostCenter::all()->pluck('name','name')),
+                                        ->options(ModelsCostCenter::all()->pluck('name','cost_center_id')),
                                     DatePicker::make('arpr_date')
                                         ->label('AR/PR Date')
                                         ->inlineLabel()
                                         ->disabled(function ($get, $record) {
-                                            // If the record exists and has an arpr_date
                                             if ($record && $get('arpr_date')) {
-                                                // Disable for everyone except acct-staff
                                                 return !Auth::user()->hasRole('acct-staff');
                                             }
-                                            // For new records or empty arpr_date, disable only for acct-staff
                                             return Auth::user()->hasRole('acct-staff');
                                         })
                                         ->required()
@@ -254,14 +251,13 @@ class ReportsResource extends Resource
                                                 $set('total_payment', $get('gross_premium'));
                                             }
                                         }),
-                                        TextInput::make('gross_premium')
+                                    TextInput::make('gross_premium')
                                         ->label('Enter Gross Premium')
                                         ->inlineLabel()
                                         ->numeric()
                                         ->required()
                                         ->reactive()
                                         ->disabled(Auth::user()->hasRole('acct-staff')),
-                                    
                                     TextInput::make('total_payment')
                                         ->label('Total Payment')
                                         ->inlineLabel()
@@ -274,7 +270,6 @@ class ReportsResource extends Resource
                                             $balance = $grossPremium - $totalPayment;
                                             $set('payment_balance', $balance);
                                         }),
-                                    
                                     TextInput::make('payment_balance')
                                         ->label('Outstanding Balance')
                                         ->inlineLabel()
@@ -406,20 +401,16 @@ class ReportsResource extends Resource
                     ->searchable()
                     ->grow(false)
                     ->label('AR/PR Date'),
-                TextColumn::make('cost_center')
+                TextColumn::make('costCenter.name')
+                    ->label('Cost Centers')
                     ->searchable()
-                    ->grow(false)
-                    ->label('Cost Centers'),
+                    ->visibleFrom('md')
+                    ->icon('heroicon-o-map-pin'),
                 TextColumn::make('inception_date')
                     ->label('Inception Date')
                     ->searchable()
                     ->date('m-d-Y')
                     ->visibleFrom('md'),
-                TextColumn::make('cost_center')
-                    ->label('Cost Center')
-                    ->searchable()
-                    ->visibleFrom('md')
-                    ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
                     ->searchable()
@@ -481,6 +472,8 @@ class ReportsResource extends Resource
                             ->displayFormat('d.m.Y')
                             ->format('m-d-Y'),
                     ])
+                    ->columns(2)
+                    ->columnSpanFull()
                     ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -515,33 +508,32 @@ class ReportsResource extends Resource
                             ->reactive()
                             ->searchable()
                             ->multiple(),
-
-                    ])
-                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['insurance_type'],
-                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_type', $insuranceTypes)
-                            );
-                    }),
-                Filter::make('cost_center')
-                    ->form([
-                        Select::make('cost_center')
+                        Select::make('report_cost_center_id')
                             ->label('Cost Center')
                             ->placeholder('Select Cost Center')
-                            ->options(ModelsCostCenter::all()->pluck('name','name'))
+                            ->options(ModelsCostCenter::all()->pluck('name','cost_center_id'))
+                            ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
                             ->native(false)
                             ->reactive()
                             ->searchable()
                             ->multiple(),
-                    ])
-                    ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
+
+                    ])->columnSpanFull()->columns(3)
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['cost_center'],
-                            fn (Builder $query, array $costCenters) => $query->whereIn('cost_center', $costCenters)
-                        );
+                        return $query
+                            ->when(
+                                $data['insurance_prod'],
+                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_prod', $insuranceTypes)
+                            )
+                            ->when(
+                                $data['insurance_type'],
+                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_type', $insuranceTypes)
+                            )
+                            ->when(
+                                $data['report_cost_center_id'],
+                                fn (Builder $query, array $costCenters) => $query->whereIn('report_cost_center_id', $costCenters)
+                            );
+                            
                     }),
                 TrashedFilter::make()
                     ->placeholder('All Records w/o Archived')
@@ -549,7 +541,7 @@ class ReportsResource extends Resource
                     ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
                     ->trueLabel('All Records w/ Archived')
                     ->falseLabel('Archived Records'),
-            ],layout: FiltersLayout::AboveContentCollapsible)
+            ],layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(4)
             ->filtersFormWidth('FiveExtraLarge')
             ->actions([
@@ -617,7 +609,12 @@ class ReportsResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->when(Auth::user()->branch_id !== null, function (Builder $query) {
+                $query->whereHas('costCenter', function (Builder $subQuery) {
+                    $subQuery->where('cost_center_id', Auth::user()->branch_id);
+                });
+            });
     }
 
     public static function getRelations(): array

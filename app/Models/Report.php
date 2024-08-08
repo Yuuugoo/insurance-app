@@ -25,8 +25,8 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
-        'submitted_by_id',
-        'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
+        'submitted_by_id', 'report_cost_center_id',
+        'sale_person',  'arpr_num', 'arpr_date',
         'insurance_prod', 'insurance_type', 'inception_date', 
         'assured', 'policy_num', 'application', 'cashier_remarks', 
         'acct_remarks', 'policy_file', 'terms', 'gross_premium','payment_balance',
@@ -132,9 +132,9 @@ class Report extends Model
         return $this->hasMany(ModelsInsuranceType::class, 'insurance_type_id');
     }
 
-    public function costCenters()
+    public function costCenter()
     {
-        return $this->hasMany(ModelsCostCenter::class, 'cost_center_id');
+        return $this->belongsTo(CostCenter::class, 'report_cost_center_id', 'cost_center_id');
     }
 
     public function payments()

@@ -8,8 +8,5 @@
         @livewire(\App\Livewire\CurrentMonthReports::class)
         @livewire(\App\Livewire\PreviousMonth::class)
     </div>
-    <div class="">
-        @livewire(\App\Livewire\SummaryReport::class)
-    </div>
 </x-filament-panels::page>
     

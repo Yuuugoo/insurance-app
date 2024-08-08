@@ -77,18 +77,493 @@ class RolesAndPermissionSeeder extends Seeder
         $createAccountPermission = Permission::create(['name' => 'create: account']);
 
         $superAdminRole->givePermissionTo($createAccountPermission);
-
+        ////////////// CASHIER ROLES ////////////////////
         User::create([
             'name' => 'Ethan Chen',
+            'branch_id' => 1,
             'username' => 'CSH_EC',
-            'email' => 'cashier@admin.com',
+            'email' => 'ethan@cshaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
             'avatar_url' => '/storage/default_avatar/panda.png'
-
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Emma Thompson',
+            'branch_id' => 2,
+            'username' => 'CSH_ET',
+            'email' => 'emma@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'James Harrison',
+            'branch_id' => 3,
+            'username' => 'CSH_JH',
+            'email' => 'james@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Sophia Patel',
+            'branch_id' => 4,
+            'username' => 'CSH_SP',
+            'email' => 'sophia@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Liam Roberts',
+            'branch_id' => 5,
+            'username' => 'CSH_LR',
+            'email' => 'liam@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Olivia Martinez',
+            'branch_id' => 6,
+            'username' => 'CSH_OM',
+            'email' => 'olivia@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Noah King',
+            'branch_id' => 7,
+            'username' => 'CSH_NK',
+            'email' => 'noah@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Ava Davis',
+            'branch_id' => 8,
+            'username' => 'CSH_AD',
+            'email' => 'ava@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'William Scott',
+            'branch_id' => 9,
+            'username' => 'CSH_WS',
+            'email' => 'william@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Isabella Nguyen',
+            'branch_id' => 10,
+            'username' => 'CSH_IN',
+            'email' => 'isabella@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Benjamin Hall',
+            'branch_id' => 11,
+            'username' => 'CSH_BH',
+            'email' => 'benjamin@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Mia Lee',
+            'branch_id' => 12,
+            'username' => 'CSH_ML',
+            'email' => 'mia@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Lucas Green',
+            'branch_id' => 13,
+            'username' => 'CSH_LG',
+            'email' => 'lucas@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Amelia Adams',
+            'branch_id' => 14,
+            'username' => 'CSH_AA',
+            'email' => 'amelia@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Henry Perez',
+            'branch_id' => 15,
+            'username' => 'CSH_HP',
+            'email' => 'henry@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Evelyn Johnson',
+            'branch_id' => 16,
+            'username' => 'CSH_EJ',
+            'email' => 'evelyn@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Alexander Ramirez',
+            'branch_id' => 17,
+            'username' => 'CSH_AR',
+            'email' => 'alexander@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        User::create([
+            'name' => 'Charlotte Campbell',
+            'branch_id' => 18,
+            'username' => 'CSH_CC',
+            'email' => 'charlotte@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
         ])->assignRole($cashierRole);
 
+        User::create([
+            'name' => 'Charlotte BellCamp',
+            'branch_id' => 19,
+            'username' => 'CSH_CB',
+            'email' => 'charlottebel@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        User::create([
+            'name' => 'Johhny Depp',
+            'branch_id' => 20,
+            'username' => 'CSH_JDP',
+            'email' => 'johnnydepp@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        ////////////// AGENT ROLES ////////////////////
+        User::create([
+            'name' => 'John Smith',
+            'branch_id' => 1,
+            'username' => 'AGN_JS',
+            'email' => 'johnsmith@user.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'Emily Johnson',
+            'branch_id' => 1,
+            'username' => 'AGN_EJ',
+            'email' => 'emilyjohnson@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'Michael Smith',
+            'branch_id' => 1,
+            'username' => 'AGN_MS',
+            'email' => 'michaelsmith@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'John Lawrence',
+            'branch_id' => 1,
+            'username' => 'AGN_JL',
+            'email' => 'johnlawrence@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'Agent 007',
+            'branch_id' => 1,
+            'username' => 'AGN_A0',
+            'email' => 'jamesbond@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Mark Daniel',
+            'branch_id' => 2,
+            'username' => 'AGN_MD',
+            'email' => 'markdaniel@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Michael Brown',
+            'branch_id' => 3,
+            'username' => 'AGN_MB',
+            'email' => 'michaelbrown@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Sarah Davis',
+            'branch_id' => 4,
+            'username' => 'AGN_SD',
+            'email' => 'sarahdavis@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'David Wilson',
+            'branch_id' => 5,
+            'username' => 'AGN_DW',
+            'email' => 'davidwilson@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Laura Martinez',
+            'branch_id' => 6,
+            'username' => 'AGN_LM',
+            'email' => 'lauramartinez@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Daniel Anderson',
+            'branch_id' => 7,
+            'username' => 'AGN_DA',
+            'email' => 'danielanderson@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Jessica Taylor',
+            'branch_id' => 8,
+            'username' => 'AGN_JT',
+            'email' => 'jessicataylor@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'James Moore',
+            'branch_id' => 9,
+            'username' => 'AGN_JM',
+            'email' => 'jamesmoore@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Amy Thompson',
+            'branch_id' => 10,
+            'username' => 'AGN_AT',
+            'email' => 'amythompson@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Brian White',
+            'branch_id' => 11,
+            'username' => 'AGN_BW',
+            'email' => 'brianwhite@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Megan Garcia',
+            'branch_id' => 12,
+            'username' => 'AGN_MG',
+            'email' => 'megangarcia@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Robert Martinez',
+            'branch_id' => 13,
+            'username' => 'AGN_RM',
+            'email' => 'robertmartinez@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Elizabeth Hernandez',
+            'branch_id' => 14,
+            'username' => 'AGN_EH',
+            'email' => 'elizabethhernandez@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Kevin Clark',
+            'branch_id' => 15,
+            'username' => 'AGN_KC',
+            'email' => 'kevinclark@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Linda Lewis',
+            'branch_id' => 16,
+            'username' => 'AGN_LL',
+            'email' => 'lindalewis@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Steven Walker',
+            'branch_id' => 17,
+            'username' => 'AGN_SW',
+            'email' => 'stevenwalker@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+        
+        User::create([
+            'name' => 'Anna Young',
+            'branch_id' => 18,
+            'username' => 'AGN_AY',
+            'email' => 'annayoung@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'Ava Brown',
+            'branch_id' => 19,
+            'username' => 'AGN_AB',
+            'email' => 'avabrown@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        User::create([
+            'name' => 'Ava Blue',
+            'branch_id' => 20,
+            'username' => 'AGN_ABL',
+            'email' => 'avablue@agnaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($agentRole);
+
+        ////////////// OTHER ROLES ////////////////////
         User::create([
             'name' => 'Michelle Lee',
             'username' => 'ACC_ML',
@@ -123,18 +598,6 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($superAdminRole);
 
         User::create([
-            'name' => 'Mark Daniel',
-            'username' => 'AGN_MD',
-            'email' => 'agentview@user.com',
-            'email_verified_at' => now(),
-            'password' => hash('sha512', 'password'),
-            'remember_token' => Str::random(10),
-            'avatar_url' => '/storage/default_avatar/panda.png'
-
-        ])->assignRole($agentRole);
-
-        
-        User::create([
             'name' => 'John Lawrence',
             'username' => 'CFO_JL',
             'email' => 'cfo@user.com',
@@ -144,10 +607,6 @@ class RolesAndPermissionSeeder extends Seeder
             'avatar_url' => '/storage/default_avatar/panda.png'
 
         ])->assignRole($cfoRole);
-
-        
-
-
 
     }
 }

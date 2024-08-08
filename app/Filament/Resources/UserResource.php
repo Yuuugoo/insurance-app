@@ -19,10 +19,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\CostCenter;
 use Filament\Facades\Filament;
+use Filament\Forms\Get;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -74,6 +80,11 @@ class UserResource extends Resource
                     ->dehydrateStateUsing(function ($state) {
                         return $state ?: '/storage/default_avatar/default.png';
                     }),
+                Select::make('branch_id')
+                    ->label('Branch')
+                    ->helperText('Select the branch this user belongs to')
+                    ->nullable()
+                    ->options(CostCenter::all()->pluck('name','cost_center_id')),
             ]);
     }
 
@@ -81,45 +92,90 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('avatar_url')
-                    ->circular()
-                    ->getStateUsing(function ($record) {
-                        if ($record->avatar_url) {
-                            return asset(url($record->avatar_url));
-                        }
-                    
-                        return Filament::getUserAvatarUrl($record);
-                    }),
+                Split::make([
+                    ImageColumn::make('avatar_url')
+                        ->grow(false)
+                        ->circular()
+                        ->getStateUsing(function ($record) {
+                            if ($record->avatar_url) {
+                                return asset(url($record->avatar_url));
+                            }
+                        
+                            return Filament::getUserAvatarUrl($record);
+                        }),
+                    TextColumn::make('name')
+                        ->searchable()
+                        ->weight(FontWeight::Bold),
+                ]),
                 Panel::make([
                     Split::make([
-                        TextColumn::make('name')
-                            ->description('Name', position: 'below')
-                            ->searchable()
-                            ->icon('heroicon-s-user'),
                         TextColumn::make('username')
                             ->searchable()
+                            ->weight(FontWeight::Bold)
                             ->icon('heroicon-s-user')
                             ->description('Username', position: 'below'),
+                        TextColumn::make('costCenter.name')
+                            ->description('Assigned Branch', position: 'below')
+                            ->searchable()
+                            ->weight(FontWeight::Bold)
+                            ->icon('heroicon-s-map-pin'),
                         TextColumn::make('roles.name')
                             ->searchable()
+                            ->weight(FontWeight::Bold)
+                            ->grow()
                             ->icon('heroicon-s-flag')
                             ->description('Role', position: 'below'),
                         Tables\Columns\TextColumn::make('email')
                             ->searchable()
+                            ->weight(FontWeight::Bold)
                             ->icon('heroicon-s-envelope')
                             ->description('Email', position: 'below'),
-                        Tables\Columns\TextColumn::make('created_at')
-                            ->date('m-d-Y')
-                            ->icon('heroicon-s-calendar-days')
-                            ->description('Date Created', position: 'below'),
-                        Tables\Columns\TextColumn::make('updated_at')
-                            ->date('m-d-Y')
-                            ->icon('heroicon-s-calendar-days')
-                            ->description('Date Updated', position: 'below'),
+                        Stack::make([
+                            Tables\Columns\TextColumn::make('created_at')
+                                ->date('m-d-Y')
+                                ->weight(FontWeight::SemiBold)
+                                ->icon('heroicon-s-calendar-days')
+                                ->description('Date Created', position: 'below'),
+                            Tables\Columns\TextColumn::make('updated_at')
+                                ->date('m-d-Y')
+                                ->weight(FontWeight::SemiBold)
+                                ->icon('heroicon-s-calendar-days')
+                                ->description('Date Updated', position: 'below'),
+                        ]),
                     ])->from('md'),
                 ])->collapsed(false)
             ])
             ->filters([
+                Filter::make('cost_center')
+                    ->form([
+                        Select::make('branch_id')
+                            ->label('Branches')
+                            ->placeholder('Select Branch')
+                            ->options(CostCenter::all()->pluck('name','cost_center_id'))
+                            ->native(false)
+                            ->reactive()
+                            ->searchable()
+                            ->multiple(),
+                        Select::make('roles')
+                            ->label('Roles')
+                            ->placeholder('Select Role')
+                            ->options(Role::all()->pluck('name', 'name'))
+                            ->native(false)
+                            ->multiple(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['roles'],
+                                fn (Builder $query, array $roles) => $query->whereHas('roles', function ($q) use ($roles) {
+                                    $q->whereIn('name', $roles);
+                                })
+                            )
+                            ->when(
+                                $data['branch_id'],
+                                fn (Builder $query, array $branchIds) => $query->whereIn('branch_id', $branchIds)
+                            );
+                    }),
                 TrashedFilter::make()
                     ->placeholder('All Users')
                     ->label('Archived')

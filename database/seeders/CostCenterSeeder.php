@@ -14,9 +14,9 @@ class CostCenterSeeder extends Seeder
     public function run(): void
     {
         $costCenters = [
-            'Aurora', 'Fairview', 'Feliz', 'Manila Bay', 'Makati', 'Market',
-            'Robinsons Manila', 'Alabang', 'Dasmariñas', 'Pampanga', 'Marquee',
-            'Baliwag', 'La Union', 'Lipa', 'Calamba', 'Cebu', 'Davao', 'Abreeza'
+            'Aurora', 'Fairview', 'Feliz', 'Manila Bay', 'Makati', 'Market Market',
+            'Robinsons Manila', 'Alabang', 'Southwoods', 'Dasmariñas', 'Sta. Rosa', 'Pampanga', 'Marquee',
+            'Baliwag', 'La Union', 'Lipa', 'Calamba', 'Cebu', 'Davao', 'Abreeza Mall'
         ];
         
         foreach ($costCenters as $name) {

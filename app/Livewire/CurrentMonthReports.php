@@ -112,10 +112,11 @@ class CurrentMonthReports extends ApexChartWidget
         $costCenters = CostCenter::distinct('name')->pluck('name')->sort()->values();
         $labels = $costCenters->toArray();
 
-        $data = Report::select('cost_center', DB::raw('count(*) as total'))
+        $data = Report::join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_center_id')
+            ->select('cost_centers.name', DB::raw('count(*) as total'))
             ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
-            ->groupBy('cost_center')
-            ->pluck('total', 'cost_center')
+            ->groupBy('cost_centers.name')
+            ->pluck('total', 'name')
             ->toArray();
 
         $dataset = $costCenters->map(function($cc) use ($data) {
@@ -150,7 +151,8 @@ class CurrentMonthReports extends ApexChartWidget
             DB::raw('count(*) as total')
         )
             ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
-            ->whereRaw('LOWER(cost_center) = ?', [strtolower($costCenter)])
+            ->join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_centers.cost_center_id')
+            ->whereRaw('LOWER(report_cost_center_id) = ?', [strtolower($costCenter)])
             ->groupBy('day')
             ->pluck('total', 'day')
             ->toArray();
@@ -185,7 +187,7 @@ class CurrentMonthReports extends ApexChartWidget
             Select::make('filter')
                 ->label('Cost Center')
                 ->native(false)
-                ->options(CostCenter::pluck('name', 'name')->prepend('All', 'All')->toArray())
+                ->options(CostCenter::pluck('name', 'cost_center_id')->prepend('All', 'All')->toArray())
                 ->default('All')
                 ->reactive(),
         ];
@@ -194,9 +196,15 @@ class CurrentMonthReports extends ApexChartWidget
     public function getHeading(): ?string
     {
         $filters = $this->getFilters();
-        $costCenter = $filters['filter'] ?? 'All';
+        $costCenterId = $filters['filter'] ?? 'All';
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now();
 
-        return $costCenter . " Reports for " . $selectedDate->format('F Y');
+        if ($costCenterId === 'All') {
+            $costCenterName = 'All';
+        } else {
+            $costCenterName = CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
+        }
+
+        return $costCenterName . " Reports for " . $selectedDate->format('F Y');
     }
 }

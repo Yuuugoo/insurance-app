@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id('reports_id');
             $table->unsignedBigInteger('submitted_by_id')->nullable();
             $table->foreign('submitted_by_id')->references('id')->on('users');
-            $table->string('cost_center', 50);
             $table->text('arpr_num');
             $table->string('arpr_date', 50);
             $table->date('inception_date')->nullable();
