@@ -200,7 +200,7 @@ class ReportSeeder extends Seeder
             'submitted_by_id' => $user->id,
             'created_at' => '2024-05-05',
             'updated_at' => '2024-05-05',
-            'cost_center' => 'davao',
+            'cost_center' => 'Davao',
             'arpr_num' => 'PR100044',
             'arpr_date' => '06-28-2024',
             'inception_date' => '2024-06-20',

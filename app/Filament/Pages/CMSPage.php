@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CMSPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-folder-plus';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'REPORTS';
     protected static ?int $navigationSort = 2;
     protected static string $view = 'filament.pages.c-m-s-page';
