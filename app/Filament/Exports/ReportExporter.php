@@ -10,6 +10,10 @@ use App\Enums\ModeApplication;
 use App\Enums\Payment;
 use App\Enums\PolicyStatus;
 use App\Enums\Terms;
+use App\Models\CostCenter as ModelsCostCenter;
+use App\Models\InsuranceProvider;
+use App\Models\InsuranceType as ModelsInsuranceType;
+use App\Models\PaymentMode;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Models\Export;
@@ -32,11 +36,8 @@ class ReportExporter extends Exporter
                 ->label('DATE CREATED'),
             ExportColumn::make('sale_person')
                 ->label('SALES PERSON'),
-            ExportColumn::make('cost_center')
-                ->label('COST CENTER')
-                ->formatStateUsing(function (CostCenter $state) {
-                    return $state->getLabel();
-                }),
+            ExportColumn::make('costCenter.name')
+                ->label('COST CENTER'),
             ExportColumn::make('arpr_num')
                 ->label('ARPR NUMBER'),
             ExportColumn::make('arpr_date')
@@ -48,15 +49,9 @@ class ReportExporter extends Exporter
             ExportColumn::make('policy_num')
                 ->label('POLICY NUMBER'),
             ExportColumn::make('insurance_prod')
-                ->label('INSURANCE PROVIDER')
-                ->formatStateUsing(function (InsuranceProd $state) {
-                    return $state->getLabel();
-                }),
+                ->label('INSURANCE PROVIDER'),
             ExportColumn::make('insurance_type')
-                ->label('INSURANCE TYPE')
-                ->formatStateUsing(function (InsuranceType $state) {
-                    return $state->getLabel();
-                }),
+                ->label('INSURANCE TYPE'),
             ExportColumn::make('terms')
                 ->label('TERMS')
                 ->formatStateUsing(function (Terms $state) {
@@ -65,10 +60,7 @@ class ReportExporter extends Exporter
             ExportColumn::make('gross_premium')
                 ->label('GROSS PREMIUM'),
             ExportColumn::make('payment_mode')
-                ->label('MODE OF PAYMENT')
-                ->formatStateUsing(function (Payment $state) {
-                    return $state->getLabel();
-                }),
+                ->label('MODE OF PAYMENT'),
             ExportColumn::make('total_payment')
                 ->label('TOTAL PAYMENT'),
             ExportColumn::make('plate_num')
