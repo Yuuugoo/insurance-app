@@ -37,22 +37,12 @@
                         <td class="border border-slate-300">{{ $costCenter->name }}</td>
                         <!-- Add appropriate data columns based on the selected provider and insurance types -->
                         @foreach ($this->getProviderHeaders() as $header)
-                            <td class="border border-slate-300">{{ $this->getGrossPremium() }}</td>
+                            <td class="border border-slate-300">{{ $this->getGrossPremium($costCenter->cost_center_id, $header) }}</td>
                         @endforeach
-                        <td class="border border-slate-300"></td>
+                        <td class="border border-slate-300">{{ $this->getTotalGrossPremium($costCenter->cost_center_id) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
-
-
-
-    <!-- component -->
-
-
-
-
-
-<!-- ====== Table Section End -->
 </x-filament::page>

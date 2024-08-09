@@ -147,7 +147,8 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
                                         ->options(ModelsCostCenter::all()->pluck('name','cost_center_id')),
-                                    DatePicker::make('arpr_date')
+                                        
+                                        DatePicker::make('arpr_date')
                                         ->label('AR/PR Date')
                                         ->inlineLabel()
                                         ->disabled(function ($get, $record) {
@@ -158,7 +159,22 @@ class ReportsResource extends Resource
                                         })
                                         ->required()
                                         ->displayFormat('m-d-Y')
-                                        ->native(false),
+                                        ->native(false)
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, $state, $get, $record) {
+                                            if ($record && $state !== $record->arpr_date) {
+                                                $set('show_description', true);
+                                            } else {
+                                                $set('show_description', false);
+                                            }
+                                        }),
+                                    Textarea::make('arpr_date_remarks')
+                                        ->label('AR/PR Date Remarks')
+                                        ->hidden(fn (Get $get) => !$get('show_description') || Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
+                                        ->required(fn (Get $get) => $get('show_description')),
+
+
+
                                     DatePicker::make('inception_date')
                                         ->label('Inception Date')
                                         ->inlineLabel()
@@ -400,6 +416,7 @@ class ReportsResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->grow(false)
+                    ->date('m-d-Y')
                     ->label('AR/PR Date'),
                 TextColumn::make('costCenter.name')
                     ->label('Cost Centers')

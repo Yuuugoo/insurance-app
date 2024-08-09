@@ -33,7 +33,7 @@ class Report extends Model
         'payment_mode',  'total_payment', 'plate_num',
         'car_details', 'policy_status',    'financing_bank',
         'payment_status', 'add_remarks','others_insurance_type', 
-        'others_insurance_prod', 'others_application', 'remit_deposit'
+        'others_insurance_prod', 'others_application', 'remit_deposit', 'arpr_date_remarks'
     ];
 
     protected $casts = [

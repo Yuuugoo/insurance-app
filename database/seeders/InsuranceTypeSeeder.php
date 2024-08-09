@@ -14,7 +14,7 @@ class InsuranceTypeSeeder extends Seeder
     public function run(): void
     {
         $insuranceTypes = [
-            'COMPRE', 'TPL', 'FPG', 'TRAVEL', 'PA', 'HOME',
+            'COMPRE', 'TPL', 'FIRE', 'TRAVEL', 'PA', 'HOME',
             'CASUALTY', 'MARINE', 'CGL',
         ];
         

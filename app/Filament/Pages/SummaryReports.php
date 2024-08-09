@@ -61,28 +61,24 @@ class SummaryReports extends Page
         return [];
     }
 
-    public function getGrossPremium()
+    public function getGrossPremium($costCenterId, $header)
     {
         // Retrieve selected criteria
         $provider = $this->getSelectedProvider();
-        $costCenter = $this->getSelectedCostCenter();
-        $insuranceType = $this->getSelectedInsuranceType();
-
-        // dd($insuranceType);
+        
+        $costCenter = CostCenter::where('cost_center_id',$costCenterId)->first();
+        $insuranceTypeName = str_replace(strtoupper($provider->name), '', $header);
+        $insuranceType = InsuranceType::where('name', trim($insuranceTypeName))->first();
 
         // Build the query to filter reports based on the selected criteria
         $query = Report::query();
 
         if ($provider) {
-            
             $query->where('insurance_prod', $provider->name);
-            
         }
 
         if ($costCenter) {
-            
-            $query->where('cost_center', $costCenter->name);
-           
+            $query->where('report_cost_center_id', $costCenter->cost_center_id);
         }
 
         if ($insuranceType) {
@@ -92,5 +88,25 @@ class SummaryReports extends Page
         // Calculate the sum of gross premiums from the filtered reports
         return $query->sum('gross_premium');
     }
-}
 
+    public function getTotalGrossPremium($costCenterId)
+    {
+        // Retrieve selected criteria
+        $provider = $this->getSelectedProvider();
+        $costCenter = CostCenter::find($costCenterId);
+
+        // Build the query to filter reports based on the selected criteria
+        $query = Report::query();
+
+        if ($provider) {
+            $query->where('insurance_prod', $provider->name);
+        }
+
+        if ($costCenter) {
+            $query->where('report_cost_center_id', $costCenter->id);
+        }
+
+        // Calculate the sum of gross premiums from the filtered reports
+        return $query->sum('gross_premium');
+    }
+}
