@@ -15,8 +15,9 @@ class CostCenterSeeder extends Seeder
     {
         $costCenters = [
             'Aurora', 'Fairview', 'Feliz', 'Manila Bay', 'Makati', 'Market Market',
-            'Robinsons Manila', 'Alabang', 'Southwoods', 'Dasmariñas', 'Sta. Rosa', 'Pampanga', 'Marquee',
-            'Baliwag', 'La Union', 'Lipa', 'Calamba', 'Cebu', 'Davao', 'Abreeza Mall'
+            'Robinsons Manila', 'Alabang', 'Southwoods', 'Dasmariñas', 'Sta. Rosa', 
+            'Pampanga', 'Marquee', 'Baliwag', 'La Union', 'Lipa', 'Calamba', 'Cebu', 
+            'Davao', 'Abreeza Mall',
         ];
         
         foreach ($costCenters as $name) {

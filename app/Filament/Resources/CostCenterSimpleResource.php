@@ -29,14 +29,16 @@ class CostCenterSimpleResource extends Resource
         return $form
             ->schema([
                     TextInput::make('name')
-                        ->label('Name')
+                        ->label('Cost Center Name')
                         ->rule(['required'])
                         ->unique(ignoreRecord:True)
-                        ->inlineLabel()
                         ->live()
                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                             $livewire->validateOnly($component->getStatePath());
-                        }),
+                        })
+                        ->columnSpanFull(),
+                        
+                        
 
             ]);
     }

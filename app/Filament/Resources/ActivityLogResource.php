@@ -2,17 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\ActivityLogExporter;
 use App\Filament\Resources\ActivityLogResource\Pages;
 use App\Filament\Resources\ActivityLogResource\RelationManagers;
 use App\Models\ActivityLog;
 use App\Models\Report;
 use Carbon\Carbon;
+use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\Exports\Models\Export;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
@@ -30,8 +35,10 @@ use Spatie\Activitylog\Models\Activity;
 class ActivityLogResource extends Resource
 {
     protected static ?string $model = Activity::class;
+    protected static ?string $breadcrumb = 'Audits';
     protected static ?int $navigationSort = 6;
-    protected static ?string $title = 'Activity Log';
+    protected static ?string $navigationLabel = 'Audit Trail';
+    protected static ?string $title = 'Audit Trail';
     protected static ?string $navigationGroup = 'SETTINGS';
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $recordTitleAttribute = 'description';
@@ -54,7 +61,7 @@ class ActivityLogResource extends Resource
     {
         return $table
             ->columns([
-                Panel::make([
+                // Panel::make([
                     Split::make([
                         // Image Column Bug. User needs to have an avatar for activity logs to be viewed
                         ImageColumn::make('causer.avatar_url')
@@ -72,12 +79,11 @@ class ActivityLogResource extends Resource
                                 $subjectType = class_basename($record->subject_type);
                                 $arprNum = $record->subject->arpr_num ?? 'N/A';
                                 $updatedAt = $record->created_at->format('m/d/Y h:i A');
-                                return "{$username} {$action} {$subjectType} '{$arprNum}' at {$updatedAt}";
-                            }),
-                        
-                            
+                                return "<strong>{$username} {$action}</strong> {$subjectType} '<strong>{$arprNum}</strong>' at {$updatedAt}";
+                            })
+                            ->html(),
                     ])->from('md'),
-                ])->collapsed(false)
+                // ])->collapsed(false)
             ])->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('created_at')
@@ -126,10 +132,30 @@ class ActivityLogResource extends Resource
                         ->hidden(fn (Activity $record) => Auth::user()->hasAnyRole(['acct-staff', 'cashier']))
                         ->url(fn ($record) => route('filament.admin.resources.reports.view', ['record' => $record->subject_id]))
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(ActivityLogExporter::class)
+                    ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
+                    ->label('Export All Records')
+                    ->color('aap-blue')
+                    ->columnMapping(false)
+                    ->chunkSize(250)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
+                ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(ActivityLogExporter::class)
+                        ->label('Export Selected Records')
+                        ->color('success')
+                        ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
+                        ->columnMapping(false)
+                        ->chunkSize(250)
+                        ->formats([
+                            ExportFormat::Xlsx,
+                        ])
+                ]),
             ]);
     }
 

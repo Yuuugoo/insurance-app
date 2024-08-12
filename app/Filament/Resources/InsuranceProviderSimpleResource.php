@@ -28,14 +28,14 @@ class InsuranceProviderSimpleResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label('Insurance Provider Name')
                     ->rule(['required'])
                     ->unique(ignoreRecord:True)
-                    ->inlineLabel()
                     ->live()
                     ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                         $livewire->validateOnly($component->getStatePath());
-                    }),
+                    })
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -45,7 +45,7 @@ class InsuranceProviderSimpleResource extends Resource
             ->columns([
                 Stack::make([
                     TextColumn::make('name')
-                    ->label('Name'),
+                        ->label('Name'),
                 ])
             ])
             ->contentGrid([

@@ -83,6 +83,7 @@ class ReportsResource extends Resource
 {
     protected static ?string $model = Report::class;
     protected static ?string $navigationGroup = 'REPORTS';
+    protected static ?string $navigationLabel = 'Insurance Reports';
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
@@ -95,7 +96,7 @@ class ReportsResource extends Resource
                         ->schema([
                             Section::make()
                                 ->schema([
-                                    Select::make('insurance_prod')
+                                    Select::make('report_insurance_prod_id')
                                         ->label('Insurance Provider')
                                         ->inlineLabel()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
@@ -103,13 +104,13 @@ class ReportsResource extends Resource
                                         ->reactive()
                                         ->live()
                                         ->native(false)
-                                        ->options(InsuranceProvider::all()->pluck('name','name')),
+                                        ->options(InsuranceProvider::all()->pluck('name','insurance_provider_id')),
                                     TextInput::make('arpr_num')
                                         ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
                                         ->label('AR/PR No.')
                                         ->inlineLabel()
-                                        ->visible(fn (Get $get) => !empty($get('insurance_prod')))
-                                        ->required(fn (Get $get) => !empty($get('insurance_prod')))
+                                        ->visible(fn (Get $get) => !empty($get('report_insurance_prod_id')))
+                                        ->required(fn (Get $get) => !empty($get('report_insurance_prod_ids')))
                                         ->helperText('Enter AR/PR No.')
                                         ->live()
                                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
@@ -121,7 +122,7 @@ class ReportsResource extends Resource
                                                 $rule = Rule::unique('reports', 'arpr_num');
                                                 $currentRecordId = $get('reports_id');
 
-                                                $rule->where('insurance_prod', $get('insurance_prod'))
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
                                                 ->ignore($currentRecordId, 'reports_id');
     
                                                 return $rule;
@@ -147,8 +148,7 @@ class ReportsResource extends Resource
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
                                         ->options(ModelsCostCenter::all()->pluck('name','cost_center_id')),
-                                        
-                                        DatePicker::make('arpr_date')
+                                    DatePicker::make('arpr_date')
                                         ->label('AR/PR Date')
                                         ->inlineLabel()
                                         ->disabled(function ($get, $record) {
@@ -157,7 +157,6 @@ class ReportsResource extends Resource
                                             }
                                             return Auth::user()->hasRole('acct-staff');
                                         })
-                                        ->required()
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
                                         ->live()
@@ -172,9 +171,6 @@ class ReportsResource extends Resource
                                         ->label('AR/PR Date Remarks')
                                         ->hidden(fn (Get $get) => !$get('show_description') || Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
                                         ->required(fn (Get $get) => $get('show_description')),
-
-
-
                                     DatePicker::make('inception_date')
                                         ->label('Inception Date')
                                         ->inlineLabel()
@@ -203,13 +199,13 @@ class ReportsResource extends Resource
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
-                                    Select::make('insurance_type')
+                                    Select::make('report_insurance_type_id')
                                         ->label('Select Insurance Type')
                                         ->inlineLabel()
                                         ->required()
                                         ->native(false)
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->options(ModelsInsuranceType::all()->pluck('name','name'))
+                                        ->options(ModelsInsuranceType::all()->pluck('name','insurance_type_id'))
                                         ->live(),
                                     Select::make('application')
                                         ->native(false)
@@ -294,13 +290,13 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => !empty($get('total_payment')) && !empty($get('gross_premium')))
                                         ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
                                         ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
-                                    Select::make('payment_mode')
+                                    Select::make('report_payment_mode_id')
                                         ->required()
                                         ->live()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Select Payment Mode')
                                         ->inlineLabel()
-                                        ->options(PaymentMode::all()->pluck('name','name')),
+                                        ->options(PaymentMode::all()->pluck('name','payment_id')),
                                     FileUpload::make('policy_file')
                                         ->acceptedFileTypes(['image/jpeg','image/png','application/pdf'])
                                         ->helperText('Supported File Types: .jpeg, .png, .pdf')
@@ -423,48 +419,18 @@ class ReportsResource extends Resource
                     ->searchable()
                     ->visibleFrom('md')
                     ->icon('heroicon-o-map-pin'),
-                TextColumn::make('inception_date')
-                    ->label('Inception Date')
-                    ->searchable()
-                    ->date('m-d-Y')
-                    ->visibleFrom('md'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
                     ->searchable()
                     ->grow(false),
-                TextColumn::make('insurance_prod')
+                TextColumn::make('providers.name')
                     ->label('Insurance Provider')
-                    ->grow(false)
                     ->visibleFrom('md'),
-                TextColumn::make('insurance_type')
+                TextColumn::make('types.name')
                     ->label('Insurance Type')
-                    ->icon('heroicon-o-calendar-days')
-                    ->visibleFrom('md'),
-                TextColumn::make('assured')
-                    ->label('Assured')
-                    ->visibleFrom('md'),
-                TextColumn::make('policy_num')
-                    ->label('Policy Number')
-                    ->visibleFrom('md'),
-                TextColumn::make('application')
-                    ->label('Mode of Application')
-                    ->visibleFrom('md'),
-                TextColumn::make('plate_num')
-                    ->label('Vehicle Plate No.')
-                    ->searchable()
-                    ->visibleFrom('md')
-                    ->grow(false),
-                TextColumn::make('car_details')
-                    ->label('Car Details')
                     ->visibleFrom('md'),
                 TextColumn::make('payment_status')
                     ->label('Payment Status')
-                    ->badge(),
-                TextColumn::make('policy_status')
-                    ->searchable()
-                    ->label('Policy Status')
-                    ->sortable()
-                    ->visibleFrom('md')
                     ->badge(),
                 TextColumn::make('cashier.name')
                     ->label('Submitted By')

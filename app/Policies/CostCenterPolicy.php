@@ -13,7 +13,7 @@ class CostCenterPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('acct-manager');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -21,7 +21,7 @@ class CostCenterPolicy
      */
     public function view(User $user, CostCenter $costCenter): bool
     {
-        return $user->hasRole('acct-manager');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -29,7 +29,7 @@ class CostCenterPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('acct-manager');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -37,7 +37,7 @@ class CostCenterPolicy
      */
     public function update(User $user, CostCenter $costCenter): bool
     {
-        return $user->hasRole('acct-manager');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -45,7 +45,7 @@ class CostCenterPolicy
      */
     public function delete(User $user, CostCenter $costCenter): bool
     {
-        return $user->hasRole('');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**

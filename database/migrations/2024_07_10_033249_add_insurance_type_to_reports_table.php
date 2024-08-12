@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->string('insurance_type', 10)->nullable();
             $table->text('plate_num')->nullable();;
             $table->text('car_details')->nullable();
             $table->string('policy_status', 50)->nullable();

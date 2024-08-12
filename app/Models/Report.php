@@ -25,15 +25,13 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
-        'submitted_by_id', 'report_cost_center_id',
-        'sale_person',  'arpr_num', 'arpr_date',
-        'insurance_prod', 'insurance_type', 'inception_date', 
-        'assured', 'policy_num', 'application', 'cashier_remarks', 
+        'submitted_by_id', 'report_cost_center_id', 'report_insurance_prod_id', 
+        'report_insurance_type_id', 'report_payment_mode_id', 'sale_person',  'arpr_num', 'arpr_date',
+        'inception_date', 'assured', 'policy_num', 'application', 'cashier_remarks', 
         'acct_remarks', 'policy_file', 'terms', 'gross_premium','payment_balance',
-        'payment_mode',  'total_payment', 'plate_num',
-        'car_details', 'policy_status',    'financing_bank',
-        'payment_status', 'add_remarks','others_insurance_type', 
-        'others_insurance_prod', 'others_application', 'remit_deposit', 'arpr_date_remarks'
+        'payment_mode',  'total_payment', 'plate_num','car_details', 
+        'policy_status', 'financing_bank', 'payment_status', 'remit_deposit', 
+        'arpr_date_remarks', 'add_remarks', ''
     ];
 
     protected $casts = [
@@ -66,7 +64,7 @@ class Report extends Model
         return false;
     }
 
-    protected static function boot() // This gets the id of the user who submitted the report
+    protected static function boot()
     {
         parent::boot();
         static::creating(function ($report) {
@@ -83,13 +81,12 @@ class Report extends Model
         ->logOnly([
             'sale_person', 'cost_center', 'arpr_num', 'arpr_date',
             'insurance_prod', 'insurance_type', 'inception_date', 
-            'assured', 'policy_num', 'application', 'cashier_remarks', 
-            'remit_date', 'acct_remarks', 'depo_slip', 
+            'assured', 'policy_num', 'application', 'cashier_remarks', 'acct_remarks',  
             'policy_file', 'terms', 'gross_premium','payment_balance',
             'payment_mode',  'total_payment', 'plate_num',
             'car_details', 'policy_status',    'financing_bank',
-            'payment_status', 'remit_date_partial', 'add_remarks','others_insurance_type', 
-            'others_insurance_prod', 'others_application', 'final_depo_slip'
+            'payment_status', 'remit_deposit', 'arpr_date_remarks', 'report_cost_center_id', 
+            'report_insurance_prod_id', 'report_insurance_type_id',
         ])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();
@@ -124,12 +121,12 @@ class Report extends Model
 
     public function providers()
     {
-        return $this->hasMany(InsuranceProvider::class, 'insurance_prod_id');
+        return $this->belongsTo(InsuranceProvider::class, 'report_insurance_prod_id', 'insurance_provider_id');
     }
     
     public function types()
     {
-        return $this->hasMany(ModelsInsuranceType::class, 'insurance_type_id');
+        return $this->belongsTo(ModelsInsuranceType::class, 'report_insurance_type_id', 'insurance_type_id');
     }
 
     public function costCenter()
@@ -139,6 +136,6 @@ class Report extends Model
 
     public function payments()
     {
-        return $this->hasMany(PaymentMode::class, 'payment_mode_id');
+        return $this->belongsTo(PaymentMode::class, 'report_payment_mode_id' ,'payment_id');
     }
 }

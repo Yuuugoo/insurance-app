@@ -107,7 +107,7 @@ class PreviousMonth extends ApexChartWidget
 
         $data = Report::join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_center_id')
             ->select('cost_centers.name', DB::raw('count(*) as total'))
-            ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
+            ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%Y-%m-%d'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
             ->groupBy('cost_centers.name')
             ->pluck('total', 'name')
             ->toArray();
@@ -140,10 +140,10 @@ class PreviousMonth extends ApexChartWidget
         $labels = range(1, $daysInMonth);
 
         $data = Report::select(
-            DB::raw("DAY(STR_TO_DATE(arpr_date, '%m-%d-%Y')) as day"),
+            DB::raw("DAY(STR_TO_DATE(arpr_date, '%Y-%m-%d')) as day"),
             DB::raw('count(*) as total')
         )
-            ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%m-%d-%Y'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
+            ->whereRaw("DATE_FORMAT(STR_TO_DATE(arpr_date, '%Y-%m-%d'), '%Y-%m') = ?", [$selectedDate->format('Y-m')])
             ->join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_centers.cost_center_id')
             ->whereRaw('LOWER(report_cost_center_id) = ?', [strtolower($costCenter)])
             ->groupBy('day')

@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\ActivityLogResource\Pages;
 
-use App\Filament\Resources\ActivityLogResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;
+use App\Filament\Resources\ActivityLogResource;
 
 class ListActivityLogs extends ListRecords
 {
@@ -15,6 +16,11 @@ class ListActivityLogs extends ListRecords
         return [
             // Actions\CreateAction::make(),
         ];
+    }
+
+    public function getHeading(): string|Htmlable
+    {
+        return 'Audit Trail';
     }
 
     

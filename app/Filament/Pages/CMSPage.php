@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CMSPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'REPORTS';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+    protected static ?string $navigationGroup = 'SETTINGS';
+    protected static ?int $navigationSort = 3;
     protected static string $view = 'filament.pages.c-m-s-page';
     protected static ?string $navigationLabel = 'CMS';
 
@@ -23,6 +23,6 @@ class CMSPage extends Page
     public static function canAccess(): bool
     {       
         $user = Auth::user();
-        return $user->hasRole('acct-manager');
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 }

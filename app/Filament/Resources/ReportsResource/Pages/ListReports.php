@@ -9,6 +9,7 @@ use App\Filament\Resources\ReportsResource;
 use Filament\Resources\Components\Tab;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsOverview;
 use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
+use App\Livewire\ReportStatusWidget;
 
 class ListReports extends ListRecords
 {
@@ -29,10 +30,11 @@ class ListReports extends ListRecords
         ];
     }
 
-    protected function getHeaderWidgets(): array
+    protected function getFooterWidgets(): array
     {
         return [
             ReportsStatsOverview::class,
+            ReportStatusWidget::class,
         ];
     }
 

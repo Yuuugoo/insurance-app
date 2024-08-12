@@ -12,7 +12,6 @@
                     'arpr_date' => 'AR/PR Date',
                     'sale_person' => 'Sales Person',
                     'depo_slip' => 'Deposit Slip',
-                    'final_depo_slip' => 'Final Deposit Slip',
                     'insurance_prod' => 'Insurance Provider',
                     'insurance_type' => 'Insurance Type',
                     'inception_date' => 'Inception Date',
@@ -33,11 +32,7 @@
                     'policy_status' => 'Policy Status',
                     'financing_bank' => 'Mortgagee/Financing Bank',
                     'payment_status' => 'Payment Status',
-                    'remit_date_partial' => 'Final Remittance Date',
-                    'others_insurance_type' => 'Others Insurance Type',
-                    'others_insurance_prod' => 'Others Insurance Provider',
-                    'others_application' => 'Others Mode of Application'
-                    
+                    'remit_deposit' => 'Deposit Slips and Remittance Dates',
                 ];
             @endphp
             <div class="bg-white rounded-xl shadow overflow-hidden dark:bg-gray-800">

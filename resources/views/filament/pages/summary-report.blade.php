@@ -24,7 +24,7 @@
         <table class="min-w-full bg-white border border-gray-200">
             <thead>
                 <tr>
-                    <th class="border border-slate-300">Year to Date</th>
+                    <th class="border border-slate-300">Per Branch</th>
                     @foreach ($this->getProviderHeaders() as $header)
                         <th class="border border-slate-300">{{ $header }}</th>
                     @endforeach
@@ -37,11 +37,23 @@
                         <td class="border border-slate-300">{{ $costCenter->name }}</td>
                         <!-- Add appropriate data columns based on the selected provider and insurance types -->
                         @foreach ($this->getProviderHeaders() as $header)
-                            <td class="border border-slate-300">{{ $this->getGrossPremium($costCenter->cost_center_id, $header) }}</td>
+                            <td class="border border-slate-300">{{ number_format( $this->getGrossPremium($costCenter->cost_center_id, $header), 2, '.', ',') }}</td>
                         @endforeach
-                        <td class="border border-slate-300">{{ $this->getTotalGrossPremium($costCenter->cost_center_id) }}</td>
+                        <td class="border border-slate-300">{{ number_format( $this->getTotalGrossPremium($costCenter->cost_center_id), 2, '.', ',') }}</td>
+                       
                     </tr>
+                   
                 @endforeach
+
+
+                <tr>
+                    <td class="border border-slate-300 font-bold">TOTAL</td>
+                    @foreach ($this->getProviderHeaders() as $header)
+                        <td class="border border-slate-300 font-bold">{{ number_format( $this->getTotalForHeader($header) , 2, '.', ',') }}</td>
+                    @endforeach
+                    <td class="border border-slate-300 font-bold">{{ number_format( $this->getGrandTotal() , 2, '.', ',') }}</td>
+                </tr>
+                    
             </tbody>
         </table>
     </div>

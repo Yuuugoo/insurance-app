@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->text('sale_person')->nullable();
-            $table->string('terms', 50)->nullable();
-            $table->float('gross_premium', 8, 2)->nullable();
-            $table->float('total_payment', 8, 2)->nullable();
+            $table->unsignedBigInteger('report_insurance_prod_id')->nullable()->after('report_insurance_type_id');
+            $table->foreign('report_insurance_prod_id')->references('insurance_provider_id')->on('insurance_providers');
         });
     }
 

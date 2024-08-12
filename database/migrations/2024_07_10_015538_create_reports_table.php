@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('inception_date')->nullable();
             $table->text('assured');
             $table->text('policy_num');
-            $table->string('insurance_prod', 10);
             $table->string('application', 50);
             $table->string('cashier_remarks')->nullable();
             $table->string('acct_remarks')->nullable();

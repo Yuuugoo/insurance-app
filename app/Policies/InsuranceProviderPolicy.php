@@ -13,7 +13,7 @@ class InsuranceProviderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['acct-manager']);
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -21,7 +21,7 @@ class InsuranceProviderPolicy
      */
     public function view(User $user, InsuranceProvider $insuranceProvider): bool
     {
-        return $user->hasRole(['acct-manager']);
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -29,7 +29,7 @@ class InsuranceProviderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole(['acct-manager']);
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -37,7 +37,7 @@ class InsuranceProviderPolicy
      */
     public function update(User $user, InsuranceProvider $insuranceProvider): bool
     {
-        return $user->hasRole(['acct-manager']);
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**
@@ -45,7 +45,7 @@ class InsuranceProviderPolicy
      */
     public function delete(User $user, InsuranceProvider $insuranceProvider): bool
     {
-        return $user->hasRole(['']);
+        return $user->hasRole(['acct-staff','acct-manager']);
     }
 
     /**

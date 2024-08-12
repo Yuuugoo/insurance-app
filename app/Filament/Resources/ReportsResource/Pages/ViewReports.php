@@ -52,10 +52,10 @@ class ViewReports extends ViewRecord
                     Section::make('General Details')
                         ->schema([
                             TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel(),
-                            TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel(),
+                            TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel()->date('m-d-Y'),
                             TextEntry::make('inception_date')->label('Inception Date:')->date('m-d-Y')->inlineLabel(),
                             TextEntry::make('sale_person')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   
-                            TextEntry::make('cost_center')->label('Cost Center:')->icon('heroicon-o-map-pin')->inlineLabel(),
+                            TextEntry::make('costCenter.name')->label('Cost Center:')->icon('heroicon-o-map-pin')->inlineLabel(),
                             TextEntry::make('policy_num')->label('Policy Number:')->inlineLabel(),
                         ])->columnSpan('full')->columns(2),
                         
@@ -80,13 +80,13 @@ class ViewReports extends ViewRecord
                         // Insurance Details
                         Section::make()
                             ->schema([
-                                TextEntry::make('insurance_type')
+                                TextEntry::make('types.name')
                                 ->inlineLabel()
                                 ->label('Insurance Type'),
                             ]),
                         Section::make()
                             ->schema([
-                                TextEntry::make('insurance_prod')->inlineLabel()->label('Insurance Provider'),
+                                TextEntry::make('providers.name')->inlineLabel()->label('Insurance Provider'),
                             ]),
                         Section::make()
                             ->schema([
@@ -101,7 +101,7 @@ class ViewReports extends ViewRecord
                     Section::make('Payment Details')
                         ->schema([
                         // Payment Details
-                        TextEntry::make('payment_mode')->label('Payment Mode'),
+                        TextEntry::make('payments.name')->label('Payment Mode'),
                         TextEntry::make('gross_premium')->label('Gross Premium'),
                         TextEntry::make('total_payment')->label('Total Payment'),
                         TextEntry::make('payment_balance')->label('Outstanding Balance'),
