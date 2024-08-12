@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('submitted_by_id')->nullable();
             $table->foreign('submitted_by_id')->references('id')->on('users');
             $table->text('arpr_num');
-            $table->string('arpr_date', 50);
+            $table->date('arpr_date');
             $table->date('inception_date')->nullable();
             $table->text('assured');
             $table->text('policy_num');

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\ViewPDFController;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Pages\SummaryReports;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,8 @@ Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('
 Route::fallback(function () {
     return redirect()->route('filament.admin.auth.login');
 });
+Route::get('/export', [SummaryReports::class, 'export'])->name('exportData');
+
 
 
 // Route::get('/login',
