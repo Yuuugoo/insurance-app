@@ -28,14 +28,5 @@
     >
         Add Insurance Type
     </x-filament::button>
-
-    <x-filament::button outlined
-        href="{{ route('filament.admin.resources.insurance-type-simples.index') }}"
-        tag="a"
-        size="xl"
-        color="aap-blue"
-        tooltip="Create a new Sales Person"
-    >
-        Add Sales Person
-    </x-filament::button>
+    
 </x-filament-panels::page>

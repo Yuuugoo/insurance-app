@@ -62,7 +62,9 @@ class CostCenterSimpleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->label('Edit'),
+                    ->label('Edit')
+                    ->color('aap-blue'),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 

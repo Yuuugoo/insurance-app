@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Auth\Login;
+use App\Models\CostCenter;
 use App\Models\User;
 use Closure;
 use Filament\Forms\Form;
@@ -19,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
@@ -63,6 +65,36 @@ class EditProfile extends Page
                             ->required()
                             ->unique()
                             ->maxLength(255),
+                        TextInput::make('costCenter.name')
+                            ->inlineLabel()
+                            ->label('Assigned Branch')
+                            ->disabled()
+                            ->afterStateHydrated(function (Set $set, Get $get, $state) {
+                                if (empty($state)) {
+                                    $user = Auth::user();
+                                    if ($user->costCenter) {
+                                        $set('costCenter.name', $user->costCenter->name);
+                                    }
+                                }
+                            })
+                            ->hidden(function (Get $get): bool {
+                                return $get('costCenter.name') === null;
+                            })
+                            ->dehydrated(function (Get $get) {
+                                $user = Auth::user();
+                                return $get('costCenter.name') !== ($user->costCenter->name ?? null);
+                            })
+                            ->maxLength(255),
+                        TextInput::make('roles')
+                            ->inlineLabel()
+                            ->label('Role')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function (Set $set) {
+                                $user = Auth::user();
+                                $roles = $user->roles->pluck('name')->implode(', ');
+                                $set('roles', $roles);
+                            }),
                         FileUpload::make('avatar_url')
                             ->inlineLabel()
                             ->image()

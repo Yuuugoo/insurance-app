@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListUsers extends ListRecords
 {
@@ -17,4 +18,5 @@ class ListUsers extends ListRecords
                 ->color('aap-blue'),
         ];
     }
+
 }

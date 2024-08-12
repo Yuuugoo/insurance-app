@@ -31,7 +31,7 @@ class EditReports extends EditRecord
     protected function afterSave():void {
 
         $users = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['cashier', 'acct-staff', 'acct-manager']);
+            $query->whereIn('name', ['agent', 'cashier', 'acct-staff', 'acct-manager']);
         })->where('id', '!=', auth()->id())->get();
 
 

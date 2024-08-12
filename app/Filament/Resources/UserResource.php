@@ -37,6 +37,12 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function canAccess(): bool
+    {       
+        $user = Auth::user();
+        return $user->hasRole(['super-admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

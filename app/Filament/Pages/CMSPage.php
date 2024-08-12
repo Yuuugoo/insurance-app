@@ -23,6 +23,6 @@ class CMSPage extends Page
     public static function canAccess(): bool
     {       
         $user = Auth::user();
-        return $user->hasRole(['acct-staff','acct-manager']);
+        return $user->hasRole(['acct-staff','acct-manager', 'cfo']);
     }
 }

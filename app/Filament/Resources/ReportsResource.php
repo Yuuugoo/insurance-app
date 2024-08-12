@@ -72,6 +72,7 @@ use App\Models\CostCenter as ModelsCostCenter;
 use App\Models\InsuranceProvider;
 use App\Models\InsuranceType as ModelsInsuranceType;
 use App\Models\PaymentMode;
+use App\Models\User;
 use Filament\Forms\Components\Repeater;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Forms\Components\Textarea;
@@ -131,13 +132,20 @@ class ReportsResource extends Resource
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
-                                    TextInput::make('sale_person')
-                                        ->rules([new NamewithSpace()])
-                                        ->live()
-                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
-                                            $livewire->validateOnly($component->getStatePath());
+                                    Select::make('sale_person')
+                                        ->options(function () {
+                                            $query = User::whereHas('roles', function ($query) {
+                                                $query->where('name', 'agent');
+                                            });
+                                    
+                                            if (Auth::user()->branch_id !== null) {
+                                                $query->whereHas('costCenter', function ($subQuery) {
+                                                    $subQuery->where('cost_center_id', Auth::user()->branch_id);
+                                                });
+                                            }
+                                    
+                                            return $query->pluck('name', 'name');
                                         })
-                                        ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Sales Person')
                                         ->inlineLabel(),
@@ -145,9 +153,41 @@ class ReportsResource extends Resource
                                         ->label('Cost Center')
                                         ->inlineLabel()
                                         ->native(false)
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->disabled(Auth::user()->hasRole(['cashier', 'acct-staff']))
                                         ->required()
-                                        ->options(ModelsCostCenter::all()->pluck('name','cost_center_id')),
+                                        ->options(function () {
+                                            $query = ModelsCostCenter::query();
+                                            
+                                            if (Auth::user()->branch_id !== null) {
+                                                $query->where('cost_center_id', Auth::user()->branch_id);
+                                            }
+                                            
+                                            return $query->pluck('name', 'cost_center_id');
+                                        })
+                                        ->dehydrated(function (Get $get) {
+                                            $query = ModelsCostCenter::query();
+                                            
+                                            if (Auth::user()->branch_id !== null) {
+                                                $query->where('cost_center_id', Auth::user()->branch_id);
+                                            }
+                                            
+                                            $options = $query->pluck('name', 'cost_center_id')->toArray();
+                                            
+                                            return array_key_exists($get('report_cost_center_id'), $options);
+                                        })
+                                        ->afterStateHydrated(function (Set $set) {
+                                            $query = ModelsCostCenter::query();
+                                            
+                                            if (Auth::user()->branch_id !== null) {
+                                                $query->where('cost_center_id', Auth::user()->branch_id);
+                                            }
+                                            
+                                            $costCenter = $query->first();
+                                            
+                                            if ($costCenter) {
+                                                $set('report_cost_center_id', $costCenter->cost_center_id);
+                                            }
+                                        }),
                                     DatePicker::make('arpr_date')
                                         ->label('AR/PR Date')
                                         ->inlineLabel()
@@ -463,30 +503,30 @@ class ReportsResource extends Resource
                             ->when(
                                 $data['from'],
                                 function (Builder $query, $date) {
-                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%m-%d-%Y') >= ?", [Carbon::parse($date)->format('Y-m-d')]);
+                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%Y-%m-%d-') >= ?", [Carbon::parse($date)->format('Y-m-d')]);
                                 }
                             )
                             ->when(
                                 $data['until'],
                                 function (Builder $query, $date) {
-                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%m-%d-%Y') <= ?", [Carbon::parse($date)->format('Y-m-d')]);
+                                    return $query->whereRaw("STR_TO_DATE(arpr_date, '%Y-%m-%d-') <= ?", [Carbon::parse($date)->format('Y-m-d')]);
                                 }
                             );
                     }),
                 Filter::make('insurance_prod_type')
                     ->form([
-                        Select::make('insurance_prod')
+                        Select::make('report_insurance_prod_id')
                             ->label('Insurance Provider')
                             ->placeholder('Select Insurance Provider')
-                            ->options(InsuranceProvider::all()->pluck('name','name'))
+                            ->options(InsuranceProvider::all()->pluck('name','insurance_provider_id'))
                             ->native(false)
                             ->reactive()
                             ->searchable()
                             ->multiple(),
-                        Select::make('insurance_type')
+                        Select::make('report_insurance_type_id')
                             ->label('Insurance Type')
                             ->placeholder('Select Insurance Type')
-                            ->options(ModelsInsuranceType::all()->pluck('name','name'))
+                            ->options(ModelsInsuranceType::all()->pluck('name','insurance_type_id'))
                             ->native(false)
                             ->reactive()
                             ->searchable()
@@ -505,12 +545,12 @@ class ReportsResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['insurance_prod'],
-                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_prod', $insuranceTypes)
+                                $data['report_insurance_prod_id'],
+                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('report_insurance_prod_id', $insuranceTypes)
                             )
                             ->when(
-                                $data['insurance_type'],
-                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('insurance_type', $insuranceTypes)
+                                $data['report_insurance_type_id'],
+                                fn (Builder $query, array $insuranceTypes) => $query->whereIn('report_insurance_type_id', $insuranceTypes)
                             )
                             ->when(
                                 $data['report_cost_center_id'],

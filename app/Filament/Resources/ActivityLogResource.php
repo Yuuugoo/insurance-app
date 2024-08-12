@@ -46,7 +46,7 @@ class ActivityLogResource extends Resource
     public static function canAccess(): bool
     {       
         $user = Auth::user();
-        return $user->hasRole('acct-manager');
+        return $user->hasRole('cfo');
     }
 
     public static function form(Form $form): Form
@@ -77,7 +77,8 @@ class ActivityLogResource extends Resource
                                 $username = $record->causer->name ?? 'Unknown User';
                                 $action = strtolower($record->description);
                                 $subjectType = class_basename($record->subject_type);
-                                $arprNum = $record->subject->arpr_num ?? 'N/A';
+                                $insuranceType = $record->subject->name ?? 'N/A';
+                                $arprNum = $record->subject->arpr_num ?? $insuranceType;
                                 $updatedAt = $record->created_at->format('m/d/Y h:i A');
                                 return "<strong>{$username} {$action}</strong> {$subjectType} '<strong>{$arprNum}</strong>' at {$updatedAt}";
                             })

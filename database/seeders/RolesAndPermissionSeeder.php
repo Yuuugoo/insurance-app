@@ -88,6 +88,17 @@ class RolesAndPermissionSeeder extends Seeder
             'remember_token' => Str::random(10),
             'avatar_url' => '/storage/default_avatar/panda.png'
         ])->assignRole($cashierRole);
+
+        User::create([
+            'name' => 'Christhia Anne  Arceo',
+            'branch_id' => 1,
+            'username' => 'CSH_CAA',
+            'email' => 'chrarceo@cshaap.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
         
         User::create([
             'name' => 'Emma Thompson',
@@ -300,10 +311,10 @@ class RolesAndPermissionSeeder extends Seeder
 
         ////////////// AGENT ROLES ////////////////////
         User::create([
-            'name' => 'John Smith',
+            'name' => 'Sharon Montojo',
             'branch_id' => 1,
-            'username' => 'AGN_JS',
-            'email' => 'johnsmith@user.com',
+            'username' => 'AGN_SM',
+            'email' => 'shamontojo@agnaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
@@ -311,10 +322,10 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($agentRole);
 
         User::create([
-            'name' => 'Emily Johnson',
+            'name' => 'Mercedita Forlanda',
             'branch_id' => 1,
-            'username' => 'AGN_EJ',
-            'email' => 'emilyjohnson@agnaap.com',
+            'username' => 'AGN_MF',
+            'email' => 'merforlanda@agnaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
@@ -322,10 +333,10 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($agentRole);
 
         User::create([
-            'name' => 'Michael Smith',
+            'name' => 'Joan Zapata',
             'branch_id' => 1,
-            'username' => 'AGN_MS',
-            'email' => 'michaelsmith@agnaap.com',
+            'username' => 'AGN_JZ',
+            'email' => 'joazapata@agnaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
@@ -333,10 +344,10 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($agentRole);
 
         User::create([
-            'name' => 'John Lawrence',
+            'name' => 'Mary Jane Sanchez',
             'branch_id' => 1,
-            'username' => 'AGN_JL',
-            'email' => 'johnlawrence@agnaap.com',
+            'username' => 'AGN_MJS',
+            'email' => 'marsanchez@agnaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
@@ -344,10 +355,10 @@ class RolesAndPermissionSeeder extends Seeder
         ])->assignRole($agentRole);
 
         User::create([
-            'name' => 'Agent 007',
+            'name' => 'Bernard Herminigildo',
             'branch_id' => 1,
-            'username' => 'AGN_A0',
-            'email' => 'jamesbond@agnaap.com',
+            'username' => 'AGN_BH',
+            'email' => 'berherminigildo@agnaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),

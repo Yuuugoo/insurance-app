@@ -6,6 +6,8 @@ use App\Models\ActivityLog;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
+use Filament\Models\Contracts\HasName;
+use Filament\Support\Contracts\HasLabel;
 use Spatie\Activitylog\Models\Activity;
 use OpenSpout\Common\Entity\Style\CellAlignment;
 use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
@@ -29,27 +31,50 @@ class ActivityLogExporter extends Exporter
                     $username = $record->causer->name ?? 'Unknown User';
                     return "{$username}";
                 }),
-            ExportColumn::make('properties')
-                ->label('Description')
-                ->formatStateUsing(function ($record) {
-                    $properties = $record->properties;
-                
-                    $changes = $properties->toArray();
-
-                    $formatted = [];
-
-                    if (empty($formatted)) {
-                        return 'Raw Data: ' . json_encode($changes);
-                    }
-            
-                    return implode("\n", $formatted);
-                }),
             ExportColumn::make('event')
                 ->label('Action')
                 ->formatStateUsing(function ($record) {
                     $action = strtolower($record->event);
                     return "{$action}";
                 }),
+                ExportColumn::make('properties')
+                    ->label('Description')
+                    ->formatStateUsing(function ($record) {
+                        $properties = $record->properties;
+                    
+                        if (!isset($properties['attributes']) || !isset($properties['old'])) {
+                            return 'Raw Data: ' . json_encode($properties);
+                        }
+                
+                        $attributes = $properties['attributes'];
+                        $old = $properties['old'];
+                
+                        $formatted = [];
+                
+                        foreach ($attributes as $column => $newValue) {
+                            $oldValue = $old[$column] ?? null;
+                            
+                            // Handle cases where the new value might be an object
+                            if ($newValue instanceof HasName) {
+                                $newValue = $newValue->getName();
+                            } elseif ($newValue instanceof HasLabel) {
+                                $newValue = $newValue->getLabel();
+                            } elseif (is_object($newValue)) {
+                                $newValue = method_exists($newValue, '__toString') ? (string) $newValue : get_class($newValue);
+                            }
+                
+                            // Only include changes where the new value is different from the old value
+                            if ($newValue !== $oldValue) {
+                                $formatted[] = "'{$column}' column to '{$newValue}'";
+                            }
+                        }
+                
+                        if (empty($formatted)) {
+                            return 'No changes detected';
+                        }
+                    
+                        return implode("\n", $formatted);
+                    }),
             ExportColumn::make('subject_type')
                 ->label('Record')
                 ->formatStateUsing(function ($record) {

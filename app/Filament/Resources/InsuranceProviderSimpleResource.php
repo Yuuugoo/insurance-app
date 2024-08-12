@@ -56,8 +56,9 @@ class InsuranceProviderSimpleResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                
+                Tables\Actions\EditAction::make()
+                    ->color('aap-blue'),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
             

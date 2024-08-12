@@ -293,7 +293,7 @@ class ReportSeeder extends Seeder
             'report_insurance_type_id' => rand(1, 9),
             'report_payment_mode_id' => rand(1, 7),
             'arpr_num' => 'PR100047',
-            'arpr_date' => '202406-17',
+            'arpr_date' => '2024-06-17',
             'inception_date' => '2024-06-09',
             'assured' => 'MADUNA SALARDA MAASIN',
             'policy_num' => 'MC-AAP-DV-23-0000067-00',

@@ -34,7 +34,7 @@ class ListReports extends ListRecords
     {
         return [
             ReportsStatsOverview::class,
-            ReportStatusWidget::class,
+            // ReportStatusWidget::class,
         ];
     }
 

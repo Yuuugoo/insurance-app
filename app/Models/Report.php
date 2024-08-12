@@ -90,7 +90,6 @@ class Report extends Model
         ])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();
-
     }
 
 
