@@ -1,5 +1,7 @@
 <?php
 
+use App\Filament\Pages\PerBranchPage;
+use App\Filament\Pages\PerMonthPage;
 use App\Http\Controllers\BarChartController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DownloadPdfController;
@@ -31,8 +33,8 @@ Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('
 Route::fallback(function () {
     return redirect()->route('filament.admin.auth.login');
 });
-Route::get('/export', [SummaryReports::class, 'export'])->name('exportData');
-
+Route::get('/export', [PerBranchPage::class, 'export'])->name('exportData');
+Route::get('/export-per-month', [PerMonthPage::class, 'export'])->name('exportPerMonthData');
 
 
 // Route::get('/login',

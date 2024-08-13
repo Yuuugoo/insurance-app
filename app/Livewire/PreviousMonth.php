@@ -7,6 +7,7 @@ use App\Models\Report;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
 
@@ -93,7 +94,11 @@ class PreviousMonth extends ApexChartWidget
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
         $costCenter = $filters['filter'] ?? 'All';
 
-        if ($costCenter !== 'All') {
+        if($costCenter === 'All' && Auth::user()->branch_id !== null) {
+            $costCenter = Auth::user()->branch_id;
+        }
+
+        if ($costCenter !== 'All' || Auth::user()->hasAnyRole(['cashier', 'agent'])) {
             return $this->getDailyDataForCostCenter($selectedDate, $costCenter);
         }
 
@@ -181,6 +186,7 @@ class PreviousMonth extends ApexChartWidget
             Select::make('filter')
                 ->label('Cost Center')
                 ->native(false)
+                ->hidden(fn () => Auth::user()->hasAnyRole(['cashier', 'agent']))
                 ->options(CostCenter::pluck('name', 'cost_center_id')->prepend('All', 'All')->toArray())
                 ->default('All')
                 ->reactive(),
@@ -193,8 +199,8 @@ class PreviousMonth extends ApexChartWidget
         $costCenterId = $filters['filter'] ?? 'All';
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
 
-        if ($costCenterId === 'All') {
-            $costCenterName = 'All';
+        if ($costCenterId === 'All' || Auth::user()->branch_id !== null) {
+            $costCenterName = CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
         } else {
             $costCenterName = CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
         }

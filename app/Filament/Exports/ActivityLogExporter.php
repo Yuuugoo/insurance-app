@@ -37,44 +37,50 @@ class ActivityLogExporter extends Exporter
                     $action = strtolower($record->event);
                     return "{$action}";
                 }),
-                ExportColumn::make('properties')
-                    ->label('Description')
-                    ->formatStateUsing(function ($record) {
-                        $properties = $record->properties;
-                    
-                        if (!isset($properties['attributes']) || !isset($properties['old'])) {
-                            return 'Raw Data: ' . json_encode($properties);
-                        }
+            ExportColumn::make('properties')
+                ->label('Description')
+                ->formatStateUsing(function ($record) {
+                    $properties = $record->properties;
                 
-                        $attributes = $properties['attributes'];
-                        $old = $properties['old'];
-                
-                        $formatted = [];
-                
-                        foreach ($attributes as $column => $newValue) {
-                            $oldValue = $old[$column] ?? null;
-                            
-                            // Handle cases where the new value might be an object
-                            if ($newValue instanceof HasName) {
-                                $newValue = $newValue->getName();
-                            } elseif ($newValue instanceof HasLabel) {
-                                $newValue = $newValue->getLabel();
-                            } elseif (is_object($newValue)) {
-                                $newValue = method_exists($newValue, '__toString') ? (string) $newValue : get_class($newValue);
-                            }
-                
-                            // Only include changes where the new value is different from the old value
-                            if ($newValue !== $oldValue) {
-                                $formatted[] = "'{$column}' column to '{$newValue}'";
+                    if (!isset($properties['attributes']) || !isset($properties['old'])) {
+                        return 'Raw Data: ' . json_encode($properties);
+                    }
+
+                    $attributes = $properties['attributes'];
+                    $old = $properties['old'];
+
+                    $formatted = [];
+
+                    foreach ($attributes as $column => $newValue) {
+                        $oldValue = $old[$column] ?? null;
+
+                        // Convert complex objects to strings
+                        $newValue = $this->convertToString($newValue);
+                        $oldValue = $this->convertToString($oldValue);
+
+                        if ($newValue !== $oldValue) {
+                            if ($oldValue === null) {
+                                $formatted[] = "Added '{$column}': '{$newValue}'";
+                            } else {
+                                $formatted[] = "Changed '{$column}' from '{$oldValue}' to '{$newValue}'";
                             }
                         }
-                
-                        if (empty($formatted)) {
-                            return 'No changes detected';
+                    }
+
+                    // Check for deleted fields
+                    foreach ($old as $column => $oldValue) {
+                        if (!array_key_exists($column, $attributes)) {
+                            $oldValue = $this->convertToString($oldValue);
+                            $formatted[] = "Removed '{$column}': '{$oldValue}'";
                         }
-                    
-                        return implode("\n", $formatted);
-                    }),
+                    }
+
+                    if (empty($formatted)) {
+                        return 'No changes detected';
+                    }
+                
+                    return implode("\n", $formatted);
+                }),
             ExportColumn::make('subject_type')
                 ->label('Record')
                 ->formatStateUsing(function ($record) {
