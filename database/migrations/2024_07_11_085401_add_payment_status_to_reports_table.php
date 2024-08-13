@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             $table->string('payment_status', 50)->default('pending');
+            $table->string('payment_status_aap', 50)->default('pending');
         });
     }
 

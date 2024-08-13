@@ -357,7 +357,19 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->hidden(Auth::user()->hasRole('cashier'))
                                         ->live()
-                                        ->label('Select Payment Status')
+                                        ->label('Select Payment Status to Provider')
+                                        ->native(false)
+                                        ->options(collect(PaymentStatus::cases())
+                                        ->reject(fn ($status) => strtolower($status->value) === 'pending')
+                                            ->pluck('name', 'value')
+                                            ->toArray()),
+
+                                    Select::make('payment_status_aap')
+                                        ->required()
+                                        ->inlineLabel()
+                                        ->hidden(Auth::user()->hasRole('cashier'))
+                                        ->live()
+                                        ->label('Select Payment Status to AAP')
                                         ->native(false)
                                         ->options(collect(PaymentStatus::cases())
                                         ->reject(fn ($status) => strtolower($status->value) === 'pending')
@@ -470,7 +482,10 @@ class ReportsResource extends Resource
                     ->label('Insurance Type')
                     ->visibleFrom('md'),
                 TextColumn::make('payment_status')
-                    ->label('Payment Status')
+                    ->label('Payment Status to Provider')
+                    ->badge(),
+                TextColumn::make('payment_status_aap')
+                    ->label('Payment Status to AAP')
                     ->badge(),
                 TextColumn::make('cashier.name')
                     ->label('Submitted By')
