@@ -481,11 +481,11 @@ class ReportsResource extends Resource
                 TextColumn::make('types.name')
                     ->label('Insurance Type')
                     ->visibleFrom('md'),
-                TextColumn::make('payment_status')
-                    ->label('Payment Status to Provider')
-                    ->badge(),
                 TextColumn::make('payment_status_aap')
                     ->label('Payment Status to AAP')
+                    ->badge(),
+                TextColumn::make('payment_status')
+                    ->label('Payment Status to Provider')
                     ->badge(),
                 TextColumn::make('cashier.name')
                     ->label('Submitted By')

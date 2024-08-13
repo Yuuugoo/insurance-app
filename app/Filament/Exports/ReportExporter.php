@@ -48,9 +48,9 @@ class ReportExporter extends Exporter
                 ->label('ASSURED'),
             ExportColumn::make('policy_num')
                 ->label('POLICY NUMBER'),
-            ExportColumn::make('insurance_prod')
+            ExportColumn::make('providers.name')
                 ->label('INSURANCE PROVIDER'),
-            ExportColumn::make('insurance_type')
+            ExportColumn::make('types.name')
                 ->label('INSURANCE TYPE'),
             ExportColumn::make('terms')
                 ->label('TERMS')
@@ -59,7 +59,7 @@ class ReportExporter extends Exporter
                 }),
             ExportColumn::make('gross_premium')
                 ->label('GROSS PREMIUM'),
-            ExportColumn::make('payment_mode')
+            ExportColumn::make('payments.name')
                 ->label('MODE OF PAYMENT'),
             ExportColumn::make('total_payment')
                 ->label('TOTAL PAYMENT'),
