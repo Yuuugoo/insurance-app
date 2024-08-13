@@ -31,12 +31,13 @@ class Report extends Model
         'acct_remarks', 'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num','car_details', 
         'policy_status', 'financing_bank', 'payment_status', 'remit_deposit', 
-        'arpr_date_remarks', 'add_remarks', ''
+        'arpr_date_remarks', 'add_remarks', 'payment_status_aap',
     ];
 
     protected $casts = [
         'application' => ModeApplication::class,
         'payment_status' => PaymentStatus::class,
+        'payment_status_aap' => PaymentStatus::class,
         'policy_status' => PolicyStatus::class,
         'terms' => Terms::class,
         'add_remarks' => 'boolean',
@@ -57,7 +58,7 @@ class Report extends Model
 
     public function canEdit(): bool
     {
-        if ($this->payment_status == PaymentStatus::PAID) {
+        if ($this->payment_status && $this->payment_status_aap == PaymentStatus::PAID) {
             return true;
         }
 
@@ -86,7 +87,7 @@ class Report extends Model
             'payment_mode',  'total_payment', 'plate_num',
             'car_details', 'policy_status',    'financing_bank',
             'payment_status', 'remit_deposit', 'arpr_date_remarks', 'report_cost_center_id', 
-            'report_insurance_prod_id', 'report_insurance_type_id',
+            'report_insurance_prod_id', 'report_insurance_type_id', 'payment_status_aap',
         ])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();

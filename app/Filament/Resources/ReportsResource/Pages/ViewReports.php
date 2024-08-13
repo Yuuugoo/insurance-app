@@ -106,7 +106,8 @@ class ViewReports extends ViewRecord
                         TextEntry::make('total_payment')->label('Total Payment'),
                         TextEntry::make('payment_balance')->label('Outstanding Balance'),
                         TextEntry::make('policy_status')->label('Policy Status')->badge(),
-                        TextEntry::make('payment_status')->label('Payment Status')->badge(),
+                        TextEntry::make('payment_status')->label('Payment Status to Provider')->badge(),
+                        TextEntry::make('payment_status_aap')->label('Payment Status to AAP')->badge(),
                         
 
                     ])->columns(2),
