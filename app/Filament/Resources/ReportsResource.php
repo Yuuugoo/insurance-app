@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Enums\mode;
 use Filament\Forms;
 use App\Enums\Terms;
+use App\Models\User;
 use Filament\Tables;
 use App\Rules\ARPRNO;
 use App\Enums\payment;
@@ -20,6 +21,7 @@ use App\Enums\CostCenter;
 use App\Enums\ModePayment;
 use Filament\Tables\Table;
 use App\Enums\PolicyStatus;
+use App\Models\PaymentMode;
 use App\Rules\PolicyNumber;
 use Illuminate\Support\Str;
 use App\Enums\InsuranceProd;
@@ -31,10 +33,14 @@ use App\Enums\ModeApplication;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 use Filament\Resources\Resource;
+use App\Models\InsuranceProvider;
 use Filament\Actions\DeleteAction;
+use Illuminate\Support\HtmlString;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
+use Filament\Support\Enums\MaxWidth;
 use function Laravel\Prompts\select;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
@@ -44,6 +50,8 @@ use App\Enums\Payment as EnumsPayment;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -63,22 +71,15 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\Action as ActionsAction;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Tables\Actions\ExportBulkAction;
+use App\Models\CostCenter as ModelsCostCenter;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\ReportsResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ReportsResource\RelationManagers;
-use App\Models\CostCenter as ModelsCostCenter;
-use App\Models\InsuranceProvider;
 use App\Models\InsuranceType as ModelsInsuranceType;
-use App\Models\PaymentMode;
-use App\Models\User;
-use Filament\Forms\Components\Repeater;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Forms\Components\Textarea;
+use App\Filament\Resources\ReportsResource\RelationManagers;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
-use Illuminate\Validation\Rule;
 
 class ReportsResource extends Resource
 {
@@ -132,7 +133,7 @@ class ReportsResource extends Resource
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
-                                    Select::make('sale_person')
+                                    Select::make('sales_person_id')
                                         ->options(function () {
                                             $query = User::whereHas('roles', function ($query) {
                                                 $query->where('name', 'agent');
@@ -144,8 +145,9 @@ class ReportsResource extends Resource
                                                 });
                                             }
                                     
-                                            return $query->pluck('name', 'name');
+                                            return $query->pluck('name', 'id');
                                         })
+                                        ->required()
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->label('Sales Person')
                                         ->inlineLabel(),
@@ -457,39 +459,35 @@ class ReportsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->deferLoading()
-        ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('arpr_date')
                     ->sortable()
                     ->searchable()
-                    ->grow(false)
                     ->date('m-d-Y')
                     ->label('AR/PR Date'),
                 TextColumn::make('costCenter.name')
-                    ->label('Cost Centers')
+                    ->label('Cost Center')
                     ->searchable()
                     ->visibleFrom('md')
                     ->icon('heroicon-o-map-pin'),
                 TextColumn::make('arpr_num')
                     ->label('AR/PR No.')
-                    ->searchable()
-                    ->grow(false),
+                    ->searchable(),
                 TextColumn::make('providers.name')
                     ->label('Insurance Provider')
+                    ->label(fn () => new HtmlString('Insurance<br>Provider'))
                     ->visibleFrom('md'),
                 TextColumn::make('types.name')
                     ->label('Insurance Type')
                     ->visibleFrom('md'),
                 TextColumn::make('payment_status_aap')
-                    ->label('Payment Status to AAP')
-                    ->badge(),
+                    ->label(fn () => new HtmlString('Payment Status<br>to AAP'))
+                    ->badge(),  
                 TextColumn::make('payment_status')
-                    ->label('Payment Status to Provider')
+                    ->label(fn () => new HtmlString('Payment Status<br>to Provider'))
                     ->badge(),
                 TextColumn::make('cashier.name')
-                    ->label('Submitted By')
-                    ->grow(false),
+                    ->label('Submitted By'),
             ])
             ->openRecordUrlInNewTab()
             ->defaultSort('arpr_date', 'desc')

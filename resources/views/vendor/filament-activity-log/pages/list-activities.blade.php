@@ -1,5 +1,10 @@
 @php
     use \Illuminate\Support\Js;
+    use App\Models\User;
+    use App\Models\InsuranceProvider;
+    use App\Models\InsuranceType;
+    use App\Models\PaymentMode;
+    use App\Models\CostCenter;
 @endphp
 <x-filament-panels::page>
 
@@ -10,10 +15,11 @@
                 $fieldLabels = [
                     'arpr_num' => 'AR/PR NO.',
                     'arpr_date' => 'AR/PR Date',
-                    'sale_person' => 'Sales Person',
+                    'sales_person_id' => 'Sales Person',
                     'depo_slip' => 'Deposit Slip',
-                    'insurance_prod' => 'Insurance Provider',
-                    'insurance_type' => 'Insurance Type',
+                    'report_insurance_prod_id' => 'Insurance Provider',
+                    'report_insurance_type_id' => 'Insurance Type',
+                    'report_cost_center_id' => 'Cost Center',
                     'inception_date' => 'Inception Date',
                     'assured' => 'Assured',
                     'policy_num' => 'Policy Number',
@@ -25,7 +31,7 @@
                     'terms' => 'Terms',
                     'gross_premium' => 'Gross Premium',
                     'payment_balance' => 'Payment Balance',
-                    'payment_mode' => 'Mode of Payment',
+                    'report_payment_mode_id' => 'Mode of Payment',
                     'total_payment' => 'Total Payment',
                     'plate_num' => 'Plate Number',
                     'car_details' => 'Car Details',
@@ -35,6 +41,7 @@
                     'remit_deposit' => 'Deposit Slips and Remittance Dates',
                 ];
             @endphp
+
             <div class="bg-white rounded-xl shadow overflow-hidden dark:bg-gray-800">
                 <div class="p-4 border-b dark:border-gray-700">
                     <div class="flex items-center justify-between">
@@ -73,6 +80,24 @@
                                     @php
                                         $oldValue = data_get($changes, "old.{$field}");
                                         $label = $fieldLabels[$field] ?? ucfirst(str_replace('_', ' ', $field));
+                                        
+                                        // Fetch related data for foreign keys
+                                        if ($field === 'sales_person_id') {
+                                            $oldValue = User::find($oldValue)?->name ?? $oldValue;
+                                            $newValue = User::find($newValue)?->name ?? $newValue;
+                                        } elseif ($field === 'report_insurance_prod_id') {
+                                            $oldValue = InsuranceProvider::find($oldValue)?->name ?? $oldValue;
+                                            $newValue = InsuranceProvider::find($newValue)?->name ?? $newValue;
+                                        } elseif ($field === 'report_insurance_type_id') {
+                                            $oldValue = InsuranceType::find($oldValue)?->name ?? $oldValue;
+                                            $newValue = InsuranceType::find($newValue)?->name ?? $newValue;
+                                        } elseif ($field === 'report_cost_center_id') {
+                                            $oldValue = CostCenter::find($oldValue)?->name ?? $oldValue;
+                                            $newValue = CostCenter::find($newValue)?->name ?? $newValue;
+                                        } elseif ($field === 'report_payment_mode_id') {
+                                            $oldValue = PaymentMode::find($oldValue)?->name ?? $oldValue;
+                                            $newValue = PaymentMode::find($newValue)?->name ?? $newValue;
+                                        }
                                     @endphp
                                     @if ($oldValue !== $newValue)
                                         <tr>

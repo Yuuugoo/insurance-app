@@ -68,4 +68,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->belongsTo(CostCenter::class, 'branch_id', 'cost_center_id');
     }
+
+    public function reports()
+    {
+        return $this->belongsTo(Report::class, 'id' ,'sales_person_id');
+    }
 }

@@ -54,7 +54,7 @@ class ViewReports extends ViewRecord
                             TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel(),
                             TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel()->date('m-d-Y'),
                             TextEntry::make('inception_date')->label('Inception Date:')->date('m-d-Y')->inlineLabel(),
-                            TextEntry::make('sale_person')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   
+                            TextEntry::make('salesPerson.name')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   
                             TextEntry::make('costCenter.name')->label('Cost Center:')->icon('heroicon-o-map-pin')->inlineLabel(),
                             TextEntry::make('policy_num')->label('Policy Number:')->inlineLabel(),
                         ])->columnSpan('full')->columns(2),

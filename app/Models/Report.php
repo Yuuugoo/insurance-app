@@ -26,7 +26,7 @@ class Report extends Model
 
     protected $fillable = [
         'submitted_by_id', 'report_cost_center_id', 'report_insurance_prod_id', 
-        'report_insurance_type_id', 'report_payment_mode_id', 'sale_person',  'arpr_num', 'arpr_date',
+        'report_insurance_type_id', 'report_payment_mode_id', 'sales_person_id', 'sale_person',  'arpr_num', 'arpr_date',
         'inception_date', 'assured', 'policy_num', 'application', 'cashier_remarks', 
         'acct_remarks', 'policy_file', 'terms', 'gross_premium','payment_balance',
         'payment_mode',  'total_payment', 'plate_num','car_details', 
@@ -85,9 +85,9 @@ class Report extends Model
             'assured', 'policy_num', 'application', 'cashier_remarks', 'acct_remarks',  
             'policy_file', 'terms', 'gross_premium','payment_balance',
             'payment_mode',  'total_payment', 'plate_num',
-            'car_details', 'policy_status',    'financing_bank',
+            'car_details', 'policy_status',    'financing_bank', 'report_payment_mode_id',
             'payment_status', 'remit_deposit', 'arpr_date_remarks', 'report_cost_center_id', 
-            'report_insurance_prod_id', 'report_insurance_type_id', 'payment_status_aap',
+            'report_insurance_prod_id', 'report_insurance_type_id', 'payment_status_aap', 'sales_person_id'
         ])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();
@@ -137,5 +137,10 @@ class Report extends Model
     public function payments()
     {
         return $this->belongsTo(PaymentMode::class, 'report_payment_mode_id' ,'payment_id');
+    }
+
+    public function salesPerson()
+    {
+        return $this->belongsTo(User::class, 'sales_person_id' ,'id');
     }
 }

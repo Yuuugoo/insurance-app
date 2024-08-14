@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\PerBranchPage;
 use App\Filament\Pages\PerMonthPage;
+use App\Filament\Pages\PerSalespersonPage;
 use App\Http\Controllers\BarChartController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DownloadPdfController;
@@ -24,19 +25,15 @@ use App\Filament\Pages\SummaryReports;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 
-Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
-Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload');
 Route::fallback(function () {
     return redirect()->route('filament.admin.auth.login');
 });
-Route::get('/export', [PerBranchPage::class, 'export'])->name('exportData');
-Route::get('/export-per-month', [PerMonthPage::class, 'export'])->name('exportPerMonthData');
+Route::middleware(['auth'])->group(function () {
+    Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
+    Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload');
+    Route::get('/export', [PerBranchPage::class, 'export'])->name('exportData');
+    Route::get('/export-salesperson', [PerSalespersonPage::class, 'export'])->name('exportPerSalesperson');
+    Route::get('/export-per-month', [PerMonthPage::class, 'export'])->name('exportPerMonthData');
+});
 
-
-// Route::get('/login',
-//     fn() => redirect(route('filament.admin.auth.login'))
-// )->name('login');

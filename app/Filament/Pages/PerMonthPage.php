@@ -179,7 +179,6 @@ class PerMonthPage extends Page
         $sheet = $spreadsheet->getActiveSheet();
 
         $provider = $this->getSelectedProvider();
-        $insuranceTypes = $provider ? $provider->insuranceTypes : $this->getInsuranceTypes();
         $costCenter = $costCenterId ? CostCenter::find($costCenterId) : null;
         $currentYear = Carbon::now()->year;
 
