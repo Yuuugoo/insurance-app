@@ -51,7 +51,7 @@ class InsuranceTypeSimpleResource extends Resource
             ])
             ->contentGrid([
                 'md' => 5,
-                'xl' => 10,
+                'xl' => 6,
             ])
             ->filters([
                 //

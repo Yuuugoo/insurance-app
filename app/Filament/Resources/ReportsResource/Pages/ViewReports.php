@@ -35,12 +35,12 @@ class ViewReports extends ViewRecord
                 ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'aap-blue')
                 ->disabled(fn (Report $record) => $record->canEdit())
                 ->label('Edit this Report'),
-            Action::make('pdf')
-                ->label('Export to PDF')
-                ->color('aap-blue')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->url(fn (Report $record) => route('pdfdownload', $record))
-                ->openUrlInNewTab(),
+            // Action::make('pdf')
+            //     ->label('Export to PDF')
+            //     ->color('aap-blue')
+            //     ->icon('heroicon-o-arrow-down-tray')
+            //     ->url(fn (Report $record) => route('pdfdownload', $record))
+            //     ->openUrlInNewTab(),
         ];
     }
 

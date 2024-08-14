@@ -310,14 +310,14 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->numeric()
                                         ->required()
-                                        ->reactive()
+                                        ->live(onBlur: true)
                                         ->disabled(Auth::user()->hasRole('acct-staff')),
                                     TextInput::make('total_payment')
                                         ->label('Total Payment')
                                         ->inlineLabel()
                                         ->numeric()
+                                        ->live(onBlur: true)
                                         ->disabled(Auth::user()->hasRole('cashier'))
-                                        ->reactive()
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $totalPayment = floatval($state);
@@ -597,12 +597,12 @@ class ReportsResource extends Resource
                         ->disabled(fn (Report $record) => $record->canEdit()),
                     Tables\Actions\ViewAction::make()
                         ->color('aap-blue'),
-                    Tables\Actions\Action::make('pdf') 
-                        ->label('PDF')
-                        ->color('aap-blue')
-                        ->icon('heroicon-o-arrow-down-tray')
-                        ->url(fn (Report $record) => route('pdfview', $record))
-                        ->openUrlInNewTab(),
+                    // Tables\Actions\Action::make('pdf') 
+                    //     ->label('PDF')
+                    //     ->color('aap-blue')
+                    //     ->icon('heroicon-o-arrow-down-tray')
+                    //     ->url(fn (Report $record) => route('pdfview', $record))
+                    //     ->openUrlInNewTab(),
                     Tables\Actions\Action::make('activities')
                         ->label('View Recent Changes')
                         ->icon('heroicon-s-bookmark')

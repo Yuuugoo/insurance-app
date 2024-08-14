@@ -34,7 +34,7 @@ class ReportExporter extends Exporter
                 ->label('REPORTS ID'),
             ExportColumn::make('created_at')
                 ->label('DATE CREATED'),
-            ExportColumn::make('sale_person')
+            ExportColumn::make('salesPerson.name')
                 ->label('SALES PERSON'),
             ExportColumn::make('costCenter.name')
                 ->label('COST CENTER'),

@@ -50,10 +50,10 @@ class InsuranceProviderSimpleResource extends Resource
             ])
             ->contentGrid([
                 'md' => 5,
-                'xl' => 10,
+                'xl' => 6,
             ])
             ->filters([
-                //
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

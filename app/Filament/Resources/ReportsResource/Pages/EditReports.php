@@ -24,7 +24,7 @@ class EditReports extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return route('filament.admin.resources.reports.view', $this->record);
     }
 
     // This Sends Notifications to other users after editing a record

@@ -33,7 +33,7 @@ class ListReports extends ListRecords
     protected function getFooterWidgets(): array
     {
         return [
-            ReportsStatsOverview::class,
+            // ReportsStatsOverview::class,
             // ReportStatusWidget::class,
         ];
     }

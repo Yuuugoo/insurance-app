@@ -30,8 +30,8 @@ Route::fallback(function () {
     return redirect()->route('filament.admin.auth.login');
 });
 Route::middleware(['auth'])->group(function () {
-    Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
-    Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload');
+    // Route::get('pdf/report/{record}', ViewPDFController::class)->name('pdfview');
+    // Route::get('pdf/report/{record}/download', DownloadPdfController::class)->name('pdfdownload');
     Route::get('/export', [PerBranchPage::class, 'export'])->name('exportData');
     Route::get('/export-salesperson', [PerSalespersonPage::class, 'export'])->name('exportPerSalesperson');
     Route::get('/export-per-month', [PerMonthPage::class, 'export'])->name('exportPerMonthData');
