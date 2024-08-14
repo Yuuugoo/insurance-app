@@ -89,6 +89,17 @@ class ReportsResource extends Resource
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
+
+    protected function getPaymentStatusSortOrder($status)
+    {
+        $order = [
+            'pending' => 1,
+            'partial' => 2,
+            'paid' => 3,
+        ];
+        return $order[strtolower($status)] ?? 4; // Default to 4 for unknown statuses
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -490,7 +501,18 @@ class ReportsResource extends Resource
                     ->label('Submitted By'),
             ])
             ->openRecordUrlInNewTab()
-            ->defaultSort('arpr_date', 'desc')
+            ->defaultSort(function ($query) {
+                return $query->orderByRaw("
+                    CASE 
+                        WHEN payment_status_aap = 'pending' OR payment_status = 'pending' THEN 1
+                        WHEN payment_status_aap = 'partial' OR payment_status = 'partial' THEN 2
+                        WHEN payment_status_aap = 'paid' AND payment_status = 'paid' THEN 3
+                        ELSE 4
+                    END
+
+                   
+                ")->orderBy('arpr_date', 'desc');
+            })
             ->defaultPaginationPageOption(5)
             ->filters([
                 Filter::make('arpr_date')
