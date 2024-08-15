@@ -19,7 +19,7 @@ class PerBranchPage extends Page
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'SUMMARY';
     protected static string $view = 'filament.pages.per-branch-page';
-    protected static ?string $navigationLabel = 'Per Branch';
+    protected static ?string $navigationLabel = 'Branch';
     // protected static bool $shouldRegisterNavigation = false;
     
     public function getTitle(): string|Htmlable

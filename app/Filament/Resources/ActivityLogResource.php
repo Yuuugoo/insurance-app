@@ -46,7 +46,7 @@ class ActivityLogResource extends Resource
     public static function canAccess(): bool
     {       
         $user = Auth::user();
-        return $user->hasRole('cfo');
+        return $user->hasRole(['acct-manager', 'cfo']);
     }
 
     public static function form(Form $form): Form

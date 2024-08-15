@@ -19,7 +19,7 @@ class PerMonthPage extends Page
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'SUMMARY';
     protected static string $view = 'filament.pages.per-month-page';
-    protected static ?string $navigationLabel = 'Per Month';
+    protected static ?string $navigationLabel = 'Month';
 
 
     public function getTitle(): string|Htmlable

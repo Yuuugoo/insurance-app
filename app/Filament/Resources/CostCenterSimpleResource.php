@@ -20,8 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CostCenterSimpleResource extends Resource
 {
     protected static ?string $model = CostCenter::class;
-    protected static bool $shouldRegisterNavigation = false;
-    protected static ?string $navigationGroup = 'REPORTS';
+    protected static ?string $navigationGroup = 'CMS';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

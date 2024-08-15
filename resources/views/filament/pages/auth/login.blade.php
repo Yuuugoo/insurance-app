@@ -5,7 +5,7 @@
     <div class="flex flex-col items-center space-y-6 w-full">
         <!-- Move the heading here -->
         <div class="-mt-10">
-            <h1 class="text-center text-2xl tracking-wide text-gray-950 dark:text-white">{{ __('Insurance Report System') }}</h1>
+            <h1 class="text-center text-2xl mb-2 font-bold tracking-wide text-gray-950 dark:text-white">{{ __('Insurance Report System') }}</h1>
             <h1 class="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-white">{{ __('Login') }}</h1>
         </div>
 

@@ -17,12 +17,6 @@ class ManageCostCenterSimples extends ManageRecords
             Actions\CreateAction::make()
                 ->color('aap-blue')
                 ->label('Add New Cost Center'),
-            Action::make('back')
-                ->label('Back')
-                ->color('gray')
-                ->url(function() {
-                    return route('filament.admin.pages.c-m-s-page');
-                })
         ];
     }
 }

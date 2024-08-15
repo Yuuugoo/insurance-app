@@ -19,6 +19,7 @@ class PreviousMonth extends ApexChartWidget
     protected function getOptions(): array
     {
         $data = $this->getData();
+        $costCenterName = $this->getCostCenterName();
 
         return [
             'chart' => [
@@ -26,6 +27,15 @@ class PreviousMonth extends ApexChartWidget
                 'height' => 300,
                 'toolbar' => [
                     'show' => false
+                ],
+            ],
+            'title' => [
+                'text' => $costCenterName,
+                'align' => 'center',
+                'style' => [
+                    'fontSize' => '18px',
+                    'fontWeight' => 'bold',
+                    'color' => '#002c69'
                 ],
             ],
             'series' => [
@@ -38,7 +48,7 @@ class PreviousMonth extends ApexChartWidget
                 'categories' => $data['labels'],
                 'labels' => [
                     'style' => [
-                        'colors' => '#000000',
+                        'colors' => '#003366',
                         'fontWeight' => 300,
                     ],
                 ],
@@ -193,18 +203,23 @@ class PreviousMonth extends ApexChartWidget
         ];
     }
 
-    public function getHeading(): ?string
+    protected function getCostCenterName(): string
     {
         $filters = $this->getFilters();
         $costCenterId = $filters['filter'] ?? 'All';
-        $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
 
         if ($costCenterId === 'All' || Auth::user()->branch_id !== null) {
-            $costCenterName = CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
+            return CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
         } else {
-            $costCenterName = CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
+            return CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
         }
+    }
 
-        return $costCenterName . " Reports for " . $selectedDate->format('F Y');
+    public function getHeading(): ?string
+    {
+        $filters = $this->getFilters();
+        $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now()->subMonth();
+
+        return "Reports for {$selectedDate->format('F Y')}";
     }
 }

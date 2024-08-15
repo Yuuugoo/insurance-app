@@ -13,6 +13,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
+use Illuminate\Contracts\Support\Htmlable;
 
 class CurrentMonthReports extends ApexChartWidget
 {
@@ -22,6 +24,7 @@ class CurrentMonthReports extends ApexChartWidget
     protected function getOptions(): array
     {
         $data = $this->getData();
+        $costCenterName = $this->getCostCenterName();
 
         return [
             'chart' => [
@@ -29,6 +32,15 @@ class CurrentMonthReports extends ApexChartWidget
                 'height' => 300,
                 'toolbar' => [
                     'show' => false
+                ],
+            ],
+            'title' => [
+                'text' => $costCenterName,
+                'align' => 'center',
+                'style' => [
+                    'fontSize' => '18px',
+                    'fontWeight' => 'bold',
+                    'color' => '#002C69'
                 ],
             ],
             'series' => [
@@ -41,7 +53,7 @@ class CurrentMonthReports extends ApexChartWidget
                 'categories' => $data['labels'],
                 'labels' => [
                     'style' => [
-                        'colors' => '#000000',
+                        'colors' => '#003366',
                         'fontWeight' => 300,
                     ],
                 ],
@@ -199,19 +211,25 @@ class CurrentMonthReports extends ApexChartWidget
         ];
     }
 
-    public function getHeading(): ?string
+    protected function getCostCenterName(): string
     {
         $filters = $this->getFilters();
         $costCenterId = $filters['filter'] ?? 'All';
+
+        if ($costCenterId === 'All' || Auth::user()->branch_id !== null) {
+            return CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
+        } else {
+            return CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
+        }
+    }
+
+    public function getHeading(): ?string
+    {
+        $filters = $this->getFilters();
         $selectedDate = isset($filters['selectedDate']) ? Carbon::parse($filters['selectedDate']) : now();
 
-        if($costCenterId === 'All' || Auth::user()->branch_id !== null) {
-            $costCenterName = CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
-        }
-        else {
-            $costCenterName = CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
-        }
-
-        return $costCenterName . " Reports for " . $selectedDate->format('F Y');
+        return "Reports for {$selectedDate->format('F Y')}";
     }
+
+
 }

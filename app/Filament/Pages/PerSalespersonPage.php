@@ -20,7 +20,7 @@ class PerSalespersonPage extends Page
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'SUMMARY';
     protected static string $view = 'filament.pages.per-salesperson-page';
-    protected static ?string $navigationLabel = 'Per Salesperson';
+    protected static ?string $navigationLabel = 'Salesperson';
 
     public function getTitle(): string|Htmlable
     {

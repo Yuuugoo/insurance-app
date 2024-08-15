@@ -10,6 +10,9 @@
       .fi-logo{ @apply ml-5 w-24 h-auto !important }
     }
     .fi-topbar{ nav{@apply h-20 !important} }
+    .fi-topbar{ .fi-topbar-open-sidebar-btn{@apply absolute !important }
+                .fi-topbar-close-sidebar-btn{@apply absolute !important} 
+    }
     /* .aap-logo{ @apply w-auto h-1 mb-24 -mt-16 !important } */
     .aap-login-logo { @apply w-48 -mt-24 !important }
     .fi-sidebar-header { @apply static !important }

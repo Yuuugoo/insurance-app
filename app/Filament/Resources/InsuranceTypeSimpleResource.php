@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 class InsuranceTypeSimpleResource extends Resource
 {
     protected static ?string $model = InsuranceType::class;
-    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $navigationGroup = 'CMS';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
