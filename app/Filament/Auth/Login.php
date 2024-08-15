@@ -29,10 +29,10 @@ class Login extends AuthLogin
         parent::mount();
 
         $this->form->fill([
-            'email' => 'cashier@admin.com',
-            'login' => 'CSH_EC',
-            'password' => 'password',
-            'remember' => true,
+            // 'email' => 'cashier@admin.com',
+            // 'login' => 'CSH_EC',
+            // 'password' => 'password',
+            // 'remember' => true,
         ]);
     }
 

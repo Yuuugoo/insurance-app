@@ -9,7 +9,7 @@ use Illuminate\Contracts\Support\Htmlable;
 class CfoDashboard extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-home';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
     protected static ?string $title = 'Dashboard';
     protected static string $view = 'filament.pages.dashboard.cfo-dashboard';
 

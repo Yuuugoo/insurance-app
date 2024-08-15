@@ -47,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth(MaxWidth::Full) 
             ->login(Login::class) // Login Form
             ->brandName('') // Remove Brand Name
+            ->brandLogo(asset('images/aap-logo-2.png'))
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -54,8 +55,8 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->viteTheme('resources/css/filament/admin/theme.css') // Register Custom CSS
             ->renderHook(
-                'panels::sidebar.nav.start',
-                fn (): string => Blade::render('@livewire(\'SidebarLogo\')'), // Added logo at the top of Sidebar
+                'panels::topbar.start',
+                fn (): string => Blade::render('@livewire(\'TopbarTitle\')'), // Added logo at the top of Sidebar
             )
             ->renderHook(
                 'panels::body.end',

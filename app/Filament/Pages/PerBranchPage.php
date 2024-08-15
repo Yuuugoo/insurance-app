@@ -17,10 +17,10 @@ use Illuminate\Contracts\Support\Htmlable;
 class PerBranchPage extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'REPORTS';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'SUMMARY REPORTS';
     protected static string $view = 'filament.pages.per-branch-page';
-    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $navigationLabel = 'Per Branch';
+    // protected static bool $shouldRegisterNavigation = false;
     
     public function getTitle(): string|Htmlable
     {

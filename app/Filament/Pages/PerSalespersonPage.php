@@ -18,9 +18,9 @@ use Illuminate\Contracts\Support\Htmlable;
 class PerSalespersonPage extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static bool $shouldRegisterNavigation = false;
-    protected static ?string $navigationGroup = 'REPORTS';
+    protected static ?string $navigationGroup = 'SUMMARY REPORTS';
     protected static string $view = 'filament.pages.per-salesperson-page';
+    protected static ?string $navigationLabel = 'Per Salesperson';
 
     public function getTitle(): string|Htmlable
     {

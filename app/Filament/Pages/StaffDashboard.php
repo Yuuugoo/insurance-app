@@ -14,7 +14,7 @@ class StaffDashboard extends Page
     protected static ?string $navigationIcon = 'heroicon-o-home';
     protected static string $view = 'filament.pages.dashboard.staff-dashboard';
     protected static ?string $title = 'Dashboard';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
     
     public static function canAccess(): bool
     {
