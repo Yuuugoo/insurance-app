@@ -463,7 +463,7 @@ class ReportsResource extends Resource
                                 ]),
                                 
                             ])->columns(2),
-                ])->columnSpanFull()->skippable(),                
+                ])->columnSpanFull()->skippable(false),                
             ]);
     }
 

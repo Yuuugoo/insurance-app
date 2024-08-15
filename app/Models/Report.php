@@ -58,7 +58,7 @@ class Report extends Model
 
     public function canEdit(): bool
     {
-        if ($this->payment_status && $this->payment_status_aap == PaymentStatus::PAID) {
+        if ($this->payment_status == PaymentStatus::PAID && $this->payment_status_aap == PaymentStatus::PAID) {
             return true;
         }
 
