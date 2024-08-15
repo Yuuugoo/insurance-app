@@ -84,11 +84,10 @@ use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 class ReportsResource extends Resource
 {
     protected static ?string $model = Report::class;
-    protected static ?string $navigationLabel = 'Insurance Reports';
+    protected static ?string $navigationLabel = 'Reports';
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-folder';
-
 
     protected function getPaymentStatusSortOrder($status)
     {
