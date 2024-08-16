@@ -48,7 +48,7 @@ class PreviousMonth extends ApexChartWidget
                 'categories' => $data['labels'],
                 'labels' => [
                     'style' => [
-                        'colors' => '#003366',
+                        'colors' => '#000000',
                         'fontWeight' => 300,
                     ],
                 ],

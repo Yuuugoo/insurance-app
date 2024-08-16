@@ -8,5 +8,14 @@
         @livewire(\App\Livewire\CurrentMonthReports::class)
         @livewire(\App\Livewire\PreviousMonth::class)
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (typeof Alpine !== 'undefined' && Alpine.store('sidebar')) {
+                Alpine.store('sidebar').toggleCollapsedGroup('SUMMARY');
+                Alpine.store('sidebar').toggleCollapsedGroup('CMS');
+                Alpine.store('sidebar').toggleCollapsedGroup('SETTINGS');
+            }
+        });
+    </script>
 </x-filament-panels::page>
     

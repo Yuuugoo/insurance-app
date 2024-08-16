@@ -29,6 +29,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Support\Facades\FilamentColor;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -53,6 +54,17 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->maxContentWidth(MaxWidth::Full)
             ->darkMode(false)
+            ->navigationGroups([
+                NavigationGroup::make('SUMMARY')
+                    ->label('SUMMARY')
+                    ->collapsed(true),
+                NavigationGroup::make('CMS')
+                    ->label('CMS')
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('SETTINGS')
+                    ->collapsed(true),
+            ])
             ->viteTheme('resources/css/filament/admin/theme.css') // Register Custom CSS
             ->renderHook(
                 'panels::topbar.start',
