@@ -34,7 +34,7 @@ class PreviousMonth extends ApexChartWidget
                 'align' => 'center',
                 'style' => [
                     'fontSize' => '18px',
-                    'fontWeight' => 'bold',
+                    'fontWeight' => 800,
                     'color' => '#002c69'
                 ],
             ],
@@ -209,7 +209,7 @@ class PreviousMonth extends ApexChartWidget
         $costCenterId = $filters['filter'] ?? 'All';
 
         if ($costCenterId === 'All' || Auth::user()->branch_id !== null) {
-            return CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All';
+            return CostCenter::where('cost_center_id', Auth::user()->branch_id)->value('name') ?? 'All Branches';
         } else {
             return CostCenter::where('cost_center_id', $costCenterId)->value('name') ?? 'Unknown';
         }
