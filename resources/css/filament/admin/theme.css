@@ -3,11 +3,11 @@
 @config 'tailwind.config.js';
 
 @layer components{
-    .fi-sidebar { @apply bg-white max-w-48 min-h-screen !important }
+    .fi-sidebar { @apply bg-white max-w-60 min-h-screen !important }
     .fi-sidebar-nav{ @apply gap-y-4 px-6 !important }
     .fi-sidebar-header{ @apply h-20 !important}
     .fi-sidebar-header{
-      .fi-logo{ @apply ml-5 w-24 h-auto !important }
+      .fi-logo{ @apply ml-10 w-24 h-auto !important }
     }
     .fi-topbar{ nav{@apply h-20 !important} }
     .fi-topbar{ .fi-topbar-open-sidebar-btn{@apply absolute !important }
