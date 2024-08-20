@@ -25,6 +25,7 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
+       
         'submitted_by_id', 'report_cost_center_id', 'report_insurance_prod_id', 
         'report_insurance_type_id', 'report_payment_mode_id', 'sales_person_id', 'sale_person',  'arpr_num', 'arpr_date',
         'inception_date', 'assured', 'policy_num', 'application', 'cashier_remarks', 
@@ -33,6 +34,8 @@ class Report extends Model
         'policy_status', 'financing_bank', 'payment_status', 'remit_deposit', 
         'arpr_date_remarks', 'add_remarks', 'payment_status_aap',
     ];
+
+   
 
     protected $casts = [
         'application' => ModeApplication::class,
@@ -44,7 +47,7 @@ class Report extends Model
         'policy_file' => 'encrypted',
         'sale_person' => 'encrypted',
         'assured' => 'encrypted',
-        'policy_num' => 'encrypted',
+        // 'policy_num' => 'encrypted',
         'plate_num' => 'encrypted',
         'car_details' => 'encrypted',
         'financing_bank' => 'encrypted',

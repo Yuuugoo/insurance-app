@@ -30,6 +30,7 @@ use App\Enums\PaymentStatus;
 use App\Rules\NamewithSpace;
 use Doctrine\DBAL\Types\Type;
 use App\Enums\ModeApplication;
+use App\Imports\ReportsImport;
 use Faker\Provider\ar_EG\Text;
 use Filament\Facades\Filament;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -38,11 +39,13 @@ use Filament\Resources\Resource;
 use App\Models\InsuranceProvider;
 use Filament\Actions\DeleteAction;
 use Illuminate\Support\HtmlString;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use function Laravel\Prompts\table;
 use Filament\Support\Enums\MaxWidth;
 use function Laravel\Prompts\select;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard;
@@ -57,6 +60,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Filament\Exports\ReportExporter;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use App\Filament\Exports\ProductExporter;
@@ -86,7 +90,6 @@ class ReportsResource extends Resource
     protected static ?string $model = Report::class;
     protected static ?string $navigationLabel = 'Reports';
     protected static ?int $navigationSort = 2;
-    protected static ?string $recordTitleAttribute = 'arpr_num';
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     protected function getPaymentStatusSortOrder($status)
@@ -246,6 +249,11 @@ class ReportsResource extends Resource
                                         ->readOnly(Auth::user()->hasRole('acct-staff'))
                                         ->disabled(Auth::user()->hasRole('acct-staff'))
                                         ->required()
+                                        ->unique(ignoreRecord: true)
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                            })
                                         ->label('Policy Number')
                                         ->inlineLabel(),
                                 ])->columns(2),
@@ -643,8 +651,37 @@ class ReportsResource extends Resource
                     ->chunkSize(250)
                     ->formats([
                         ExportFormat::Xlsx,
+                    ]),
+                Action::make('importReports')
+                    ->label('Import Report')
+                    ->color('aap-blue')
+                    ->form([
+                        FileUpload::make('attachment')
+                            ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
+                            ->required(),
                     ])
-                ])
+                    ->action(function (array $data) {
+                        $file = public_path("storage/" . $data['attachment']);
+
+                        try {
+                            Excel::import(new ReportsImport, $file);
+                
+                            Notification::make()
+                                ->success()
+                                ->title('Reports Imported')
+                                ->body('Reports data imported successfully.')
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Import Failed')
+                                ->body('Error: ' . $e->getMessage())
+                                ->send();
+                        }
+                
+                       
+                    }),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     

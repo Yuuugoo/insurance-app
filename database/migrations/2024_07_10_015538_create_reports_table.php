@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id('reports_id');
             $table->unsignedBigInteger('submitted_by_id')->nullable();
             $table->foreign('submitted_by_id')->references('id')->on('users');
-            $table->text('arpr_num');
-            $table->date('arpr_date');
+            $table->text('arpr_num')->nullable();
+            $table->date('arpr_date')->nullable();
             $table->date('inception_date')->nullable();
-            $table->text('assured');
-            $table->text('policy_num');
-            $table->string('application', 50);
+            $table->text('assured')->nullable();
+            $table->text('policy_num')->nullable();
+            $table->string('application', 50)->nullable();
             $table->string('cashier_remarks')->nullable();
             $table->string('acct_remarks')->nullable();
             $table->text('policy_file')->nullable();
