@@ -101,6 +101,7 @@ class ViewReports extends ViewRecord
                     Section::make('Payment Details')
                         ->schema([
                         // Payment Details
+                        TextEntry::make('terms')->label('Terms'),
                         TextEntry::make('payments.name')->label('Payment Mode'),
                         TextEntry::make('gross_premium')->label('Gross Premium'),
                         TextEntry::make('total_payment')->label('Total Payment'),

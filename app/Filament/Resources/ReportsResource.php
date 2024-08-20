@@ -654,6 +654,7 @@ class ReportsResource extends Resource
                     ]),
                 Action::make('importReports')
                     ->label('Import Report')
+                    ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
                     ->color('aap-blue')
                     ->form([
                         FileUpload::make('attachment')

@@ -7,8 +7,8 @@ use Filament\Support\Contracts\HasLabel;
 enum Terms: string implements HasLabel
 {
     
-    case STRAIGHT = 'straight';
-    case ONE = '1/2';
+    case STRAIGHT = 'STRAIGHT';
+    case ONE = '1/2';   
     case TWO = '2/2';
     case THREE = '1/3';
     case FOUR = '2/3';
@@ -32,7 +32,7 @@ enum Terms: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::STRAIGHT => 'straight',
+            self::STRAIGHT => 'STRAIGHT',
             self::ONE => '1/2',
             self::TWO => '2/2',
             self::THREE => '1/3',

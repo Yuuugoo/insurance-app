@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Report;
 use App\Models\CostCenter;
@@ -10,36 +11,35 @@ use App\Models\PaymentMode;
 use App\Models\InsuranceType;
 use App\Enums\ModeApplication;
 use App\Models\InsuranceProvider;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Support\Collection;
-
-
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ReportsImport implements WithHeadingRow, ToCollection
 {
     /**
-    * @param array $row
-     *@param collection $collection
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
+    * @param Collection $rows
     */
-
-
-    public function collection(collection $rows)
+    public function collection(Collection $rows)
     {
         foreach ($rows as $row)
         {
+            try {
             $reports = Report::where("policy_num", $row['policy_number'])->first();
+            
+            // Convert Excel date numbers to proper date format
+            $arprDate = $this->convertExcelDate($row['arpr_date']);
+            $inceptionDate = $this->convertExcelDate($row['inception_date']);
+            
             if($reports){
-
                 $reports->update([
                     'sales_person_id' => self::getClassId($row['sales_person']),
                     'report_cost_center_id' => self::getCostcenterId($row['cost_center']),
                     'arpr_num' => $row['arpr_number'],
-                    'arpr_date' => $row['arpr_date'],
-                    'inception_date' => $row['inception_date'],
+                    'arpr_date' => $arprDate,
+                    'inception_date' => $inceptionDate,
                     'assured' => $row['assured'],
                     'report_insurance_prod_id' => self::getInsuranceProviderId($row['insurance_provider']),
                     'report_insurance_type_id' => self::getInsuranceTypeId($row['insurance_type']),
@@ -52,16 +52,14 @@ class ReportsImport implements WithHeadingRow, ToCollection
                     'policy_status' => $this->mapPolicyStatus($row['policy_status']),
                     'application' => $this->mapModeofApplication($row['mode_of_application']),
                     'financing_bank' => $row['mortagagee_or_financing'],
-
                 ]);           
-            }else {
-                
+            } else {
                 Report::create([          
                     'sales_person_id' => self::getClassId($row['sales_person']),
                     'report_cost_center_id' => self::getCostcenterId($row['cost_center']),
                     'arpr_num' => $row['arpr_number'],
-                    'arpr_date' => $row['arpr_date'],
-                    'inception_date' => $row['inception_date'],
+                    'arpr_date' => $arprDate,
+                    'inception_date' => $inceptionDate,
                     'assured' => $row['assured'],
                     'policy_num' => $row['policy_number'],
                     'report_insurance_prod_id' => self::getInsuranceProviderId($row['insurance_provider']),
@@ -75,43 +73,33 @@ class ReportsImport implements WithHeadingRow, ToCollection
                     'policy_status' => $this->mapPolicyStatus($row['policy_status']),
                     'application' => $this->mapModeofApplication($row['mode_of_application']),
                     'financing_bank' => $row['mortagagee_or_financing'],
-
-                ]);
-            }
+                    
+                    ]);
+                }
+        } catch (\Exception $e) {
+            // Log the error or handle it as needed
+            Log::error('Error processing row: ' . $e->getMessage());
+            continue; // Skip this row and continue with the next one
         }
     }
+}
 
+    /**
+     * Convert Excel date number to Carbon date
+     *
+     * @param mixed $excelDate
+     * @return string|null
+     */
+    private function convertExcelDate($excelDate)
+    {
+        if (!is_numeric($excelDate)) {
+            return $excelDate; // Return as is if it's not a number
+        }
 
-
-        // public function model(array $row)
-        // {
-
-
-        //     return new Report([
-            
-        //     'sales_person_id' => self::getClassId($row['sales_person']),
-        //     'report_cost_center_id' => self::getCostcenterId($row['cost_center']),
-        //     'arpr_num' => $row['arpr_number'],
-        //     'arpr_date' => $row['arpr_date'],
-        //     'inception_date' => $row['inception_date'],
-        //     'assured' => $row['assured'],
-        //     'policy_num' => $row['policy_number'],
-        //     'report_insurance_prod_id' => self::getInsuranceProviderId($row['insurance_provider']),
-        //     'report_insurance_type_id' => self::getInsuranceTypeId($row['insurance_type']),
-        //     'terms' => $row['terms'],
-        //     'gross_premium' => $row['gross_premium'],
-        //     'report_payment_mode_id' => self::getPaymentModeId($row['mode_of_payment']),
-        //     'total_payment' => $row['total_payment'],
-        //     'plate_num' => $row['plate_no'],
-        //     'car_details' => $row['car_details'],
-        //     'policy_status' => $this->mapPolicyStatus($row['policy_status']),
-        //     'application' => $this->mapModeofApplication($row['mode_of_application']),
-        //     'financing_bank' => $row['mortagagee_or_financing'],
-                
-        //     ]);
-        // }
-
-    
+        // Excel's date system starts from 1900-01-01, so we add days to that date
+        $unixDate = ($excelDate - 25569) * 86400;
+        return Carbon::createFromTimestamp($unixDate)->format('Y-m-d');
+    }
 
     private function mapPolicyStatus($status)
     {
@@ -136,43 +124,45 @@ class ReportsImport implements WithHeadingRow, ToCollection
     public static function getClassId($user)
     {
         $user = User::where('name', $user)->first();
+        if (!$user) {
+            throw new \Exception("User not found: $user");
+        }
         return $user->id;
     }
-
+    
     public static function getCostcenterId($costCenter)
     {
         $costCenter = CostCenter::where('name', $costCenter)->first();
+        if (!$costCenter) {
+            throw new \Exception("Cost Center not found: $costCenter");
+        }
         return $costCenter->cost_center_id;
     }
-
+    
     public static function getInsuranceTypeId($insuranceTypeId)
     {
-        $insuranceTypeId = InsuranceType::where('name', $insuranceTypeId)->first();
-        return $insuranceTypeId->insurance_type_id;
+        $insuranceType = InsuranceType::where('name', $insuranceTypeId)->first();
+        if (!$insuranceType) {
+            throw new \Exception("Insurance Type not found: $insuranceTypeId");
+        }
+        return $insuranceType->insurance_type_id;
     }
-
+    
     public static function getInsuranceProviderId($insuranceProviderId)
     {
-        $insuranceProviderId = InsuranceProvider::where('name', $insuranceProviderId)->first();
-        return $insuranceProviderId->insurance_provider_id;
+        $insuranceProvider = InsuranceProvider::where('name', $insuranceProviderId)->first();
+        if (!$insuranceProvider) {
+            throw new \Exception("Insurance Provider not found: $insuranceProviderId");
+        }
+        return $insuranceProvider->insurance_provider_id;
     }
-
+    
     public static function getPaymentModeId($paymentModeId)
     {
-        $paymentModeId = PaymentMode::where('name', $paymentModeId)->first();
-        return $paymentModeId->payment_id;
+        $paymentMode = PaymentMode::where('name', $paymentModeId)->first();
+        if (!$paymentMode) {
+            throw new \Exception("Payment Mode not found: $paymentModeId");
+        }
+        return $paymentMode->payment_id;
     }
-   
-
-    // public static function getSectionId($class, $section)
-    // {
-    //     $class_id = self::getClassId($class);
-
-    //     $section_model = Section::where([
-    //         'class_id' => $class_id,
-    //         'name' => $section
-    //     ])->first();
-
-    //     return $section_model->id;
-    // }
 }
