@@ -125,18 +125,23 @@ class ReportsImport implements WithHeadingRow, ToCollection
     {
         $user = User::where('name', $user)->first();
         if (!$user) {
-            throw new \Exception("User not found: $user");
+            return null;
         }
-        return $user->id;
+        else{
+            return $user->id;
+        }
+        
     }
     
     public static function getCostcenterId($costCenter)
     {
         $costCenter = CostCenter::where('name', $costCenter)->first();
         if (!$costCenter) {
-            throw new \Exception("Cost Center not found: $costCenter");
+            return null;
         }
-        return $costCenter->cost_center_id;
+        else{
+            return $costCenter->cost_center_id;
+        }
     }
     
     public static function getInsuranceTypeId($insuranceTypeId)
