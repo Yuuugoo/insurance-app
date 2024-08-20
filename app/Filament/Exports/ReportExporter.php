@@ -32,8 +32,6 @@ class ReportExporter extends Exporter
         return [
             ExportColumn::make('reports_id')
                 ->label('REPORTS ID'),
-            ExportColumn::make('created_at')
-                ->label('DATE CREATED'),
             ExportColumn::make('salesPerson.name')
                 ->label('SALES PERSON'),
             ExportColumn::make('costCenter.name')
@@ -73,7 +71,7 @@ class ReportExporter extends Exporter
                     return $state->getLabel();
                 }),
             ExportColumn::make('financing_bank')
-                ->label('MORTAGAGEE/FINANCING'),
+                ->label('MORTAGAGEE OR FINANCING'),
             ExportColumn::make('application')
                 ->label('MODE OF APPLICATION')
                 ->formatStateUsing(function (ModeApplication $state) {

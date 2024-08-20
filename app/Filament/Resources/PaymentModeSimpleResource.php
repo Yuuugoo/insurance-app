@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CostCenterSimpleResource\Pages;
-use App\Filament\Resources\CostCenterSimpleResource\RelationManagers;
-use App\Models\CostCenter;
-use App\Models\CostCenterSimple;
+use App\Filament\Resources\PaymentModeSimpleResource\Pages;
+use App\Filament\Resources\PaymentModeSimpleResource\RelationManagers;
+use App\Models\PaymentMode;
+use App\Models\PaymentModeSimple;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -17,9 +17,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CostCenterSimpleResource extends Resource
+class PaymentModeSimpleResource extends Resource
 {
-    protected static ?string $model = CostCenter::class;
+    protected static ?string $model = PaymentMode::class;
     protected static ?string $navigationGroup = 'CMS';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -27,8 +27,8 @@ class CostCenterSimpleResource extends Resource
     {
         return $form
             ->schema([
-                    TextInput::make('name')
-                        ->label('Cost Center Name')
+                TextInput::make('name')
+                        ->label('Payment Mode Name')
                         ->rule(['required'])
                         ->unique(ignoreRecord:True)
                         ->live()
@@ -63,14 +63,16 @@ class CostCenterSimpleResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageCostCenterSimples::route('/'),
+            'index' => Pages\ManagePaymentModeSimples::route('/'),
         ];
     }
 }

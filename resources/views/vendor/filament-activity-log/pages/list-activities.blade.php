@@ -71,8 +71,8 @@
                             <thead>
                                 <tr class="text-left text-xs uppercase">
                                     <th class="pb-2">Field</th>
-                                    <th class="pb-2">Old Value</th>
-                                    <th class="pb-2">New Value</th>
+                                    <th class="pb-2">Old Contents</th>
+                                    <th class="pb-2">Changes</th>
                                 </tr>
                             </thead>
                             <tbody>
