@@ -13,6 +13,13 @@
     .fi-topbar{ .fi-topbar-open-sidebar-btn{@apply absolute !important }
                 .fi-topbar-close-sidebar-btn{@apply absolute !important} 
     }
+    .activity-log-section{
+      .fi-header{ @apply hidden !important }
+      .activity-log-content{ @apply -mt-10 w-full !important}
+      header{
+        button{@apply bg-aap-blue !important }
+      }
+    }
     /* .aap-logo{ @apply w-auto h-1 mb-24 -mt-16 !important } */
     .aap-login-logo { @apply w-48 -mt-24 !important }
     .fi-sidebar-header { @apply static !important }
@@ -26,7 +33,7 @@
       @apply content-[''] absolute top-0 right-0 h-full w-[1px] bg-[rgba(153,147,147,0.25)] !important;
     }
     /* .fi-sidebar-nav-groups::before { @apply mb-[-1px] content-[''] border-t border-[rgba(153,147,147,0.25)] !important } */
-    .fi-in-text-item{ @apply underline !important }
+    .fi-in-text-item{ @apply font-semibold !important }
     .fi-ta-text-item-label{ @apply text-black !important }  
     .fi-topbar-database-notifications-btn{ @apply text-aap-blue !important }
     .fi-topbar { @apply static !important }

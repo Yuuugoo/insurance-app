@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ReportsResource\Pages;
 
+use App\Filament\Pages\AuditTrailPage;
 use App\Models\Report;
 use Filament\Forms\Get;
 use Filament\Actions\Action;
@@ -15,13 +16,20 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Components\Section;
 use App\Filament\Resources\ReportsResource;
+use App\Filament\Resources\ReportsResource\Widgets\ReportsStatsOverview;
+use App\Livewire\AuditTrailWidget;
+use Exception;
+use Filament\Forms\Components\Field;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\Actions\Action as InfolistAction;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
-class ViewReports extends ViewRecord
+class ViewReports extends ViewRecord 
 {
     protected static string $resource = ReportsResource::class;
-
     protected function getHeaderActions(): array
     {
         return [
@@ -35,12 +43,12 @@ class ViewReports extends ViewRecord
                 ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'aap-blue')
                 ->disabled(fn (Report $record) => $record->canEdit())
                 ->label('Edit this Report'),
-            // Action::make('pdf')
-            //     ->label('Export to PDF')
-            //     ->color('aap-blue')
-            //     ->icon('heroicon-o-arrow-down-tray')
-            //     ->url(fn (Report $record) => route('pdfdownload', $record))
-            //     ->openUrlInNewTab(),
+            // Action::make('activities')
+            //     ->label('Activity Log')
+            //     ->color('gray')
+            //     ->action(function () {
+            //         return redirect()->route('filament.admin.resources.reports.activities', $this->record);
+            //     }),
         ];
     }
 
@@ -125,7 +133,6 @@ class ViewReports extends ViewRecord
                         ->schema([
                             // Uploaded Files
                             TextEntry::make('policy_file')
-                            ->label('Policy File')
                                 ->label('Policy File')
                                 ->color('primary')
                                 ->formatStateUsing(fn ($state) => basename($state))
@@ -161,19 +168,51 @@ class ViewReports extends ViewRecord
                             TextEntry::make('cashier_remarks')
                                 ->label('Cashier Remarks')
                                 ->markdown()
-                                ->hidden(fn ($record) => $record->cashier_remarks === null)
                                 ->prose(),
                             TextEntry::make('acct_remarks')
                                 ->label('Accounting Remarks')
                                 ->markdown()
                                 ->prose()
-                                ->hidden(fn ($record) => $record->acct_remarks === null),
 
-                    ])->grow(false),
-
+                    ])->grow(false) ->hidden(fn ($record) => $record->acct_remarks === null && $record->cashier_remarks == null),
+                    Section::make('HISTORY')
+                        ->extraAttributes(['class' => 'activity-log-section'])
+                        ->schema([
+                            TextEntry::make('audit_trail')
+                                ->label('')
+                                ->extraAttributes(['class' => 'activity-log-content'])
+                                ->html()
+                                ->getStateUsing(function () {
+                                    return view('filament-activity-log::pages.list-activities', [
+                                        'activities' => $this->getActivityLogData(),
+                                    ]);
+                                })
+                    ])->columnSpanFull()->collapsed(),
             ]);
     }
 
-    
+    public function getActivities(): Collection
+    {
+        return $this->record->activities->sortByDesc('created_at');
+    }
+
+    public function getActivityLogData(): array
+    {
+        return $this->record->activities->sortByDesc('created_at')->toArray();
+    }
+
+    protected function getFooterActions(): array
+    {
+        return [
+            Action::make('activities')
+                ->label('Activity Log')
+                ->color('gray')
+                ->icon('heroicon-o-clipboard-list')
+                ->action(function () {
+                    return redirect()->route('filament.resources.reports.activities', $this->record);
+                }),
+        ];
+    }
+
 
 }
