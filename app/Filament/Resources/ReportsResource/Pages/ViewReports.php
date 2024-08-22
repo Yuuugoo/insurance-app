@@ -41,7 +41,7 @@ class ViewReports extends ViewRecord
                 }),
             EditAction::make('edit')
                 ->color(fn (Report $record) => $record->canEdit() ? 'gray' : 'aap-blue')
-                ->disabled(fn (Report $record) => $record->canEdit())
+                ->disabled(fn (Report $record) => $record->canEdit() && Auth::user()->hasRole(['cashier','agent']))
                 ->label('Edit this Report'),
             // Action::make('activities')
             //     ->label('Activity Log')

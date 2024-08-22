@@ -30,10 +30,11 @@ class ReportExporter extends Exporter
     {   
         
         return [
-            ExportColumn::make('reports_id')
-                ->label('REPORTS ID'),
+            
             ExportColumn::make('salesPerson.name')
-                ->label('SALES PERSON'),
+                ->label('SALES PERSON')
+                ->extraHeaderAttributes(['style' => 'background-color: #FFA500;']), // Orange color
+
             ExportColumn::make('costCenter.name')
                 ->label('COST CENTER'),
             ExportColumn::make('arpr_num')

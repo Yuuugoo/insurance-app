@@ -12,8 +12,6 @@ use App\Models\InsuranceType;
 use App\Enums\ModeApplication;
 use App\Models\InsuranceProvider;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -26,14 +24,15 @@ class ReportsImport implements WithHeadingRow, ToCollection
     {
         foreach ($rows as $row)
         {
-            try {
+            $this->validateRow($row);
+
             $reports = Report::where("policy_num", $row['policy_number'])->first();
-            
+
             // Convert Excel date numbers to proper date format
             $arprDate = $this->convertExcelDate($row['arpr_date']);
             $inceptionDate = $this->convertExcelDate($row['inception_date']);
-            
-            if($reports){
+
+            if ($reports) {
                 $reports->update([
                     'sales_person_id' => self::getClassId($row['sales_person']),
                     'report_cost_center_id' => self::getCostcenterId($row['cost_center']),
@@ -54,8 +53,8 @@ class ReportsImport implements WithHeadingRow, ToCollection
                     'financing_bank' => $row['mortagagee_or_financing'],
                 ]);           
             } else {
-                Report::create([          
-                    'sales_person_id' => self::getClassId($row['sales_person']),
+                Report::create([
+                     'sales_person_id' => self::getClassId($row['sales_person']),
                     'report_cost_center_id' => self::getCostcenterId($row['cost_center']),
                     'arpr_num' => $row['arpr_number'],
                     'arpr_date' => $arprDate,
@@ -73,16 +72,10 @@ class ReportsImport implements WithHeadingRow, ToCollection
                     'policy_status' => $this->mapPolicyStatus($row['policy_status']),
                     'application' => $this->mapModeofApplication($row['mode_of_application']),
                     'financing_bank' => $row['mortagagee_or_financing'],
-                    
-                    ]);
-                }
-        } catch (\Exception $e) {
-            // Log the error or handle it as needed
-            Log::error('Error processing row: ' . $e->getMessage());
-            continue; // Skip this row and continue with the next one
+                ]);
+            }
         }
     }
-}
 
     /**
      * Convert Excel date number to Carbon date
@@ -114,60 +107,166 @@ class ReportsImport implements WithHeadingRow, ToCollection
     private function mapModeofApplication($application)
     {
         return match (strtoupper($application)) {
-            'FB/OL' => ModeApplication::FBOL,
+            'FACEBOOK/ONLINE' => ModeApplication::FBOL,
             'CALL' => ModeApplication::CALL,
             'DROPBY' => ModeApplication::DROPBY,
             default => null,
         };
     }
 
-    public static function getClassId($user)
+    public static function getClassId($salesPerson)
     {
-        $user = User::where('name', $user)->first();
-        if (!$user) {
-            return null;
+        if (empty($salesPerson)) {
+            throw new \Exception("Sales Person field is blank. This field is required.");
         }
-        else{
-            return $user->id;
-        }
-        
-    }
     
+        $user = User::where('name', $salesPerson)->first();
+    
+        if (!$user) {
+            throw new \Exception("Sales Person $salesPerson not found. This field is required.");
+        }
+    
+        return $user->id;
+    }
+
     public static function getCostcenterId($costCenter)
     {
-        $costCenter = CostCenter::where('name', $costCenter)->first();
-        if (!$costCenter) {
-            return null;
+        if (empty($costCenter)) {
+            throw new \Exception("Cost Center field is blank. This field is required.");
         }
-        else{
-            return $costCenter->cost_center_id;
+    
+        $branch = CostCenter::where('name', $costCenter)->first();
+    
+        if (!$branch) {
+            throw new \Exception("Cost Center '{$costCenter}' not found. This field is required.");
         }
+    
+        return $branch->cost_center_id;
     }
+   
     
     public static function getInsuranceTypeId($insuranceTypeId)
     {
-        $insuranceType = InsuranceType::where('name', $insuranceTypeId)->first();
-        if (!$insuranceType) {
-            throw new \Exception("Insurance Type not found: $insuranceTypeId");
+        if (empty($insuranceTypeId)) {
+            throw new \Exception("Insurance Type field is blank. This field is required.");
         }
-        return $insuranceType->insurance_type_id;
+
+        $type = InsuranceType::where('name', $insuranceTypeId)->first();
+        if (!$type) {
+            throw new \Exception("Insurance Type '{$insuranceTypeId}' not found. This field is required.");
+        }
+
+        return $type->insurance_type_id;
+       
     }
     
     public static function getInsuranceProviderId($insuranceProviderId)
     {
-        $insuranceProvider = InsuranceProvider::where('name', $insuranceProviderId)->first();
-        if (!$insuranceProvider) {
-            throw new \Exception("Insurance Provider not found: $insuranceProviderId");
+        if (empty($insuranceProviderId)) {
+            throw new \Exception("Insurance Provider field is blank. This field is required.");
         }
-        return $insuranceProvider->insurance_provider_id;
+
+        $provider = InsuranceProvider::where('name', $insuranceProviderId)->first();
+        if (!$provider) {
+            throw new \Exception("Insurance Provider '{$insuranceProviderId}' not found. This field is required.");
+        }
+
+        return $provider->insurance_provider_id;
+      
     }
     
     public static function getPaymentModeId($paymentModeId)
     {
-        $paymentMode = PaymentMode::where('name', $paymentModeId)->first();
-        if (!$paymentMode) {
-            throw new \Exception("Payment Mode not found: $paymentModeId");
+
+        if (empty($paymentModeId)) {
+            throw new \Exception("Payment Mode field is blank. This field is required.");
         }
-        return $paymentMode->payment_id;
+
+        $payment = PaymentMode::where('name', $paymentModeId)->first();
+        if (!$payment) {
+            throw new \Exception("Payment Mode '{$paymentModeId}' not found. This field is required.");
+        }
+        return $payment->payment_id;
+       
+    }
+
+      /**
+     * Validate required fields in the row
+     *
+     * @param array $row
+     * @throws \Exception
+     */
+    private function validateRow($row)
+    {
+        if (empty($row['arpr_number'])) {
+            throw new \Exception("ARPR Number field is blank. This field is required.");
+        }
+
+        if (empty($row['arpr_date'])) {
+            throw new \Exception("ARPR Date field is blank. This field is required.");
+        }
+
+        if (empty($row['inception_date'])) {
+            throw new \Exception("Inception Date field is blank. This field is required.");
+        }
+
+        if (empty($row['assured'])) {
+            throw new \Exception('Assured field is blank. This field is required.');
+        }
+
+        if (empty($row['policy_number'])) {
+            throw new \Exception('Policy Number field is blank. This field is required.');
+        }
+
+        if (empty($row['terms'])) {
+            throw new \Exception('Terms field is blank. This field is required.');
+        }
+
+        if (empty($row['gross_premium'])) {
+            throw new \Exception('Gross Premium field is blank. This field is required.');
+        }
+
+        if (empty($row['total_payment'])) {
+            throw new \Exception('Total Payment field is blank. This field is required.');
+        }
+
+        if (empty($row['plate_no'])) {
+            throw new \Exception('Plate Number field is blank. This field is required.');
+        }
+
+        if (empty($row['car_details'])) {
+            throw new \Exception('Car Details field is blank. This field is required.');
+        }
+
+        if (empty($row['policy_status'])) {
+            throw new \Exception('Policy Status field is blank. This field is required.');
+        }
+
+        if (empty($row['mortagagee_or_financing'])) {
+            throw new \Exception('Mortagagee or Financing field is blank. This field is required.');
+        }
+
+        if (empty($row['mode_of_application'])) {
+            throw new \Exception('Mode of Application field is blank. This field is required.');
+        }  
+        // Add additional validations if needed
     }
 }
+
+
+ //    $branch = CostCenter::where('name', $costCenter)->first();
+
+    //     if (!$branch) {
+    //         throw new \Exception("Cost Center '{$costCenter}' not found. This field is required.");
+    //     }
+
+    //     return $branch->cost_center_id;
+    
+
+    
+    
+    // public static function getCostcenterId($costCenter)
+    // {
+    //     $costCenter = CostCenter::where('name', $costCenter)->first();
+    //     return $costCenter->cost_center_id;
+    // }

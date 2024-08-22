@@ -7,7 +7,7 @@ use Filament\Support\Contracts\HasLabel;
 enum ModeApplication: string implements HasLabel
 {
     // Types of Insurance
-    case FBOL = 'fb/ol';
+    case FBOL = 'facebook/online';
     case CALL = 'call';
     case DROPBY = 'dropby';
 

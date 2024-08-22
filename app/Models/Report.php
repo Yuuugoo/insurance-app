@@ -45,7 +45,7 @@ class Report extends Model
         'terms' => Terms::class,
         'add_remarks' => 'boolean',
         'policy_file' => 'encrypted',
-        'sale_person' => 'encrypted',
+       
         'assured' => 'encrypted',
         // 'arpr_date' => 'datetime:m-d-Y',
         // 'inception_date' => 'datetime:m-d-Y',

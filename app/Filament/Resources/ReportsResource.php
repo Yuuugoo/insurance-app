@@ -49,6 +49,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard;
 use App\Enums\Payment as EnumsPayment;
+use App\Exports\ReportsExport;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
@@ -84,6 +85,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
 use Konnco\FilamentImport\Actions\ImportAction;
 use Konnco\FilamentImport\Actions\ImportField;
+
+
 
 class ReportsResource extends Resource
 {
@@ -335,7 +338,7 @@ class ReportsResource extends Resource
                                         ->inlineLabel()
                                         ->numeric()
                                         ->live(onBlur: true)
-                                        ->disabled(Auth::user()->hasRole('cashier'))
+                                        
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $totalPayment = floatval($state);
@@ -642,16 +645,38 @@ class ReportsResource extends Resource
             ])
 
             ->headerActions([
-                ExportAction::make()
-                    ->exporter(ReportExporter::class)
+
+                 Action::make('ExportReports')
+                    ->label('Export Report')
                     ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
-                    ->label('Export All Records')
                     ->color('aap-blue')
-                    ->columnMapping(false)
-                    ->chunkSize(250)
-                    ->formats([
-                        ExportFormat::Xlsx,
-                    ]),
+                    ->action(function () {
+                        try {
+                            return Excel::download(new ReportsExport, 'reports.xlsx');
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Export Failed')
+                                ->body('Error: ' . $e->getMessage())
+                                ->send();
+                        }
+                    })
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('Reports Exported')
+                            ->body('Reports data exported successfully.')
+                    ),
+                // ExportAction::make()
+                //     ->exporter(ReportExporter::class)
+                //     ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
+                //     ->label('Export All Records')
+                //     ->color('aap-blue')
+                //     ->columnMapping(false)
+                //     ->chunkSize(250)
+                //     ->formats([
+                //         ExportFormat::Xlsx,
+                //     ]),
                 Action::make('importReports')
                     ->label('Import Report')
                     ->hidden(fn () => Auth::user()->hasRole(['agent', 'cashier']))
