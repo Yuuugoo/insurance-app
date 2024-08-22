@@ -21,8 +21,8 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
             'reports.arpr_date',
             'reports.inception_date',
             'reports.assured',
-            'reports.report_insurance_prod_id',
-            'reports.report_insurance_type_id',
+            'insurance_providers.name as insurance_provider_name', // Join and select insurance provider name
+            'insurance_types.name as insurance_type_name', // Join and select insurance type name
             'reports.terms',
             'reports.gross_premium',
             'reports.report_payment_mode_id',
@@ -36,7 +36,8 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
         )
         ->join('users', 'reports.sales_person_id', '=', 'users.id') // Join with users table
         ->join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_centers.cost_center_id') // Join with cost_centers table
-
+        ->join('insurance_providers', 'reports.report_insurance_prod_id', '=', 'insurance_providers.insurance_provider_id') // Join with insurance_providers table
+        ->join('insurance_types', 'reports.report_insurance_type_id', '=', 'insurance_types.insurance_type_id') // Join with insurance_types table
         ->get();
     }
 

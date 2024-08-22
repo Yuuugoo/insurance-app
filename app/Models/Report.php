@@ -71,7 +71,7 @@ class Report extends Model
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($report, $paymentTerm) {
+        static::creating(function ($report) {
             if (!$report->submitted_by_id) {
                 $report->submitted_by_id = auth()->id();
             }
