@@ -23,6 +23,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      *
      * @var array<int, string>
      */
+    protected $primaryKey = 'id';
 
     protected $primaryKey = 'id';
     protected $fillable = [

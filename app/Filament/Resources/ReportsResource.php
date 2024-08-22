@@ -154,12 +154,12 @@ class ReportsResource extends Resource
                                             $query = User::whereHas('roles', function ($query) {
                                                 $query->where('name', 'agent');
                                             });
-                                    
-                                            if (Auth::user()->branch_id !== null) {
-                                                $query->whereHas('costCenter', function ($subQuery) {
-                                                    $subQuery->where('cost_center_id', Auth::user()->branch_id);
-                                                });
-                                            }
+                                            // Commented it So that sales person dropdown can select all agents.
+                                            // if (Auth::user()->branch_id !== null) {
+                                            //     $query->whereHas('costCenter', function ($subQuery) {
+                                            //         $subQuery->where('cost_center_id', Auth::user()->branch_id);
+                                            //     });
+                                            // }
                                     
                                             return $query->pluck('name', 'id');
                                         })
@@ -312,20 +312,62 @@ class ReportsResource extends Resource
                         ->columns(['md' => 2, 'xl' => 2]),
                     Wizard\Step::make('Payment Details')
                         ->schema([
+                            Select::make('terms')
+                                ->required()
+                                ->label('Select Terms')
+                                ->inlineLabel()
+                                ->disabled(Auth::user()->hasRole('acct-staff'))
+                                ->options(Terms::class)
+                                ->reactive()
+                                ->live()
+                                ->afterStateUpdated(function (callable $set, $get) {
+                                    if ($get('terms') === Terms::STRAIGHT->value) {
+                                        $set('total_payment', $get('gross_premium'));
+                                    }
+                                }),
                             Section::make()
+                                ->label('1st Term')
                                 ->schema([
-                                    Select::make('terms')
-                                        ->required()
-                                        ->label('Select Terms')
-                                        ->inlineLabel()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
-                                        ->options(Terms::class)
-                                        ->reactive()
-                                        ->afterStateUpdated(function (callable $set, $get) {
-                                            if ($get('terms') === 'straight') {
-                                                $set('total_payment', $get('gross_premium'));
+                                    TextInput::make('paymentTerms')
+                                        ->label('Enter First Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->disabled(fn (Get $get) => !empty($get('1stpayment')))
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exists) {
+                                                $record->paymentTerms()->updateOrCreate(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['terms_payments' => $state]
+                                                );
                                             }
                                         }),
+                                    TextInput::make('2ndpayment')
+                                        ->label('Enter Second Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exist) {
+                                                $record->paymentTerms()->create(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['terms_payments' => $state]
+                                                );
+                                            }
+                                        }),
+                                    TextInput::make('3rdpayment')
+                                        ->label('Enter 3rd Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exists) {
+                                                $record->paymentTerms()->create(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['payments' => $state]
+                                                );
+                                            }
+                                        })
+                                ]),
+                            Section::make()
+                                ->schema([
                                     TextInput::make('gross_premium')
                                         ->label('Enter Gross Premium')
                                         ->inlineLabel()
@@ -386,7 +428,6 @@ class ReportsResource extends Resource
                                         ->reject(fn ($status) => strtolower($status->value) === 'pending')
                                             ->pluck('name', 'value')
                                             ->toArray()),
-
                                     Select::make('payment_status_aap')
                                         ->required()
                                         ->inlineLabel()
@@ -398,7 +439,7 @@ class ReportsResource extends Resource
                                         ->reject(fn ($status) => strtolower($status->value) === 'pending')
                                             ->pluck('name', 'value')
                                             ->toArray()),
-                            ])->columns(2),
+                            ])->columns(2)  ->hidden(fn (Get $get) => $get(('terms') !== Terms::STRAIGHT->value) || $get(('terms') !== null)),
                             Section::make()
                                 ->schema([
                                     Repeater::make('remit_deposit')

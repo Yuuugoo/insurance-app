@@ -25,7 +25,6 @@ class Report extends Model
     protected $primaryKey = 'reports_id';
 
     protected $fillable = [
-       
         'submitted_by_id', 'report_cost_center_id', 'report_insurance_prod_id', 
         'report_insurance_type_id', 'report_payment_mode_id', 'sales_person_id', 'sale_person',  'arpr_num', 'arpr_date',
         'inception_date', 'assured', 'policy_num', 'application', 'cashier_remarks', 
@@ -72,12 +71,16 @@ class Report extends Model
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($report) {
+        static::creating(function ($report, $paymentTerm) {
             if (!$report->submitted_by_id) {
                 $report->submitted_by_id = auth()->id();
             }
-
         });
+        // static::saved(function ($report) {
+        //     $report->paymentTerms()->updateOrCreate([
+        //         'report_terms_id' => $report->reports_id,
+        //     ]);
+        // });
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -147,4 +150,10 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'sales_person_id' ,'id');
     }
+
+    public function paymentTerms()
+    {
+        return $this->hasMany(PaymentTerm::class, 'report_terms_id', 'reports_id');
+    }
+
 }
