@@ -115,7 +115,6 @@ class ReportsImport implements WithHeadingRow, ToCollection
     }
 
     public static function getClassId($salesPerson)
-    public static function getClassId($salesPerson)
     {
         if (empty($salesPerson)) {
             throw new \Exception("Sales Person field is blank. This field is required.");
