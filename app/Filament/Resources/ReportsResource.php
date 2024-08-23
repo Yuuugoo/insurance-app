@@ -333,6 +333,7 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->live(onBlur: true)
                                         ->disabled(fn (Get $get) => !empty($get('1stpayment')))
+                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->afterStateUpdated(function ($state, $record) {
                                             if ($record && $record->exists) {
                                                 $record->paymentTerms()->updateOrCreate(
@@ -345,6 +346,7 @@ class ReportsResource extends Resource
                                         ->label('Enter Second Payment')
                                         ->numeric()
                                         ->live(onBlur: true)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
                                         ->afterStateUpdated(function ($state, $record) {
                                             if ($record && $record->exist) {
                                                 $record->paymentTerms()->create(
@@ -357,11 +359,51 @@ class ReportsResource extends Resource
                                         ->label('Enter 3rd Payment')
                                         ->numeric()
                                         ->live(onBlur: true)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
                                         ->afterStateUpdated(function ($state, $record) {
                                             if ($record && $record->exists) {
                                                 $record->paymentTerms()->create(
                                                     ['report_terms_id' => $record->reports_id],
-                                                    ['payments' => $state]
+                                                    ['terms_payments' => $state]
+                                                );
+                                            }
+                                        }),
+                                    TextInput::make('4thpayment')
+                                        ->label('Enter 4th Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exists) {
+                                                $record->paymentTerms()->create(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['terms_payments' => $state]
+                                                );
+                                            }
+                                        }),
+                                    TextInput::make('5thpayment')
+                                        ->label('Enter 5th Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exists) {
+                                                $record->paymentTerms()->create(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['terms_payments' => $state]
+                                                );
+                                            }
+                                        }),
+                                    TextInput::make('6thpayment')
+                                        ->label('Enter 6th Payment')
+                                        ->numeric()
+                                        ->live(onBlur: true)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateUpdated(function ($state, $record) {
+                                            if ($record && $record->exists) {
+                                                $record->paymentTerms()->create(
+                                                    ['report_terms_id' => $record->reports_id],
+                                                    ['terms_payments' => $state]
                                                 );
                                             }
                                         })

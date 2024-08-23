@@ -21,11 +21,13 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
             'reports.arpr_date',
             'reports.inception_date',
             'reports.assured',
+            'reports.policy_num',
             'insurance_providers.name as insurance_provider_name', // Join and select insurance provider name
             'insurance_types.name as insurance_type_name', // Join and select insurance type name
             'reports.terms',
             'reports.gross_premium',
-            'reports.report_payment_mode_id',
+            'payment_modes.name as payment_mode_name', // Join and select payment mode name
+            // 'reports.report_payment_mode_id',
             'reports.total_payment',
             'reports.plate_num',
             'reports.car_details',
@@ -38,6 +40,8 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
         ->join('cost_centers', 'reports.report_cost_center_id', '=', 'cost_centers.cost_center_id') // Join with cost_centers table
         ->join('insurance_providers', 'reports.report_insurance_prod_id', '=', 'insurance_providers.insurance_provider_id') // Join with insurance_providers table
         ->join('insurance_types', 'reports.report_insurance_type_id', '=', 'insurance_types.insurance_type_id') // Join with insurance_types table
+        ->join('payment_modes', 'reports.report_payment_mode_id', '=', 'payment_modes.payment_id') // Join with payment_modes table
+        ->whereNotNull('reports.arpr_num')  // Ensure ARPR number is not null
         ->get();
     }
 
@@ -45,22 +49,23 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
     {
         return [
             'SALES PERSON', // Update heading for sales person name
-            'COST CENTER ID',
+            'COST CENTER',
             'ARPR NUMBER',
             'ARPR DATE',
             'INCEPTION DATE',
             'ASSURED',
-            'INSURANCE PROVIDER ID',
-            'INSURANCE TYPE ID',
+            'POLICY NUMBER',
+            'INSURANCE PROVIDER',
+            'INSURANCE TYPE',
             'TERMS',
             'GROSS PREMIUM',
-            'PAYMENT MODE ID',
+            'MODE OF PAYMENT',
             'TOTAL PAYMENT',
-            'PLATE NUMBER',
+            'PLATE NO',
             'CAR DETAILS',
             'POLICY STATUS',
-            'APPLICATION',
-            'FINANCING BANK',
+            'MODE OF APPLICATION',
+            'MORTAGAGEE OR FINANCING',
            
         ];
     }
@@ -68,66 +73,55 @@ class ReportsExport implements FromCollection, WithHeadings, WithStyles, WithCol
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => ['font' => ['bold' => true]],
+            // Bold and bordered header row
+            1 => [
+                'font' => ['bold' => true],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['argb' => '000000'],
+                    ],
+                ],
+            ],
+    
+            // Style for "SALES PERSON" column header (A1)
             'A1' => [
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'color' => ['argb' => 'FFA500'],
+                    'color' => ['argb' => 'FFA500'], // Orange color for Sales Person header
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['argb' => '000000'],
-                    ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'B1' => [
+    
+            // Style for all other headers (B1 to Q1)
+            'B1:Q1' => [
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'color' => ['argb' => '008000'],
+                    'color' => ['argb' => '008000'], // Green color for other headers
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['argb' => '000000'],
-                    ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'C1' => [
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'color' => ['argb' => 'ADD8E6'],
-                ],
+    
+            // Apply border and alignment to all cells from A2 to Q100
+            'A2:Q100' => [
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                         'color' => ['argb' => '000000'],
                     ],
                 ],
-            ],
-            'D1:N1' => [
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'color' => ['argb' => 'F0F0F0'],
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['argb' => '000000'],
-                    ],
-                ],
-            ],
-            'A:N' => ['alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]],
-            'A2:N100' => [
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['argb' => '000000'],
-                    ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
         ];
     }
+    
+
 
     public function columnWidths(): array
     {
