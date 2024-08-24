@@ -149,6 +149,7 @@ class ReportsResource extends Resource
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
+                                    
                                     Select::make('sales_person_id')
                                         ->options(function () {
                                             $query = User::whereHas('roles', function ($query) {
@@ -310,7 +311,7 @@ class ReportsResource extends Resource
                         ])
                         ->description('View Vehicle Details')
                         ->columns(['md' => 2, 'xl' => 2]),
-                    Wizard\Step::make('Payment Details')
+                        Wizard\Step::make('Payment Details')
                         ->schema([
                             Section::make()
                                 ->schema([
@@ -335,98 +336,244 @@ class ReportsResource extends Resource
                                         ->live(onBlur: true)
                                         ->disabled(Auth::user()->hasRole('acct-staff')),
                                 ])->columns(2),
-                                Section::make()
-                                    ->label('1st Term')
-                                    ->hidden(fn (Get $get) => $get('terms') == Terms::STRAIGHT->value)
-                                    // Itong afterStateUpdated nagpapasok ng value sa payment_terms table sa database kapag sinasubmit form
-                                    ->afterStateUpdated(function ($state, $record) {
-                                        if ($record && $record->exists) {
-                                            $paymentFields = ['1stpayment', '2ndpayment', '3rdpayment', '4thpayment', '5thpayment', '6thpayment'];
-                                            foreach ($paymentFields as $index => $field) {
-                                                if (isset($state[$field])) {
-                                                    $paymentOrder = $index + 1;
-                                                    $record->updateOrCreatePaymentTerm($paymentOrder, $state[$field]);
+                            Section::make()
+                                ->label('Payment Terms')
+                                ->hidden(fn (Get $get) => $get('terms') == Terms::STRAIGHT->value)
+                                ->afterStateUpdated(function ($state, $record) {
+                                    if ($record && $record->exists) {
+                                        $paymentFields = ['1stpayment', '2ndpayment', '3rdpayment', '4thpayment', '5thpayment', '6thpayment'];
+                                        $terms = $state['terms'];
+                                        $firstPaymentDate = $state['1stpayment_date'] ?? null;
+                            
+                                        $paymentCount = match ($terms) {
+                                            Terms::TWO->value => 2,
+                                            Terms::THREE->value => 3,
+                                            Terms::SIX->value => 6,
+                                            default => 1,
+                                        };
+                            
+                                        for ($index = 0; $index < $paymentCount; $index++) {
+                                            $paymentOrder = $index + 1;
+                                            $dateField = $paymentFields[$index] . '_date';
+                                            $paymentDate = $state[$dateField] ?? null;
+                            
+                                            if ($paymentOrder > 1 && $firstPaymentDate && !$paymentDate) {
+                                                $paymentDate = (new Carbon($firstPaymentDate))->addMonths($index)->format('Y-m-d');
+                                            }
+                            
+                                            $record->updateOrCreatePaymentTerm($paymentOrder, $state[$paymentFields[$index]] ?? null, $paymentDate);
+                                        }
+                                    }
+                                })
+                                ->schema([
+
+                                    TextInput::make('1stpayment')
+                                        ->label('Enter 1st Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $firstPayment = $record->paymentTerms()->where('payment_order', 1)->first();
+                                                if ($firstPayment) {
+                                                    $component->state($firstPayment->terms_payment);
                                                 }
                                             }
-                                        }
-                                    })
-                                    ->schema([
-                                        TextInput::make('1stpayment')
-                                            ->label('Enter 1st Payment')
-                                            ->numeric()
-                                            // ->disabled(fn (Get $get) => !empty($get('1stpayment'))) patanggal neto pre kase I think disabled lang dapat siya kapag is_paid == 1
-                                            ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
-                                            // Itong afterStateHydrated naman kumukuha ng value sa payment_terms table sa database para madisplay niya sa edit forms.
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $firstPayment = $record->paymentTerms()->where('payment_order', 1)->first();
-                                                    if ($firstPayment) {
-                                                        $component->state($firstPayment->terms_payment);
-                                                    }
+                                        }),
+
+                                    DatePicker::make('1stpayment_date')
+                                        ->label('1st Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->required()
+                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                            if ($state) {
+                                                $terms = $get('terms');
+                                                $paymentCount = match ($terms) {
+                                                    Terms::TWO->value => 2,
+                                                    Terms::THREE->value => 3,
+                                                    Terms::SIX->value => 6,
+                                                    default => 1,
+                                                };
+                                                
+                                                $firstDate = new Carbon($state);
+                                                for ($i = 2; $i <= $paymentCount; $i++) {
+                                                    $set("{$i}thpayment_date", $firstDate->copy()->addMonths($i - 1)->format('Y-m-d'));
                                                 }
-                                            }),
-                                        TextInput::make('2ndpayment')
-                                            ->label('Enter 2nd Payment')
-                                            ->numeric()
-                                            ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $secondPayment = $record->paymentTerms()->where('payment_order', 2)->first();
-                                                    if ($secondPayment) {
-                                                        $component->state($secondPayment->terms_payment);
-                                                    }
+                                            }
+                                        })
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $firstPayment = $record->paymentTerms()->where('payment_order', 1)->first();
+                                                if ($firstPayment) {
+                                                    $component->state($firstPayment->payment_date);
                                                 }
-                                            }),
-                                        TextInput::make('3rdpayment')
-                                            ->label('Enter 3rd Payment')
-                                            ->numeric()
-                                            ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $thirdPayment = $record->paymentTerms()->where('payment_order', 3)->first();
-                                                    if ($thirdPayment) {
-                                                        $component->state($thirdPayment->terms_payment);
-                                                    }
-                                                }
-                                            }),
-                                        TextInput::make('4thpayment')
-                                            ->label('Enter 4th Payment')
-                                            ->numeric()
-                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $fourthPayment = $record->paymentTerms()->where('payment_order', 4)->first();
-                                                    if ($fourthPayment) {
-                                                        $component->state($fourthPayment->terms_payment);
-                                                    }
-                                                }
-                                            }),
-                                        TextInput::make('5thpayment')
-                                            ->label('Enter 5th Payment')
-                                            ->numeric()
-                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $fifthPayment = $record->paymentTerms()->where('payment_order', 5)->first();
-                                                    if ($fifthPayment) {
-                                                        $component->state($fifthPayment->terms_payment);
-                                                    }
-                                                }
-                                            }),
+                                            }
+                                        }),
+                                    
+                                    Checkbox::make('1stPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
+                                        ->extraAttributes(['class' => 'is-paid-checkbox']),
+                                       
                                         
-                                        TextInput::make('6thpayment')
-                                            ->label('Enter 6th Payment')
-                                            ->numeric()
-                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                if ($record) {
-                                                    $sixthPayment = $record->paymentTerms()->where('payment_order', 6)->first();
-                                                    if ($sixthPayment) {
-                                                        $component->state($sixthPayment->terms_payment);
-                                                    }
+                                    
+                                    DatePicker::make('2ndpayment_date')
+                                        ->label('2nd Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
+                                        ->disabled(true)
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $secondPayment = $record->paymentTerms()->where('payment_order', 2)->first();
+                                                if ($secondPayment) {
+                                                    $component->state($secondPayment->payment_date);
                                                 }
-                                            }),
-                                ]),
+                                            }
+                                        }),
+                                    TextInput::make('2ndpayment')
+                                        ->label('Enter 2nd Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $secondPayment = $record->paymentTerms()->where('payment_order', 2)->first();
+                                                if ($secondPayment) {
+                                                    $component->state($secondPayment->terms_payment);
+                                                }
+                                            }
+                                        }),
+
+                                    Checkbox::make('2ndPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value])),
+                                    
+                                    DatePicker::make('3rdpayment_date')
+                                        ->label('3rd Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
+                                        ->disabled(true)
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $thirdPayment = $record->paymentTerms()->where('payment_order', 3)->first();
+                                                if ($thirdPayment) {
+                                                    $component->state($thirdPayment->payment_date);
+                                                }
+                                            }
+                                        }),
+                                    TextInput::make('3rdpayment')
+                                        ->label('Enter 3rd Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $thirdPayment = $record->paymentTerms()->where('payment_order', 3)->first();
+                                                if ($thirdPayment) {
+                                                    $component->state($thirdPayment->terms_payment);
+                                                }
+                                            }
+                                        }),
+
+                                    Checkbox::make('3rdPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value])), 
+                                    
+                                    DatePicker::make('4thpayment_date')
+                                        ->label('4th Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->disabled(true)
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $fourthPayment = $record->paymentTerms()->where('payment_order', 4)->first();
+                                                if ($fourthPayment) {
+                                                    $component->state($fourthPayment->payment_date);
+                                                }
+                                            }
+                                        }),
+                                    TextInput::make('4thpayment')
+                                        ->label('Enter 4th Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $fourthPayment = $record->paymentTerms()->where('payment_order', 4)->first();
+                                                if ($fourthPayment) {
+                                                    $component->state($fourthPayment->terms_payment);
+                                                }
+                                            }
+                                        }),
+
+                                    Checkbox::make('4thPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
+                                    
+                                    DatePicker::make('5thpayment_date')
+                                        ->label('5th Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->disabled(true)
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $fifthPayment = $record->paymentTerms()->where('payment_order', 5)->first();
+                                                if ($fifthPayment) {
+                                                    $component->state($fifthPayment->payment_date);
+                                                }
+                                            }
+                                        }),
+                                    TextInput::make('5thpayment')
+                                        ->label('Enter 5th Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $fifthPayment = $record->paymentTerms()->where('payment_order', 5)->first();
+                                                if ($fifthPayment) {
+                                                    $component->state($fifthPayment->terms_payment);
+                                                }
+                                            }
+                                        }),
+
+                                    Checkbox::make('5thPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
+                                    
+                                    DatePicker::make('6thpayment_date')
+                                        ->label('6th Payment Date')
+                                        ->displayFormat('m-d-Y')
+                                        ->native(false)
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->disabled(true)
+                                        ->afterStateHydrated(function (DatePicker $component, $record) {
+                                            if ($record) {
+                                                $sixthPayment = $record->paymentTerms()->where('payment_order', 6)->first();
+                                                if ($sixthPayment) {
+                                                    $component->state($sixthPayment->payment_date);
+                                                }
+                                            }
+                                        }),
+                                    TextInput::make('6thpayment')
+                                        ->label('Enter 6th Payment')
+                                        ->numeric()
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->afterStateHydrated(function (TextInput $component, $record) {
+                                            if ($record) {
+                                                $sixthPayment = $record->paymentTerms()->where('payment_order', 6)->first();
+                                                if ($sixthPayment) {
+                                                    $component->state($sixthPayment->terms_payment);
+                                                }
+                                            }
+                                        }),
+
+                                    Checkbox::make('6thPaid')
+                                        ->label('Is Paid')
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
+                                ])->columns(3),
                             Section::make()
                                 // Pa-hide ng section na to pre if hindi STRAIGHT ang terms
                                 ->description('Straight Payment')

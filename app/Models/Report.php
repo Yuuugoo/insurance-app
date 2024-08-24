@@ -80,12 +80,15 @@ class Report extends Model
         });
     }
 
-    public function updateOrCreatePaymentTerm($paymentOrder, $termsPayment)
+    public function updateOrCreatePaymentTerm($paymentOrder, $termsPayment, $paymentDate)
     {
         Log::info("Updating/Creating payment term", [
             'report_id' => $this->reports_id,
             'payment_order' => $paymentOrder,
-            'terms_payment' => $termsPayment
+            'terms_payment' => $termsPayment,
+            'payment_date' => $paymentDate
+       
+            
         ]);
         
         //dagdag ka rito pre ng gusto mong ipasok sa database like terms_outstanding_balance and payment_date
@@ -96,7 +99,8 @@ class Report extends Model
                     'payment_order' => $paymentOrder,
                 ],
                 [
-                    'terms_payment' => $termsPayment
+                    'terms_payment' => $termsPayment,
+                    'payment_date' => $paymentDate,
                 ]
             );
 
