@@ -312,104 +312,21 @@ class ReportsResource extends Resource
                         ->columns(['md' => 2, 'xl' => 2]),
                     Wizard\Step::make('Payment Details')
                         ->schema([
-                            Select::make('terms')
-                                ->required()
-                                ->label('Select Terms')
-                                ->inlineLabel()
-                                ->disabled(Auth::user()->hasRole('acct-staff'))
-                                ->options(Terms::class)
-                                ->reactive()
-                                ->live()
-                                ->afterStateUpdated(function (callable $set, $get) {
-                                    if ($get('terms') === Terms::STRAIGHT->value) {
-                                        $set('total_payment', $get('gross_premium'));
-                                    }
-                                }),
-                            Section::make()
-                                ->label('1st Term')
-                                ->schema([
-                                    TextInput::make('paymentTerms')
-                                        ->label('Enter First Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->disabled(fn (Get $get) => !empty($get('1stpayment')))
-                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exists) {
-                                                $record->paymentTerms()->updateOrCreate(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        }),
-                                    TextInput::make('2ndpayment')
-                                        ->label('Enter Second Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exist) {
-                                                $record->paymentTerms()->create(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        }),
-                                    TextInput::make('3rdpayment')
-                                        ->label('Enter 3rd Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exists) {
-                                                $record->paymentTerms()->create(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        }),
-                                    TextInput::make('4thpayment')
-                                        ->label('Enter 4th Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exists) {
-                                                $record->paymentTerms()->create(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        }),
-                                    TextInput::make('5thpayment')
-                                        ->label('Enter 5th Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exists) {
-                                                $record->paymentTerms()->create(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        }),
-                                    TextInput::make('6thpayment')
-                                        ->label('Enter 6th Payment')
-                                        ->numeric()
-                                        ->live(onBlur: true)
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->afterStateUpdated(function ($state, $record) {
-                                            if ($record && $record->exists) {
-                                                $record->paymentTerms()->create(
-                                                    ['report_terms_id' => $record->reports_id],
-                                                    ['terms_payments' => $state]
-                                                );
-                                            }
-                                        })
-                                ]),
                             Section::make()
                                 ->schema([
+                                    Select::make('terms')
+                                        ->required()
+                                        ->label('Select Terms')
+                                        ->inlineLabel()
+                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->options(Terms::class)
+                                        ->reactive()
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, $get) {
+                                            if ($get('terms') === Terms::STRAIGHT->value) {
+                                                $set('total_payment', $get('gross_premium'));
+                                            }
+                                        }),
                                     TextInput::make('gross_premium')
                                         ->label('Enter Gross Premium')
                                         ->inlineLabel()
@@ -417,12 +334,108 @@ class ReportsResource extends Resource
                                         ->required()
                                         ->live(onBlur: true)
                                         ->disabled(Auth::user()->hasRole('acct-staff')),
+                                ])->columns(2),
+                                Section::make()
+                                    ->label('1st Term')
+                                    ->hidden(fn (Get $get) => $get('terms') == Terms::STRAIGHT->value)
+                                    // Itong afterStateUpdated nagpapasok ng value sa payment_terms table sa database kapag sinasubmit form
+                                    ->afterStateUpdated(function ($state, $record) {
+                                        if ($record && $record->exists) {
+                                            $paymentFields = ['1stpayment', '2ndpayment', '3rdpayment', '4thpayment', '5thpayment', '6thpayment'];
+                                            foreach ($paymentFields as $index => $field) {
+                                                if (isset($state[$field])) {
+                                                    $paymentOrder = $index + 1;
+                                                    $record->updateOrCreatePaymentTerm($paymentOrder, $state[$field]);
+                                                }
+                                            }
+                                        }
+                                    })
+                                    ->schema([
+                                        TextInput::make('1stpayment')
+                                            ->label('Enter 1st Payment')
+                                            ->numeric()
+                                            // ->disabled(fn (Get $get) => !empty($get('1stpayment'))) patanggal neto pre kase I think disabled lang dapat siya kapag is_paid == 1
+                                            ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
+                                            // Itong afterStateHydrated naman kumukuha ng value sa payment_terms table sa database para madisplay niya sa edit forms.
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $firstPayment = $record->paymentTerms()->where('payment_order', 1)->first();
+                                                    if ($firstPayment) {
+                                                        $component->state($firstPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('2ndpayment')
+                                            ->label('Enter 2nd Payment')
+                                            ->numeric()
+                                            ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $secondPayment = $record->paymentTerms()->where('payment_order', 2)->first();
+                                                    if ($secondPayment) {
+                                                        $component->state($secondPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('3rdpayment')
+                                            ->label('Enter 3rd Payment')
+                                            ->numeric()
+                                            ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $thirdPayment = $record->paymentTerms()->where('payment_order', 3)->first();
+                                                    if ($thirdPayment) {
+                                                        $component->state($thirdPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('4thpayment')
+                                            ->label('Enter 4th Payment')
+                                            ->numeric()
+                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $fourthPayment = $record->paymentTerms()->where('payment_order', 4)->first();
+                                                    if ($fourthPayment) {
+                                                        $component->state($fourthPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('5thpayment')
+                                            ->label('Enter 5th Payment')
+                                            ->numeric()
+                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $fifthPayment = $record->paymentTerms()->where('payment_order', 5)->first();
+                                                    if ($fifthPayment) {
+                                                        $component->state($fifthPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                        
+                                        TextInput::make('6thpayment')
+                                            ->label('Enter 6th Payment')
+                                            ->numeric()
+                                            ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                if ($record) {
+                                                    $sixthPayment = $record->paymentTerms()->where('payment_order', 6)->first();
+                                                    if ($sixthPayment) {
+                                                        $component->state($sixthPayment->terms_payment);
+                                                    }
+                                                }
+                                            }),
+                                ]),
+                            Section::make()
+                                // Pa-hide ng section na to pre if hindi STRAIGHT ang terms
+                                ->description('Straight Payment')
+                                ->schema([
                                     TextInput::make('total_payment')
                                         ->label('Total Payment')
                                         ->inlineLabel()
                                         ->numeric()
                                         ->live(onBlur: true)
-                                        
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $totalPayment = floatval($state);

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             $table->string('terms', 50)->nullable();
-            $table->float('gross_premium', 8, 2)->nullable();
-            $table->float('total_payment', 8, 2)->nullable();
+            $table->float('gross_premium', 15, 2)->nullable();
+            $table->float('total_payment', 15, 2)->nullable();
         });
     }
 

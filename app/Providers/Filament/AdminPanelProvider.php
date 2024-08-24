@@ -71,6 +71,10 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => Blade::render('@livewire(\'TopbarTitle\')'), // Added logo at the top of Sidebar
             )
             ->renderHook(
+                'panels::topbar.end',
+                fn (): string => Blade::render('@livewire(\'TopbarRolename\')'), // Added logo at the top of Sidebar
+            )
+            ->renderHook(
                 'panels::body.end',
                 fn (): string => Blade::render('@livewire(\'Footer\')')
             )
@@ -99,8 +103,8 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotificationsPolling('5s')
-            ->databaseNotifications()// Database Notifications
+            // ->databaseNotificationsPolling('5s')
+            // ->databaseNotifications() // Database Notifications
             ->plugins([
                 FilamentApexChartsPlugin::make(),
             ])

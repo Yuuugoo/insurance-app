@@ -41,7 +41,6 @@ class ActivityLogResource extends Resource
     protected static ?string $title = 'Audit Trail';
     protected static ?string $navigationGroup = 'SETTINGS';
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
-    protected static ?string $recordTitleAttribute = 'description';
 
     public static function canAccess(): bool
     {       

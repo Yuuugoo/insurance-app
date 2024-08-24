@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+
+use App\Enums\Terms;
 use App\Enums\PolicyStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ModeApplication;
-use App\Enums\Terms;
-use App\Models\CostCenter as ModelsCostCenter;
-use App\Models\InsuranceType as ModelsInsuranceType;
 use App\Traits\Systemencryption;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CostCenter as ModelsCostCenter;
+use App\Models\InsuranceType as ModelsInsuranceType;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Support\Facades\Log;
 
 class Report extends Model
 {
@@ -76,11 +78,29 @@ class Report extends Model
                 $report->submitted_by_id = auth()->id();
             }
         });
-        // static::saved(function ($report) {
-        //     $report->paymentTerms()->updateOrCreate([
-        //         'report_terms_id' => $report->reports_id,
-        //     ]);
-        // });
+    }
+
+    public function updateOrCreatePaymentTerm($paymentOrder, $termsPayment)
+    {
+        Log::info("Updating/Creating payment term", [
+            'report_id' => $this->reports_id,
+            'payment_order' => $paymentOrder,
+            'terms_payment' => $termsPayment
+        ]);
+        
+        //dagdag ka rito pre ng gusto mong ipasok sa database like terms_outstanding_balance and payment_date
+
+            $result = $this->paymentTerms()->updateOrCreate(
+                [
+                    'report_terms_id' => $this->reports_id,
+                    'payment_order' => $paymentOrder,
+                ],
+                [
+                    'terms_payment' => $termsPayment
+                ]
+            );
+
+        return $result;
     }
 
     public function getActivitylogOptions(): LogOptions

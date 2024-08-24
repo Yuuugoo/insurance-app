@@ -187,7 +187,7 @@ class ViewReports extends ViewRecord
                                         'activities' => $this->getActivityLogData(),
                                     ]);
                                 })
-                    ])->columnSpanFull()->collapsed(),
+                    ])->collapsed(),
             ]);
     }
 
@@ -201,18 +201,6 @@ class ViewReports extends ViewRecord
         return $this->record->activities->sortByDesc('created_at')->toArray();
     }
 
-    protected function getFooterActions(): array
-    {
-        return [
-            Action::make('activities')
-                ->label('Activity Log')
-                ->color('gray')
-                ->icon('heroicon-o-clipboard-list')
-                ->action(function () {
-                    return redirect()->route('filament.resources.reports.activities', $this->record);
-                }),
-        ];
-    }
 
 
 }

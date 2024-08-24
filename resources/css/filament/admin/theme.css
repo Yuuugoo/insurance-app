@@ -15,11 +15,15 @@
     }
     .activity-log-section{
       .fi-header{ @apply hidden !important }
-      .activity-log-content{ @apply -mt-10 w-full !important}
+      .activity-log-content{ @apply -mt-10 !important}
       header{
         button{@apply bg-aap-blue !important }
       }
     }
+    .fi-simple-header{
+      img{ @apply hidden !important }
+    }
+    .fi-topbar-database-notifications-btn{ @apply hidden !important }
     /* .aap-logo{ @apply w-auto h-1 mb-24 -mt-16 !important } */
     .aap-login-logo { @apply w-48 -mt-24 !important }
     .fi-sidebar-header { @apply static !important }
