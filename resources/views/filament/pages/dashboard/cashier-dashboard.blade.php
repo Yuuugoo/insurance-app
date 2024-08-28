@@ -1,7 +1,13 @@
 <x-filament-panels::page>
     
     <!--Account Widget -->    
+
+    <div class="grid gap-2 md:grid-cols-2">
+   
         @livewire(\App\Livewire\AccountDashboardWidget::class)
+        @livewire(\App\Livewire\StatsWidget::class)
+    </div>
+
     <!--Barchart Widgets-->
     <div class="grid gap-2 md:grid-cols-2">
         @livewire(\App\Livewire\CurrentMonthReports::class)
