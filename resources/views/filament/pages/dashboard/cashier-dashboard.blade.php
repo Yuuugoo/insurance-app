@@ -2,10 +2,13 @@
     
     <!--Account Widget -->    
 
-    <div class="grid gap-2 md:grid-cols-2">
+    <div class="grid gap-2 md:grid-cols-3">
    
         @livewire(\App\Livewire\AccountDashboardWidget::class)
         @livewire(\App\Livewire\StatsWidget::class)
+        @livewire(\App\Livewire\DueDateStats::class)
+
+
     </div>
 
     <!--Barchart Widgets-->
