@@ -86,8 +86,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\InsuranceType as ModelsInsuranceType;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\DeleteAction as ActionsDeleteAction;
-
-
+use Livewire\Attributes\Reactive;
 
 class ReportsResource extends Resource
 {
@@ -337,9 +336,18 @@ class ReportsResource extends Resource
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}st_payment", $paymentAmount);
+                                                    $set("{$i}nd_payment", $paymentAmount);
+                                                    $set("{$i}rd_payment", $paymentAmount);
+                                                    $set("{$i}th_payment", $paymentAmount);
+                                                    // $set("1st_payment", $paymentAmount);
+                                                    // $set("2nd_payment", $paymentAmount);
+                                                    // $set("3rd_payment", $paymentAmount);
+                                                    // $set("4th_payment", $paymentAmount);
+                                                    // $set("5th_payment", $paymentAmount);
+                                                    // $set("6th_payment", $paymentAmount);
                                                 }
                                                 
-                                                $set('payment_balance', $grossPremium - $paymentAmount);
+                                                // $set('payment_balance', $grossPremium - $paymentAmount);
                                             }
                                         }),
                                     TextInput::make('gross_premium')
@@ -359,10 +367,20 @@ class ReportsResource extends Resource
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}st_payment", $paymentAmount);
+                                                    $set("{$i}nd_payment", $paymentAmount);
+                                                    $set("{$i}rd_payment", $paymentAmount);
+                                                    $set("{$i}th_payment", $paymentAmount);
+
+                                                    // $set("1st_payment", $paymentAmount);
+                                                    // $set("2nd_payment", $paymentAmount);
+                                                    // $set("3rd_payment", $paymentAmount);
+                                                    // $set("4th_payment", $paymentAmount);
+                                                    // $set("5th_payment", $paymentAmount);
+                                                    // $set("6th_payment", $paymentAmount);
                                                     
                                                 }
                                                 
-                                                $set('payment_balance', $grossPremium - $paymentAmount);
+                                                // $set('payment_balance', $grossPremium - $paymentAmount);
                                             }
                                         }),
                                 ])->columns(2),
@@ -376,13 +394,34 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->live(onBlur: true)
-                                        ->readOnly(fn (Get $get) => $get('1st_is_paid') === 1) // Disable if 1st_is_paid is 1
+                                        ->readOnly(fn (Get $get) => $get('1st_is_paid') === 1)
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
-                                            $totalPayment = floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
-                                        }),
+                                            $terms = $get('terms');
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            
+                                            $firstPayment = floatval($state);
+                                            $remainingAmount = $grossPremium - $firstPayment;
+                                            $remainingPayments = $numberOfPayments - 1;
+                                            
+                                            if ($remainingPayments > 0) {
+                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                
+                                                for ($i = 2; $i <= $numberOfPayments; $i++) {
+                                                    $set("{$i}nd_payment", $otherPaymentAmount);
+                                                    $set("{$i}rd_payment", $otherPaymentAmount);
+                                                    $set("{$i}th_payment", $otherPaymentAmount);
+                                                }
+                                            }
+                                            
+                                            // $set('payment_balance', $remainingAmount);
+                                        }), // Disable if 1st_is_paid is 1
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $totalPayment = floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // }),
 
                                     DatePicker::make('1st_payment_date')
                                         ->label('1st Payment Date')
@@ -419,17 +458,22 @@ class ReportsResource extends Resource
                                         ->label('Is Paid')
                                         ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->extraAttributes(['class' => 'is-paid-checkbox'])
-                                       
-                                        ->rules([new CheckboxChecked()])
-
-                                     
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        ->reactive()
+                                        
+                                        // ->rules([new CheckboxChecked()])
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('1st_is_paid', 1);
-                                             
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
+                                            } else {
+                                                $set('1st_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium'));
                                             }
                                         }),
+                                        
                                       
                                        
                                         
@@ -440,24 +484,44 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $firstPayment = floatval($get('1st_payment'));
+                                        //     $totalPayment = $firstPayment + floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // })
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
+                                            $terms = $get('terms');
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            
                                             $firstPayment = floatval($get('1st_payment'));
-                                            $totalPayment = $firstPayment + floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
-                                        })
-
-                                        ->rules([
-                                            fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
-                                                if ($get('terms') === Terms::TWO->value) {
-                                                    $balance = floatval($get('payment_balance'));
-                                                    if ($balance > 10) {
-                                                        $fail("The final payment must reduce the balance to 10 or less.");
-                                                    }
+                                            $secondPayment = floatval($state);
+                                            $remainingAmount = $grossPremium - $firstPayment - $secondPayment;
+                                            $remainingPayments = $numberOfPayments - 2;
+                                            
+                                            if ($remainingPayments > 0) {
+                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                
+                                                for ($i = 3; $i <= $numberOfPayments; $i++) {
+                                                    $set("{$i}rd_payment", $otherPaymentAmount);
+                                                    $set("{$i}th_payment", $otherPaymentAmount);
                                                 }
-                                            },
-                                        ]),
+                                            }
+                                            
+                                            // $set('payment_balance', $remainingAmount);
+                                        }),
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('terms') === Terms::TWO->value) {
+                                        //             $balance = floatval($get('payment_balance'));
+                                        //             if ($balance > 10) {
+                                        //                 $fail("The final payment must reduce the balance to 10 or less.");
+                                        //             }
+                                        //         }
+                                        //     },
+                                        // ]),
 
 
                                     DatePicker::make('2nd_payment_date')
@@ -469,17 +533,49 @@ class ReportsResource extends Resource
                                     Checkbox::make('2nd_is_paid')
                                         ->label('Is Paid')
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
-                                       
-                                        ->rules([
-                                            fn (Get $get) => $get('1st_is_paid') === 1 ? 'required' : new CheckboxChecked(),
-                                        ]) // Conditional required rule
-                                    
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        // ->rules([
+                                        //     fn (Get $get) => $get('1st_is_paid') === 1 ? 'required' : new CheckboxChecked(),
+                                        // ]) // Conditional required rule
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('2nd_is_paid', 1);
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
+                                            } else {
+                                                $set('2nd_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment'));
                                             }
-                                        }), 
+                                        })
+                                        ->rules([
+                                            fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                                // Check if the 1st payment has already been inserted in the database
+                                                $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    ->exists();
+                                        
+                                                if ($firstPaymentExists) {
+                                                    if ($get('terms') === Terms::TWO->value) {
+                                                        $balance = floatval($get('payment_balance'));
+                                                        if ($balance > 10) {
+                                                            $fail("The final payment must reduce the balance to 10 or less.");
+                                                        }
+                                                    }
+                                                } 
+                                                if($get('1st_is_paid') != 1) 
+                                                {
+                                                    // return dd($get('1st_is_paid'));
+                                                    $fail("Please Check the checkbox 1.");
+                                                  
+
+                                                }
+
+                                              
+                                                   
+                                            },
+                                        ]),
                                     
                                     
                                     TextInput::make('3rd_payment')
@@ -487,25 +583,46 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $firstPayment = floatval($get('1st_payment'));
+                                        //     $secondPayment = floatval($get('2nd_payment'));
+                                        //     $totalPayment = $firstPayment + $secondPayment + floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // })
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
+                                            $terms = $get('terms');
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
-                                            $totalPayment = $firstPayment + $secondPayment + floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
-                                        })
-
-                                        ->rules([
-                                            fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
-                                                if ($get('terms') === Terms::THREE->value) {
-                                                    $balance = floatval($get('payment_balance'));
-                                                    if ($balance > 10) {
-                                                        $fail("The final payment must reduce the balance to 10 or less.");
-                                                    }
+                                            $thirdPayment = floatval($state);
+                                            $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment;
+                                            $remainingPayments = $numberOfPayments - 3;
+                                            
+                                            if ($remainingPayments > 0) {
+                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                
+                                                for ($i = 4; $i <= $numberOfPayments; $i++) {
+                                                    $set("{$i}th_payment", $otherPaymentAmount);
                                                 }
-                                            },
-                                        ]),
+                                            }
+                                            
+                                            // $set('payment_balance', $remainingAmount);
+                                        }),
+
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('terms') === Terms::THREE->value) {
+                                        //             $balance = floatval($get('payment_balance'));
+                                        //             if ($balance > 10) {
+                                        //                 $fail("The final payment must reduce the balance to 10 or less.");
+                                        //             }
+                                        //         }
+                                        //     },
+                                        // ]),
 
                                     DatePicker::make('3rd_payment_date')
                                         ->label('3rd Payment Date')
@@ -516,16 +633,81 @@ class ReportsResource extends Resource
                                     Checkbox::make('3rd_is_paid')
                                         ->label('Is Paid')
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
-                                        ->rules([
-                                            fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
-                                            ])
-                                    
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        // ->rules([
+                                        //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
+                                        //     ])
+                                        ->reactive()
+                                        ->afterstateupdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('3rd_is_paid', 1);
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
                                             }
-                                        }), 
+                                            else {
+                                                $set('3rd_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment'));
+                                            }
+                                        })
+                                        ->rules([
+                                            fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                                // Check if the 1st payment has already been inserted in the database
+                                                $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    ->where('2nd_is_paid', 1)
+                                                    ->exists();
+
+                                                $checkbox = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    
+                                                    ->exists();
+                                        
+                                                if ($firstPaymentExists) {
+                                                    if ($get('terms') === Terms::THREE->value) {
+                                                        $balance = floatval($get('payment_balance'));
+                                                        if ($balance > 10) {
+                                                            $fail("The final payment must reduce the balance to 10 or less.");
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                if ($checkbox) {
+                                                    // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
+                                                    if ($get('2nd_is_paid') != 1) {
+                                                        $fail("Please check the 2nd payment checkbox after checking the 1st payment.");
+                                                    }
+                                                }
+
+                                              
+                                                   
+                                            },
+                                        ]),
+                                        
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1) { // Check if 1st or 2nd payment is marked as paid
+                                        //             if ($get('terms') === Terms::THREE->value) {
+                                        //                 $balance = floatval($get('payment_balance'));
+                                        //                 if ($balance > 10) {
+                                        //                     $fail("The final payment must reduce the balance to 10 or less.");
+                                        //                 }
+                                        //             }
+                                        //         } else {
+                                        //             $fail("You must mark the 1st and 2nd payments as paid before proceeding with the 3rd payment.");
+                                        //         }
+                                        //     },
+                                        // ]),
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('terms') === Terms::THREE->value) {
+                                        //             $balance = floatval($get('payment_balance'));
+                                        //             if ($balance > 10) {
+                                        //                 $fail("The final payment must reduce the balance to 10 or less.");
+                                        //             }
+                                        //         }
+                                        //     },
+                                        // ]),
                                     
                                     
                                     TextInput::make('4th_payment')
@@ -533,15 +715,38 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         ->live(onBlur: true)
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $firstPayment = floatval($get('1st_payment'));
+                                        //     $secondPayment = floatval($get('2nd_payment'));
+                                        //     $thirdPayment = floatval($get('3rd_payment'));
+                                        //     $totalPayment = $firstPayment + $secondPayment + $thirdPayment + floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // }),   
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
+                                            $terms = $get('terms');
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
                                             $thirdPayment = floatval($get('3rd_payment'));
-                                            $totalPayment = $firstPayment + $secondPayment + $thirdPayment + floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
-                                        }),      
+                                            $fourthPayment = floatval($state);
+                                            $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment - $fourthPayment;
+                                            $remainingPayments = $numberOfPayments - 4;
+                                            
+                                            if ($remainingPayments > 0) {
+                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                
+                                                for ($i = 5; $i <= $numberOfPayments; $i++) {
+                                                    $set("5th_payment", $otherPaymentAmount);
+                                                    $set("6th_payment", $otherPaymentAmount);
+                                                }
+                                            }
+                                            
+                                            // $set('payment_balance', $remainingAmount);
+                                        }),   
 
                                     DatePicker::make('4th_payment_date')
                                         ->label('4th Payment Date')
@@ -556,13 +761,20 @@ class ReportsResource extends Resource
                                         ->rules([
                                             fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         ]) // Conditional required rule
-                                    
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        ->Reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('4th_is_paid', 1);
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
                                             }
-                                        }), 
+                                            else {
+                                                $set('4th_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment'));
+                                            }
+                                        }),
                                     
                                     
                                     TextInput::make('5th_payment')
@@ -570,15 +782,38 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         ->live(onBlur: true)
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $firstPayment = floatval($get('1st_payment'));
+                                        //     $secondPayment = floatval($get('2nd_payment'));
+                                        //     $thirdPayment = floatval($get('3rd_payment'));
+                                        //     $fourthPayment = floatval($get('4th_payment'));
+                                        //     $totalPayment = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // }),
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
+                                            $terms = $get('terms');
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
                                             $thirdPayment = floatval($get('3rd_payment'));
                                             $fourthPayment = floatval($get('4th_payment'));
-                                            $totalPayment = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
+                                            $fifthPayment = floatval($state);
+                                            $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment - $fourthPayment - $fifthPayment;
+                                            $remainingPayments = $numberOfPayments - 5;
+                                            
+                                            if ($remainingPayments > 0) {
+                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                
+                                                for ($i = 6; $i <= $numberOfPayments; $i++) {
+                                                    $set("6th_payment", $otherPaymentAmount);
+                                                }
+                                            }
+                                            
+                                            // $set('payment_balance', $remainingAmount);
                                         }),
                                        
 
@@ -595,11 +830,19 @@ class ReportsResource extends Resource
                                         ->rules([
                                             fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         ]) // Conditional required rule
-
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        ->Reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('5th_is_paid', 1);
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
+                                            }
+
+                                            else {
+                                                $set('5th_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment'));
                                             }
                                         }),
                                     
@@ -608,29 +851,29 @@ class ReportsResource extends Resource
                                         ->label('Enter 6th Payment')
                                         ->numeric()
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->live(onBlur: true)
-                                        ->afterStateUpdated(function ($state, callable $set, $get) {
-                                            $grossPremium = floatval($get('gross_premium'));
-                                            $firstPayment = floatval($get('1st_payment'));
-                                            $secondPayment = floatval($get('2nd_payment'));
-                                            $thirdPayment = floatval($get('3rd_payment'));
-                                            $fourthPayment = floatval($get('4th_payment'));
-                                            $fifthPayment = floatval($get('5th_payment'));
-                                            $totalPayment = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + $fifthPayment + floatval($state);
-                                            $balance = $grossPremium - $totalPayment;
-                                            $set('payment_balance', $balance);
-                                        })
+                                        ->live(onBlur: true),
+                                        // ->afterStateUpdated(function ($state, callable $set, $get) {
+                                        //     $grossPremium = floatval($get('gross_premium'));
+                                        //     $firstPayment = floatval($get('1st_payment'));
+                                        //     $secondPayment = floatval($get('2nd_payment'));
+                                        //     $thirdPayment = floatval($get('3rd_payment'));
+                                        //     $fourthPayment = floatval($get('4th_payment'));
+                                        //     $fifthPayment = floatval($get('5th_payment'));
+                                        //     $totalPayment = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + $fifthPayment + floatval($state);
+                                        //     $balance = $grossPremium - $totalPayment;
+                                        //     $set('payment_balance', $balance);
+                                        // })
 
-                                        ->rules([
-                                            fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
-                                                if ($get('terms') === Terms::SIX->value) {
-                                                    $balance = floatval($get('payment_balance'));
-                                                    if ($balance > 10) {
-                                                        $fail("The final payment must reduce the balance to 10 or less.");
-                                                    }
-                                                }
-                                            },
-                                        ]),
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('terms') === Terms::SIX->value) {
+                                        //             $balance = floatval($get('payment_balance'));
+                                        //             if ($balance > 10) {
+                                        //                 $fail("The final payment must reduce the balance to 10 or less.");
+                                        //             }
+                                        //         }
+                                        //     },
+                                        // ]),
                                         
 
                                     DatePicker::make('6th_payment_date')
@@ -647,13 +890,32 @@ class ReportsResource extends Resource
                                         ->rules([
                                             fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 || $get('5th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         ]) // Conditional required rule
-
-                                        ->afterStateUpdated(function ($state, $set) {
-                                            // When the checkbox is checked, set it to 1
+                                        ->Reactive()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
                                                 $set('6th_is_paid', 1);
+                                                $grossPremium = floatval($get('gross_premium'));
+                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment')) + floatval($get('6th_payment'));
+                                                $balance = $grossPremium - $totalPaid;
+                                                $set('payment_balance', $balance);
+                                            }
+                                            else {
+                                                $set('6th_is_paid', 0);
+                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment') - $get('5th_payment'));
                                             }
                                         }),
+                                        // ->rules([
+                                        //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
+                                        //         if ($get('terms') === Terms::SIX->value) {
+                                        //             $balance = floatval($get('payment_balance'));
+                                        //             if ($balance > 10) {
+                                        //                 $fail("The final payment must reduce the balance to 10 or less.");
+                                        //             }
+                                        //         }
+                                        //     },
+                                        // ]),
+
+                                        
 
                                     TextInput::make('payment_balance')
                                         ->label('Outstanding Balance')

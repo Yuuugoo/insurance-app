@@ -6,6 +6,7 @@
    
         @livewire(\App\Livewire\AccountDashboardWidget::class)
         @livewire(\App\Livewire\StatsWidget::class)
+        @livewire(\App\Livewire\StatsWidget::class)
         @livewire(\App\Livewire\DueDateStats::class)
 
 

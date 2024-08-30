@@ -50,7 +50,10 @@ class DueDateStats extends BaseWidget
             Stat::make('Due Dates', 'Due Dates Today')
                 ->label('Due Dates Today')
                 ->value($dueDates)
-                ->color('primary'),
+                ->color('primary')
+                
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->chart([7, 2, 10, 3, 15, 4, 17]),
                 
             // Stat::make('Overdues', 'Overdue Reports')
             //     ->value($overdues)
