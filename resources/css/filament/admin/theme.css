@@ -73,3 +73,19 @@
       scrollbar-color: #fcdeb1 #f1f1f1;  /* thumb and track color */
     }
   }
+
+  .fi-fo-field-wrp-label {
+    .is-paid-checkbox + span{
+      @apply -mb-24 !important;
+    }
+    .is-paid-checkbox{
+      @apply -mb-24 !important;
+    }
+    .is-paid-checkbox:disabled {
+      @apply bg-green border-green !important; /* Use 'green' as defined in your Tailwind config */
+    }
+    .is-paid-checkbox:disabled + span {
+      @apply text-green !important;
+    }
+  }
+  

@@ -394,7 +394,10 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->live(onBlur: true)
-                                        ->readOnly(fn (Get $get) => $get('1st_is_paid') === 1)
+                                        // ->readOnly(fn (Get $get) => $get('1st_is_paid') === 1)
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('1st_is_paid', 1)
+                                                                            ->exists())
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
@@ -430,6 +433,9 @@ class ReportsResource extends Resource
                                         ->required()
                                         ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->reactive()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('1st_is_paid', 1)
+                                                                            ->exists())
                                       
                                         ->afterStateUpdated(function ($state, callable $set) {
                                             if ($state) {
@@ -459,6 +465,9 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
                                         ->extraAttributes(['class' => 'is-paid-checkbox'])
                                         ->reactive()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('1st_is_paid', 1)
+                                                                            ->exists())
                                         
                                         // ->rules([new CheckboxChecked()])
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -484,6 +493,9 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('2nd_is_paid', 1)
+                                                                            ->exists())
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
                                         //     $grossPremium = floatval($get('gross_premium'));
                                         //     $firstPayment = floatval($get('1st_payment'));
@@ -528,10 +540,17 @@ class ReportsResource extends Resource
                                         ->label('2nd Payment Date')
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('2nd_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value])),
                                        
                                     Checkbox::make('2nd_is_paid')
                                         ->label('Is Paid')
+                                        ->extraAttributes(['class' => 'is-paid-checkbox'])
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('2nd_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 ? 'required' : new CheckboxChecked(),
@@ -581,6 +600,9 @@ class ReportsResource extends Resource
                                     TextInput::make('3rd_payment')
                                         ->label('Enter 3rd Payment')
                                         ->numeric()
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('3rd_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -628,10 +650,17 @@ class ReportsResource extends Resource
                                         ->label('3rd Payment Date')
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('3rd_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value])),
                                        
                                     Checkbox::make('3rd_is_paid')
                                         ->label('Is Paid')
+                                        ->extraAttributes(['class' => 'is-paid-checkbox'])
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('3rd_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
@@ -713,6 +742,9 @@ class ReportsResource extends Resource
                                     TextInput::make('4th_payment')
                                         ->label('Enter 4th Payment')
                                         ->numeric()
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('4th_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -750,6 +782,9 @@ class ReportsResource extends Resource
 
                                     DatePicker::make('4th_payment_date')
                                         ->label('4th Payment Date')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('4th_is_paid', 1)
+                                                                            ->exists())
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
@@ -757,10 +792,14 @@ class ReportsResource extends Resource
 
                                     Checkbox::make('4th_is_paid')
                                         ->label('Is Paid')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('4th_is_paid', 1)
+                                                                            ->exists())
+                                        ->extraAttributes(['class' => 'is-paid-checkbox'])
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->rules([
-                                            fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
-                                        ]) // Conditional required rule
+                                        // ->rules([
+                                        //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
+                                        // ]) // Conditional required rule
                                         ->Reactive()
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
@@ -774,12 +813,34 @@ class ReportsResource extends Resource
                                                 $set('4th_is_paid', 0);
                                                 $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment'));
                                             }
-                                        }),
+                                        })
+                                        ->rules([
+                                            fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                               
+
+                                                $checkbox = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('2nd_is_paid', 1)                         
+                                                    ->exists();
+
+                                                if ($checkbox) {
+                                                    // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
+                                                    if ($get('3rd_is_paid') != 1) {
+                                                        $fail("Please check the 3rd payment checkbox after checking the 2nd payment.");
+                                                    }
+                                                }
+
+                                              
+                                                   
+                                            },
+                                        ]),
                                     
                                     
                                     TextInput::make('5th_payment')
                                         ->label('Enter 5th Payment')
                                         ->numeric()
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('5th_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -819,6 +880,9 @@ class ReportsResource extends Resource
 
                                     DatePicker::make('5th_payment_date')
                                         ->label('5th Payment Date')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('5th_is_paid', 1)
+                                                                            ->exists())
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),                                    
@@ -826,10 +890,14 @@ class ReportsResource extends Resource
 
                                     Checkbox::make('5th_is_paid')
                                         ->label('Is Paid')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('5th_is_paid', 1)
+                                                                            ->exists())
+                                        ->extraAttributes(['class' => 'is-paid-checkbox'])
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->rules([
-                                            fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
-                                        ]) // Conditional required rule
+                                        // ->rules([
+                                        //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
+                                        // ]) // Conditional required rule
                                         ->Reactive()
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
@@ -844,12 +912,34 @@ class ReportsResource extends Resource
                                                 $set('5th_is_paid', 0);
                                                 $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment'));
                                             }
-                                        }),
+                                        })
+                                        ->rules ([
+                                            fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                               
+
+                                                $checkbox = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('3rd_is_paid', 1)                         
+                                                    ->exists();
+
+                                                if ($checkbox) {
+                                                    // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
+                                                    if ($get('4th_is_paid') != 1) {
+                                                        $fail("Please check the 4th payment checkbox after checking the 3rd payment.");
+                                                    }
+                                                }
+
+                                              
+                                                   
+                                            },
+                                        ]),
                                     
                                    
                                     TextInput::make('6th_payment')
                                         ->label('Enter 6th Payment')
                                         ->numeric()
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('6th_is_paid', 1)
+                                                                            ->exists())
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         ->live(onBlur: true),
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -878,6 +968,9 @@ class ReportsResource extends Resource
 
                                     DatePicker::make('6th_payment_date')
                                         ->label('6th Payment Date')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('6th_is_paid', 1)
+                                                                            ->exists())
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
@@ -886,10 +979,14 @@ class ReportsResource extends Resource
 
                                     Checkbox::make('6th_is_paid')
                                         ->label('Is Paid')
+                                        ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->where('6th_is_paid', 1)
+                                                                            ->exists())
+                                        ->extraAttributes(['class' => 'is-paid-checkbox'])
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
-                                        ->rules([
-                                            fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 || $get('5th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
-                                        ]) // Conditional required rule
+                                        // ->rules([
+                                        //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 || $get('5th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
+                                        // ]) // Conditional required rule
                                         ->Reactive()
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                             if ($state) {
@@ -903,7 +1000,7 @@ class ReportsResource extends Resource
                                                 $set('6th_is_paid', 0);
                                                 $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment') - $get('5th_payment'));
                                             }
-                                        }),
+                                        })
                                         // ->rules([
                                         //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
                                         //         if ($get('terms') === Terms::SIX->value) {
@@ -914,6 +1011,39 @@ class ReportsResource extends Resource
                                         //         }
                                         //     },
                                         // ]),
+                                        ->rules ([
+                                            fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                                $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    ->where('2nd_is_paid', 1)
+                                                    ->where('3rd_is_paid', 1)
+                                                    ->where('4th_is_paid', 1)
+                                                    ->where('5th_is_paid', 1)
+                                                    ->exists();
+                                                $checkbox = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('4th_is_paid', 1)                         
+                                                    ->exists();
+
+                                                if ($firstPaymentExists) {
+                                                    if ($get('terms') === Terms::SIX->value) {
+                                                        $balance = floatval($get('payment_balance'));
+                                                        if ($balance > 10) {
+                                                            $fail("The final payment must reduce the balance to 10 or less.");
+                                                        }
+                                                    }
+                                                }
+
+                                                if ($checkbox) {
+                                                    // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
+                                                    if ($get('5th_is_paid') != 1) {
+                                                        $fail("Please check the 5th payment checkbox after checking the 4th payment.");
+                                                    }
+                                                }
+
+                                              
+                                                   
+                                            },
+                                        ]),
 
                                         
 
