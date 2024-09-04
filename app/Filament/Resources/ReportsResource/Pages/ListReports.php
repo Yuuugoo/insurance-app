@@ -44,6 +44,7 @@ class ListReports extends ListRecords
             null => Tab::make('All'),
             'pending' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'pending')),
             'paid' => Tab::make()->query(fn ($query) => $query->where('payment_status', 'paid')),
+            
         ];
     }
     

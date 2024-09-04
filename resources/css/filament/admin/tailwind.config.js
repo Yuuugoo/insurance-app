@@ -37,6 +37,8 @@ export default {
         fontFamily: {
           sans: ['Graphik', 'sans-serif'],
           serif: ['Merriweather', 'serif'],
+          mono:  ['monospace'],
+
         },
         extend: {
           spacing: {

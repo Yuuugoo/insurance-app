@@ -7,7 +7,8 @@
         @livewire(\App\Livewire\AccountDashboardWidget::class)
         @livewire(\App\Livewire\StatsWidget::class)
         @livewire(\App\Livewire\StatsWidget::class)
-        @livewire(\App\Livewire\DueDateStats::class)
+        
+        
 
 
     </div>
@@ -17,6 +18,9 @@
         @livewire(\App\Livewire\CurrentMonthReports::class)
         @livewire(\App\Livewire\PreviousMonth::class)
     </div>
+
+   
+    
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             if (typeof Alpine !== 'undefined' && Alpine.store('sidebar')) {
