@@ -13,10 +13,17 @@
                 No due payments today
             </div>
         @else
-            @php
-                $showFirstPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('1st_is_paid') !== 1);
-                $show2ndPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('2nd_is_paid') !== 1);
-            @endphp
+    
+    @php
+        $today = \Carbon\Carbon::today();
+
+        $showFirstPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('1st_payment_date') && \Carbon\Carbon::parse($record->getAttribute('1st_payment_date'))->isSameDay($today) && $record->getAttribute('1st_is_paid') !== 1);
+        $show2ndPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('2nd_payment_date') && \Carbon\Carbon::parse($record->getAttribute('2nd_payment_date'))->isSameDay($today) && $record->getAttribute('2nd_is_paid') !== 1);
+        $show3rdPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('3rd_payment_date') && \Carbon\Carbon::parse($record->getAttribute('3rd_payment_date'))->isSameDay($today) && $record->getAttribute('3rd_is_paid') !== 1);
+        $show4thPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('4th_payment_date') && \Carbon\Carbon::parse($record->getAttribute('4th_payment_date'))->isSameDay($today) && $record->getAttribute('4th_is_paid') !== 1);
+        $show5thPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('5th_payment_date') && \Carbon\Carbon::parse($record->getAttribute('5th_payment_date'))->isSameDay($today) && $record->getAttribute('5th_is_paid') !== 1);
+        $show6thPaymentDate = $dueRecords->contains(fn($record) => $record->getAttribute('6th_payment_date') && \Carbon\Carbon::parse($record->getAttribute('6th_payment_date'))->isSameDay($today) && $record->getAttribute('6th_is_paid') !== 1);
+    @endphp
 
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -44,6 +51,30 @@
                                     2nd Payment Date
                                 </th>
                             @endif
+
+                            @if ($show3rdPaymentDate)
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    3rd Payment Date
+                                </th>
+                            @endif
+
+                            @if ($show4thPaymentDate)
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    4th Payment Date
+                                </th>
+                            @endif
+
+                            @if ($show5thPaymentDate)
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    5th Payment Date
+                                </th>
+                            @endif
+
+                            @if ($show6thPaymentDate)
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    6th Payment Date
+                                </th>
+                            @endif
                            
                         </tr>
                     </thead>
@@ -69,6 +100,30 @@
                                 @if ($show2ndPaymentDate)
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         {{ $record->getAttribute('2nd_payment_date') ? \Carbon\Carbon::parse($record->getAttribute('2nd_payment_date'))->format('M d, Y') : 'N/A' }}
+                                    </td>
+                                @endif
+
+                                @if ($show3rdPaymentDate)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        {{ $record->getAttribute('3rd_payment_date') ? \Carbon\Carbon::parse($record->getAttribute('3rd_payment_date'))->format('M d, Y') : 'N/A' }}
+                                    </td>
+                                @endif
+
+                                @if ($show4thPaymentDate)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        {{ $record->getAttribute('4th_payment_date') ? \Carbon\Carbon::parse($record->getAttribute('4th_payment_date'))->format('M d, Y') : 'N/A' }}
+                                    </td>
+                                @endif
+
+                                @if ($show5thPaymentDate)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        {{ $record->getAttribute('5th_payment_date') ? \Carbon\Carbon::parse($record->getAttribute('5th_payment_date'))->format('M d, Y') : 'N/A' }}
+                                    </td>
+                                @endif
+
+                                @if ($show6thPaymentDate)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        {{ $record->getAttribute('6th_payment_date') ? \Carbon\Carbon::parse($record->getAttribute('6th_payment_date'))->format('M d, Y') : 'N/A' }}
                                     </td>
                                 @endif
                                

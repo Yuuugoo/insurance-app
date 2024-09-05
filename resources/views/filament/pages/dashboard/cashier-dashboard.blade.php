@@ -3,13 +3,10 @@
     <!--Account Widget -->    
 
     <div class="grid gap-2 md:grid-cols-3">
-   
-        @livewire(\App\Livewire\AccountDashboardWidget::class)
-        @livewire(\App\Livewire\StatsWidget::class)
-        @livewire(\App\Livewire\StatsWidget::class)
+        <div>@livewire(\App\Livewire\AccountDashboardWidget::class)</div>
         
-        
-
+       <div>@livewire(\App\Livewire\StatsWidget::class)</div> 
+       <div>@livewire(\App\Livewire\OverdueStats::class)</div> 
 
     </div>
 

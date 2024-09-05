@@ -581,6 +581,7 @@ class ReportsResource extends Resource
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
                                                 // Check if the 1st payment has already been inserted in the database
+                                                if (auth()->user()->hasRole('cashier')) {
                                                 $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
                                                     ->where('1st_is_paid', 1)
                                                     ->exists();
@@ -601,7 +602,7 @@ class ReportsResource extends Resource
 
                                                 }
 
-                                              
+                                            }
                                                    
                                             },
                                         ]),
@@ -691,6 +692,7 @@ class ReportsResource extends Resource
                                         })
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                                if (auth()->user()->hasRole('cashier')) {
                                                 // Check if the 1st payment has already been inserted in the database
                                                 $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
                                                     ->where('1st_is_paid', 1)
@@ -718,7 +720,7 @@ class ReportsResource extends Resource
                                                     }
                                                 }
 
-                                              
+                                            }
                                                    
                                             },
                                         ]),
@@ -826,7 +828,7 @@ class ReportsResource extends Resource
                                         })
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
-                                               
+                                                if (auth()->user()->hasRole('cashier')) {
 
                                                 $checkbox = Report::where('reports_id', $get('reports_id'))
                                                     ->where('2nd_is_paid', 1)                         
@@ -838,7 +840,7 @@ class ReportsResource extends Resource
                                                         $fail("Please check the 3rd payment checkbox after checking the 2nd payment.");
                                                     }
                                                 }
-
+                                            }
                                               
                                                    
                                             },
@@ -925,7 +927,7 @@ class ReportsResource extends Resource
                                         })
                                         ->rules ([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
-                                               
+                                                if (auth()->user()->hasRole('cashier')) {
 
                                                 $checkbox = Report::where('reports_id', $get('reports_id'))
                                                     ->where('3rd_is_paid', 1)                         
@@ -938,7 +940,7 @@ class ReportsResource extends Resource
                                                     }
                                                 }
 
-                                              
+                                            }
                                                    
                                             },
                                         ]),
@@ -1023,6 +1025,7 @@ class ReportsResource extends Resource
                                         // ]),
                                         ->rules ([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
+                                                if (auth()->user()->hasRole('cashier')) {
                                                 $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
                                                     ->where('1st_is_paid', 1)
                                                     ->where('2nd_is_paid', 1)
@@ -1050,7 +1053,7 @@ class ReportsResource extends Resource
                                                     }
                                                 }
 
-                                              
+                                            }
                                                    
                                             },
                                         ]),
