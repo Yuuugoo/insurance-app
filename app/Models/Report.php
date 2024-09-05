@@ -126,6 +126,12 @@ class Report extends Model
             'car_details', 'policy_status',    'financing_bank', 'report_payment_mode_id',
             'payment_status', 'remit_deposit', 'arpr_date_remarks', 'report_cost_center_id', 
             'report_insurance_prod_id', 'report_insurance_type_id', 'payment_status_aap', 'sales_person_id',
+            '1st_payment','1st_payment_date','1st_is_paid',
+            '2nd_payment','2nd_payment_date','2nd_is_paid',
+            '3rd_payment','3rd_payment_date','3rd_is_paid',
+            '4th_payment','4th_payment_date','4th_is_paid',
+            '5th_payment','5th_payment_date','5th_is_paid',
+            '6th_payment','6th_payment_date','6th_is_paid',
             
         ])
         ->logOnlyDirty()

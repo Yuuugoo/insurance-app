@@ -7,9 +7,17 @@ use App\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\WithPagination;
 
 class StatsWidget extends Component
 {
+    use WithPagination;
+
+    // To avoid page reset after actions like search or sorting
+    protected $paginationTheme = 'tailwind';
+
+    public $showTable = false; // Property to control table visibility
+
     public function render()
     {
         $today = Carbon::now()->startOfDay();
@@ -46,13 +54,19 @@ class StatsWidget extends Component
                                       ->where('6th_is_paid', 0);
                                 });
                             })
-                            ->get();
+                            ->with('costCenter:cost_center_id,name')
+                            ->paginate(5); // Limit to 5 records per page
 
-        $count = $dueRecords->count();
+        $count = $dueRecords->total(); // Use total to count all records, not just the current page
 
         return view('livewire.stats-widget', [
             'dueRecords' => $dueRecords,
             'count' => $count,
         ]);
+    }
+
+    public function toggleTable()
+    {
+        $this->showTable = !$this->showTable;
     }
 }

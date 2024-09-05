@@ -139,37 +139,45 @@ class ViewReports extends ViewRecord
                         
                         TextEntry::make('1st_payment')
                             ->label('1st Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['1st_is_paid'] === 1 ? $state : null),
+
+
                         TextEntry::make('1st_payment_date')
                             ->label('1st Payment Date')
                             ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
                         TextEntry::make('2nd_payment')
                             ->label('2nd Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['2nd_is_paid'] === 1? $state : null),
                         TextEntry::make('2nd_payment_date')
                             ->label('2nd Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),            
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),          
                         TextEntry::make('3rd_payment')
                             ->label('3rd Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['3rd_is_paid'] === 1? $state : null),
                         TextEntry::make('3rd_payment_date')
                             ->label('3rd Payment Date')
                             ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::SIX),
                         TextEntry::make('4th_payment')
                             ->label('4th Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['4th_is_paid'] === 1? $state : null),
                         TextEntry::make('4th_payment_date')
                             ->label('4th Payment Date')
                             ->visible(fn ($record) => $record->terms === Terms::SIX),
                         TextEntry::make('5th_payment')
                             ->label('5th Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['5th_is_paid'] === 1? $state : null),
                         TextEntry::make('5th_payment_date')
                             ->label('5th Payment Date')
                             ->visible(fn ($record) => $record->terms === Terms::SIX),
                         TextEntry::make('6th_payment')
                             ->label('6th Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::SIX)
+                            ->formatStateUsing(fn ($state, $record) => $record['6th_is_paid'] === 1? $state : null),
                         TextEntry::make('6th_payment_date')
                             ->label('6th Payment Date')
                             ->visible(fn ($record) => $record->terms === Terms::SIX),

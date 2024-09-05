@@ -33,6 +33,7 @@ export default {
           'aap-yellow': '#ffdd01',
           'aap-footer-bg': '#363839',
           'aap-footer-label': '#90a3a2',
+          'red': '#b91c1c',
         },
         fontFamily: {
           sans: ['Graphik', 'sans-serif'],
