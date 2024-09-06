@@ -1747,6 +1747,7 @@ class ReportsResource extends Resource
                                     ->hidden(Auth::user()->hasAnyRole(['cashier', 'acct-manager']))
                                     ->label('Remittance Date')
                                     ->native(false)
+                                    ->required()
                                     ->displayFormat('m-d-Y'),
                                 FileUpload::make('depo_slip')
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
@@ -1790,6 +1791,10 @@ class ReportsResource extends Resource
                             $record->remit_deposit = $remitDeposit;
                             $record->save();
                         }
+                        Notification::make()
+                        ->title('Deposit Slips Uploaded Successfully')
+                        ->success()
+                        ->send();
                     }),
                    
             ]);

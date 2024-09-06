@@ -23,6 +23,17 @@ class PaymentModeSimpleResource extends Resource
     protected static ?string $navigationGroup = 'CMS';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function getModelLabel(): string
+    {
+        return 'Mode of Payment'; // Custom singular label
+    }
+
+    // Override to change the plural name displayed in the dashboard
+    public static function getPluralModelLabel(): string
+    {
+        return 'Mode of Payments'; // Custom plural label
+    }
+
     public static function form(Form $form): Form
     {
         return $form
