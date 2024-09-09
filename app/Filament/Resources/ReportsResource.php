@@ -129,29 +129,29 @@ class ReportsResource extends Resource
                                         ->live()
                                         ->native(false)
                                         ->options(InsuranceProvider::all()->pluck('name','insurance_provider_id')),
-                                    TextInput::make('arpr_num')
-                                        // ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
-                                        ->label('AR/PR No.')
-                                        ->inlineLabel()
-                                        ->visible(fn (Get $get) => !empty($get('report_insurance_prod_id')))
-                                        ->required(fn (Get $get) => !empty($get('report_insurance_prod_ids')))
-                                        ->helperText('Enter AR/PR No.')
-                                        ->live()
-                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
-                                            $livewire->validateOnly($component->getStatePath());
-                                        })
-                                        ->rules([
-                                            'required',
-                                            function (Get $get) {
-                                                $rule = Rule::unique('reports', 'arpr_num');
-                                                $currentRecordId = $get('reports_id');
+                                    // TextInput::make('arpr_num')
+                                    //     // ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
+                                    //     ->label('AR/PR No.')
+                                    //     ->inlineLabel()
+                                    //     // ->visible(fn (Get $get) => !empty($get('report_insurance_prod_id')))
+                                    //     // ->required(fn (Get $get) => !empty($get('report_insurance_prod_ids')))
+                                    //     ->helperText('Enter AR/PR No.')
+                                    //     ->live()
+                                    //     ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                    //         $livewire->validateOnly($component->getStatePath());
+                                    //     })
+                                    //     ->rules([
+                                    //         'required',
+                                    //         function (Get $get) {
+                                    //             $rule = Rule::unique('reports', 'arpr_num');
+                                    //             $currentRecordId = $get('reports_id');
 
-                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
-                                                ->ignore($currentRecordId, 'reports_id');
+                                    //             $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                    //             ->ignore($currentRecordId, 'reports_id');
     
-                                                return $rule;
-                                            },
-                                        ]),
+                                    //             return $rule;
+                                    //         },
+                                    //     ]),
                                 ])->columns(2),
                             Section::make()
                                 ->schema([
@@ -329,7 +329,9 @@ class ReportsResource extends Resource
                                         ->required()
                                         ->label('Select Terms')
                                         ->inlineLabel()
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('terms')
+                                                                            ->exists())
                                         ->options(Terms::class)
                                         ->reactive()
                                         ->live()
@@ -340,8 +342,8 @@ class ReportsResource extends Resource
                                             if ($terms === Terms::STRAIGHT->value) {
                                                 $set('total_payment', $grossPremium);
                                                 $set('payment_balance', 0); // No balance for straight payment
-                                            } elseif (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value])) {
-                                                $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            } elseif (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])) {
+                                                $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : ($terms === Terms::FOUR->value ? 4 : ($terms === Terms::FIVE->value ? 5 : 6)));
                                                 $paymentAmount = $grossPremium / $numberOfPayments;
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
@@ -360,19 +362,46 @@ class ReportsResource extends Resource
                                                 // $set('payment_balance', $grossPremium - $paymentAmount);
                                             }
                                         }),
+                                    TextInput::make('arpr_num')
+                                        // ->disabled(fn () => Auth::user()->hasRole('acct-staff'))
+                                        ->label('AR/PR No.')
+                                        ->inlineLabel()
+                                        // ->visible(fn (Get $get) => !empty($get('report_insurance_prod_id')))
+                                        // ->required(fn (Get $get) => !empty($get('report_insurance_prod_ids')))
+                                        ->visible(fn (Get $get) => $get('terms') == Terms::STRAIGHT->value)
+                                        // ->helperText('Enter AR/PR No.')
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->rules([
+                                            'required',
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', 'arpr_num');
+                                                $currentRecordId = $get('reports_id');
+
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                ->ignore($currentRecordId, 'reports_id');
+    
+                                                return $rule;
+                                            },
+                                        ]),
+
                                     TextInput::make('gross_premium')
                                         ->label('Enter Gross Premium')
                                         ->inlineLabel()
                                         ->numeric()
                                         ->required()
                                         ->live(onBlur: true)
-                                        ->disabled(Auth::user()->hasRole('acct-staff'))
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('gross_premium')
+                                                                            ->exists())
                                         ->afterStateUpdated(function (callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
                                             
-                                            if (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value])) {
-                                                $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            if (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])) {
+                                                $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : ($terms === Terms::FOUR->value ? 4 : ($terms === Terms::FIVE->value ? 5 : 6)));
                                                 $paymentAmount = $grossPremium / $numberOfPayments;
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
@@ -411,7 +440,10 @@ class ReportsResource extends Resource
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
-                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 :
+                                                                ($terms === Terms::THREE->value ? 3 :
+                                                                ($terms === Terms::FOUR->value ? 4 :
+                                                                ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($state);
                                             $remainingAmount = $grossPremium - $firstPayment;
@@ -435,6 +467,28 @@ class ReportsResource extends Resource
                                         //     $balance = $grossPremium - $totalPayment;
                                         //     $set('payment_balance', $balance);
                                         // }),
+
+                                    TextInput::make('1st_arpr_num')
+                                        ->label('1st AR/PR No.')
+                                        ->visible(fn (Get $get) => $get('terms') !== Terms::STRAIGHT->value)
+                                        // ->required()
+                                        
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->rules([
+                                            'required',
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', '1st_arpr_num');
+                                                $currentRecordId = $get('reports_id');
+
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                ->ignore($currentRecordId, 'reports_id');
+    
+                                                return $rule;
+                                            },
+                                        ]),
 
                                     DatePicker::make('1st_payment_date')
                                         ->label('1st Payment Date')
@@ -492,6 +546,8 @@ class ReportsResource extends Resource
                                                 $set('payment_balance', $get('gross_premium'));
                                             }
                                         }),
+
+                                
                                         
                                       
                                        
@@ -501,7 +557,7 @@ class ReportsResource extends Resource
                                     TextInput::make('2nd_payment')
                                         ->label('Enter 2nd Payment')
                                         ->numeric()
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('2nd_is_paid', 1)
@@ -516,7 +572,10 @@ class ReportsResource extends Resource
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
-                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 :
+                                                                ($terms === Terms::THREE->value ? 3 :
+                                                                ($terms === Terms::FOUR->value ? 4 :
+                                                                ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($state);
@@ -545,6 +604,39 @@ class ReportsResource extends Resource
                                         //     },
                                         // ]),
 
+                                    TextInput::make('2nd_arpr_num')
+                                        ->label('2nd AR/PR No.')
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->rules([
+                                            function (Get $get) {
+                                                // Check if the 1st AR/PR No. exists
+                                                if (auth()->user()->hasRole('cashier')) {
+                                                $exists = Report::where('reports_id', $get('reports_id'))
+                                                    ->whereNotNull('1st_arpr_num')
+                                                    ->exists();
+                                    
+                                                if ($exists) {
+                                                    return 'required';
+                                                }
+                                                return 'nullable'; // Make the field nullable if 1st_arpr_num does not exist
+                                                }
+                                                return ''; // No validation rule if the user is not a cashier
+                                            },
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', '2nd_arpr_num');
+                                                $currentRecordId = $get('reports_id');
+                                    
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                    ->ignore($currentRecordId, 'reports_id');
+                                    
+                                                return $rule;
+                                            },
+                                        ]),
+
 
                                     DatePicker::make('2nd_payment_date')
                                         ->label('2nd Payment Date')
@@ -553,7 +645,7 @@ class ReportsResource extends Resource
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('2nd_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value])),
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])),
                                        
                                     Checkbox::make('2nd_is_paid')
                                         ->label('Is Paid')
@@ -561,7 +653,7 @@ class ReportsResource extends Resource
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('2nd_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::SIX->value]))
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         // ]) // Conditional required rule
@@ -614,7 +706,7 @@ class ReportsResource extends Resource
                                         ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('3rd_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
                                         //     $grossPremium = floatval($get('gross_premium'));
@@ -627,7 +719,10 @@ class ReportsResource extends Resource
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
-                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 :
+                                                                ($terms === Terms::THREE->value ? 3 :
+                                                                ($terms === Terms::FOUR->value ? 4 :
+                                                                ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
@@ -656,6 +751,40 @@ class ReportsResource extends Resource
                                         //         }
                                         //     },
                                         // ]),
+                                    TextInput::make('3rd_arpr_num')
+                                        ->label('3rd AR/PR No.')
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
+                                        // ->required()
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->rules([
+                                            function (Get $get) {
+                                                // Check if the 1st AR/PR No. exists
+                                                if (auth()->user()->hasRole('cashier')) {
+                                                $exists = Report::where('reports_id', $get('reports_id'))
+                                                    ->whereNotNull('1st_arpr_num')
+                                                    ->whereNotNull('2nd_arpr_num')
+                                                    ->exists();
+                                    
+                                                if ($exists) {
+                                                    return 'required';
+                                                }
+                                                return 'nullable'; // Make the field nullable if 1st_arpr_num does not exist
+                                                }
+                                                return''; // No validation rule if the user is not a cashier
+                                            },
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', '3rd_arpr_num');
+                                                $currentRecordId = $get('reports_id');
+                                    
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                    ->ignore($currentRecordId, 'reports_id');
+                                    
+                                                return $rule;
+                                            },
+                                        ]),
 
                                     DatePicker::make('3rd_payment_date')
                                         ->label('3rd Payment Date')
@@ -664,7 +793,7 @@ class ReportsResource extends Resource
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('3rd_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value])),
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])),
                                        
                                     Checkbox::make('3rd_is_paid')
                                         ->label('Is Paid')
@@ -672,7 +801,7 @@ class ReportsResource extends Resource
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('3rd_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::SIX->value]))
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         //     ])
@@ -757,7 +886,7 @@ class ReportsResource extends Resource
                                         ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('4th_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
                                         //     $grossPremium = floatval($get('gross_premium'));
@@ -771,7 +900,10 @@ class ReportsResource extends Resource
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
-                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 :
+                                                                ($terms === Terms::THREE->value ? 3 :
+                                                                ($terms === Terms::FOUR->value ? 4 :
+                                                                ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
@@ -792,6 +924,43 @@ class ReportsResource extends Resource
                                             // $set('payment_balance', $remainingAmount);
                                         }),   
 
+                                    TextInput::make("4th_arpr_num")
+                                        ->label('4th AR/PR No.')
+                                        
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
+                                        // ->required()
+                                        ->live()
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->rules([
+                                            function (Get $get) {
+                                                // Check if the 1st AR/PR No. exists
+                                                if (auth()->user()->hasRole('cashier')) {
+                                                $exists = Report::where('reports_id', $get('reports_id'))
+                                                    ->whereNotNull('1st_arpr_num')
+                                                    ->whereNotNull('2nd_arpr_num')
+                                                    ->whereNotNull('3rd_arpr_num')
+                                                    ->exists();
+                                    
+                                                if ($exists) {
+                                                    return 'required';
+                                                }
+                                                return 'nullable'; // Make the field nullable if 1st_arpr_num does not exist
+                                                }
+                                                return ''; // No validation rule if the user is not a cashier
+                                            },
+                                            function (Get $get) {
+                                                $rule = Rule::unique('reports', '4th_arpr_num');
+                                                $currentRecordId = $get('reports_id');
+                                    
+                                                $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                    ->ignore($currentRecordId, 'reports_id');
+                                    
+                                                return $rule;
+                                            },
+                                        ]),
+
                                     DatePicker::make('4th_payment_date')
                                         ->label('4th Payment Date')
                                         ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
@@ -799,7 +968,7 @@ class ReportsResource extends Resource
                                                                             ->exists())
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])),
                                        
 
                                     Checkbox::make('4th_is_paid')
@@ -808,7 +977,7 @@ class ReportsResource extends Resource
                                                                             ->where('4th_is_paid', 1)
                                                                             ->exists())
                                         ->extraAttributes(['class' => 'is-paid-checkbox'])
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         // ]) // Conditional required rule
@@ -829,10 +998,25 @@ class ReportsResource extends Resource
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
                                                 if (auth()->user()->hasRole('cashier')) {
+                                                
+                                                $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    ->where('2nd_is_paid', 1)
+                                                    ->where('3rd_is_paid', 1)
+                                                    ->exists();
 
                                                 $checkbox = Report::where('reports_id', $get('reports_id'))
                                                     ->where('2nd_is_paid', 1)                         
                                                     ->exists();
+
+                                                if ($firstPaymentExists) {
+                                                    if ($get('terms') === Terms::FOUR->value) {
+                                                        $balance = floatval($get('payment_balance'));
+                                                        if ($balance > 10) {
+                                                            $fail("The final payment must reduce the balance to 10 or less.");
+                                                        }
+                                                    }
+                                                }
 
                                                 if ($checkbox) {
                                                     // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
@@ -853,7 +1037,8 @@ class ReportsResource extends Resource
                                         ->disabled (fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->where('5th_is_paid', 1)
                                                                             ->exists())
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FIVE->value, Terms::SIX->value]))
+
                                         ->live(onBlur: true)
                                         // ->afterStateUpdated(function ($state, callable $set, $get) {
                                         //     $grossPremium = floatval($get('gross_premium'));
@@ -868,7 +1053,10 @@ class ReportsResource extends Resource
                                         ->afterStateUpdated(function ($state, callable $set, $get) {
                                             $grossPremium = floatval($get('gross_premium'));
                                             $terms = $get('terms');
-                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : 6);
+                                            $numberOfPayments = $terms === Terms::TWO->value ? 2 :
+                                                                ($terms === Terms::THREE->value ? 3 :
+                                                                ($terms === Terms::FOUR->value ? 4 :
+                                                                ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
@@ -888,6 +1076,43 @@ class ReportsResource extends Resource
                                             
                                             // $set('payment_balance', $remainingAmount);
                                         }),
+
+                                    TextInput::make('5th_arpr_num')
+                                    ->label('5th AR/PR No.')
+                                    ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FIVE->value, Terms::SIX->value]))
+                                    // ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                        $livewire->validateOnly($component->getStatePath());
+                                    })
+                                    ->rules([
+                                        function (Get $get) {
+                                            // Check if the 1st AR/PR No. exists
+                                            if (auth()->user()->hasRole('cashier')) {
+                                            $exists = Report::where('reports_id', $get('reports_id'))
+                                                ->whereNotNull('1st_arpr_num')
+                                                ->whereNotNull('2nd_arpr_num')
+                                                ->whereNotNull('3rd_arpr_num')
+                                                ->whereNotNull('4th_arpr_num')
+                                                ->exists();
+                                
+                                            if ($exists) {
+                                                return 'required';
+                                            }
+                                            return 'nullable'; // Make the field nullable if 1st_arpr_num does not exist
+                                            }
+                                            return ''; // No validation rule if the user is not a cashier
+                                        },
+                                        function (Get $get) {
+                                            $rule = Rule::unique('reports', '5th_arpr_num');
+                                            $currentRecordId = $get('reports_id');
+                                
+                                            $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                ->ignore($currentRecordId, 'reports_id');
+                                
+                                            return $rule;
+                                        },
+                                    ]),
                                        
 
                                     DatePicker::make('5th_payment_date')
@@ -897,7 +1122,7 @@ class ReportsResource extends Resource
                                                                             ->exists())
                                         ->displayFormat('m-d-Y')
                                         ->native(false)
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value),                                    
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FIVE->value, Terms::SIX->value])),                                    
                                        
 
                                     Checkbox::make('5th_is_paid')
@@ -906,7 +1131,7 @@ class ReportsResource extends Resource
                                                                             ->where('5th_is_paid', 1)
                                                                             ->exists())
                                         ->extraAttributes(['class' => 'is-paid-checkbox'])
-                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FIVE->value, Terms::SIX->value]))
                                         // ->rules([
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         // ]) // Conditional required rule
@@ -928,10 +1153,26 @@ class ReportsResource extends Resource
                                         ->rules ([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
                                                 if (auth()->user()->hasRole('cashier')) {
+                                                
+                                                $firstPaymentExists = Report::where('reports_id', $get('reports_id'))
+                                                    ->where('1st_is_paid', 1)
+                                                    ->where('2nd_is_paid', 1)
+                                                    ->where('3rd_is_paid', 1)
+                                                    ->where('4th_is_paid', 1)
+                                                    ->exists();
 
                                                 $checkbox = Report::where('reports_id', $get('reports_id'))
                                                     ->where('3rd_is_paid', 1)                         
                                                     ->exists();
+
+                                                if ($firstPaymentExists) {
+                                                    if ($get('terms') === Terms::FIVE->value) {
+                                                        $balance = floatval($get('payment_balance'));
+                                                        if ($balance > 10) {
+                                                            $fail("The final payment must reduce the balance to 10 or less.");
+                                                        }
+                                                    }
+                                                }
 
                                                 if ($checkbox) {
                                                     // If the 1st payment is marked as paid, ensure the 2nd payment is also checked
@@ -976,6 +1217,44 @@ class ReportsResource extends Resource
                                         //         }
                                         //     },
                                         // ]),
+
+                                    TextInput::make('6th_arpr_num')
+                                        ->label('6th AR/PR No.')
+                                        ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
+                                        // ->required()
+                                        ->live()
+                                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                        $livewire->validateOnly($component->getStatePath());
+                                    })
+                                    ->rules([
+                                        function (Get $get) {
+                                            // Check if the 1st AR/PR No. exists
+                                            if (auth()->user()->hasRole('cashier')) {
+                                            $exists = Report::where('reports_id', $get('reports_id'))
+                                                ->whereNotNull('1st_arpr_num')
+                                                ->whereNotNull('2nd_arpr_num')
+                                                ->whereNotNull('3rd_arpr_num')
+                                                ->whereNotNull('4th_arpr_num')
+                                                ->whereNotNull('5th_arpr_num')
+                                                ->exists();
+                                
+                                            if ($exists) {
+                                                return 'required';
+                                            }
+                                            return 'nullable'; // Make the field nullable if 1st_arpr_num does not exist
+                                            }
+                                            return ''; // No validation rule if the user is not a cashier
+                                        },
+                                        function (Get $get) {
+                                            $rule = Rule::unique('reports', '6th_arpr_num');
+                                            $currentRecordId = $get('reports_id');
+                                
+                                            $rule->where('report_insurance_prod_id', $get('report_insurance_prod_id'))
+                                                ->ignore($currentRecordId, 'reports_id');
+                                
+                                            return $rule;
+                                        },
+                                    ]),
                                         
 
                                     DatePicker::make('6th_payment_date')
@@ -1068,7 +1347,7 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => !empty($get('1st_payment')) && !empty($get('gross_premium')))
                                         ->formatStateUsing(fn ($state) => number_format($state, 2, '.', ''))
                                         ->dehydrateStateUsing(fn ($state) => str_replace(',', '', $state)),
-                                ])->columns(3),
+                                ])->columns(4),
                             //         Select::make('terms')
                             //             ->required()
                             //             ->label('Select Terms')
@@ -1501,8 +1780,11 @@ class ReportsResource extends Resource
                     ->searchable()
                     ->visibleFrom('md')
                     ->icon('heroicon-o-map-pin'),
-                TextColumn::make('arpr_num')
-                    ->label('AR/PR No.')
+                // TextColumn::make('arpr_num')
+                //     ->label('AR/PR No.')
+                //     ->searchable(),
+                TextColumn::make('policy_num')
+                    ->label('Policy No.')
                     ->searchable(),
                 TextColumn::make('providers.name')
                     ->label('Insurance Provider')

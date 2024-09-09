@@ -60,7 +60,8 @@ class ViewReports extends ViewRecord
                 Split::make([
                     Section::make('General Details')
                         ->schema([
-                            TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel(),
+                            TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel()->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::SIX),
+                            TextEntry::make('1st_arpr_num')->label('1st AR/PR No.:')->inlineLabel()->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
                             TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel()->date('m-d-Y'),
                             TextEntry::make('inception_date')->label('Inception Date:')->date('m-d-Y')->inlineLabel(),
                             TextEntry::make('salesPerson.name')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   

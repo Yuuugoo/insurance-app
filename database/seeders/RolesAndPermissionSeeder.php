@@ -619,5 +619,17 @@ class RolesAndPermissionSeeder extends Seeder
 
         ])->assignRole($cfoRole);
 
+        User::create([
+            'name'=> 'Jonna',
+            'username'=> 'CFO_Jonna',
+            'email'=> 'cfojonna@user.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+
+        ])->assignRole($cfoRole);
+
+
     }
 }

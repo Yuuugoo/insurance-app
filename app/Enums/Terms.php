@@ -10,6 +10,8 @@ enum Terms: string implements HasLabel
     case STRAIGHT = 'STRAIGHT';
     case TWO = '2 Terms';
     case THREE = '3 Terms';
+    case FOUR = '4 Terms';
+    case FIVE = '5 Terms';
     case SIX = '6 Terms';
     // case ONE = '1/2';   
     // case TWO = '2/2';
@@ -38,6 +40,8 @@ enum Terms: string implements HasLabel
             self::STRAIGHT => 'STRAIGHT',
             self::TWO => '2 Terms',
             self::THREE => '3 Terms',
+            self::FOUR => '4 Terms',
+            self::FIVE => '5 Terms',
             self::SIX => '6 Terms',
             // self::ONE => '1/2',
             // self::TWO => '2/2',

@@ -1,8 +1,11 @@
 <div class="fi-wi-stats-overview-stat relative rounded-xl bg-white p-3 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
     <div class="grid gap-y-2">
-        <div class="flex items-center gap-x-2">
-            <span wire:click="toggleTable" class="fi-wi-stats-overview-stat-label text-sm font-medium text-red dark:text-red cursor-pointer">
+        <div class="flex items-center justify-between gap-x-2">
+            <span wire:click="toggleTable" class="fi-wi-stats-overview-stat-label text-sm font-medium text-red dark:text-red cursor-pointer flex items-center">
                 Overdue Payments: {{ $count }}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transition-transform duration-200 ease-in-out {{ $showTable ? 'transform rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
             </span>
         </div>
 
