@@ -60,13 +60,53 @@ class ViewReports extends ViewRecord
                 Split::make([
                     Section::make('General Details')
                         ->schema([
-                            TextEntry::make('arpr_num')->label('AR/PR No.:')->inlineLabel()->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::SIX),
-                            TextEntry::make('1st_arpr_num')->label('1st AR/PR No.:')->inlineLabel()->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
-                            TextEntry::make('arpr_date')->label('AR/PR Date:')->inlineLabel()->date('m-d-Y'),
-                            TextEntry::make('inception_date')->label('Inception Date:')->date('m-d-Y')->inlineLabel(),
-                            TextEntry::make('salesPerson.name')->label('Sales Person:')->icon('heroicon-o-user')->inlineLabel(),   
-                            TextEntry::make('costCenter.name')->label('Cost Center:')->icon('heroicon-o-map-pin')->inlineLabel(),
-                            TextEntry::make('policy_num')->label('Policy Number:')->inlineLabel(),
+                            TextEntry::make('arpr_num')
+                                ->label('AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::FOUR && $record->terms !== Terms::FIVE && $record->terms !== Terms::SIX),
+                            TextEntry::make('1st_arpr_num')
+                                ->label('1st AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms=== Terms::FOUR || $record->terms=== Terms::FIVE || $record->terms === Terms::SIX),
+                            TextEntry::make('2nd_arpr_num')
+                                ->label('2nd AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms=== Terms::FOUR || $record->terms=== Terms::FIVE || $record->terms === Terms::SIX),
+                            TextEntry::make('3rd_arpr_num')
+                                ->label('3rd AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms=== Terms::FOUR || $record->terms=== Terms::FIVE || $record->terms === Terms::SIX),
+                            TextEntry::make('4th_arpr_num')
+                                ->label('4th AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::FOUR || $record->terms=== Terms::FIVE || $record->terms === Terms::SIX),
+                            TextEntry::make('5th_arpr_num')
+                                ->label('5th AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::FIVE || $record->terms === Terms::SIX),
+                            TextEntry::make('6th_arpr_num')
+                                ->label('6th AR/PR No.:')
+                                ->inlineLabel()
+                                ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            TextEntry::make('arpr_date')
+                                ->label('AR/PR Date:')
+                                ->inlineLabel()
+                                ->date('m-d-Y'),
+                            TextEntry::make('inception_date')
+                                ->label('Inception Date:')
+                                ->date('m-d-Y')
+                                ->inlineLabel(),
+                            TextEntry::make('salesPerson.name')
+                                ->label('Sales Person:')
+                                ->icon('heroicon-o-user')
+                                ->inlineLabel(),   
+                            TextEntry::make('costCenter.name')
+                                ->label('Cost Center:')
+                                ->icon('heroicon-o-map-pin')
+                                ->inlineLabel(),
+                            TextEntry::make('policy_num')
+                                ->label('Policy Number:')
+                                ->inlineLabel(),
                         ])->columnSpan('full')->columns(2),
                         
                         // Dates
@@ -118,63 +158,82 @@ class ViewReports extends ViewRecord
                         TextEntry::make('gross_premium')
                             ->label('Gross Premium'),
 
-                            TextEntry::make('totalpayment')
+                        TextEntry::make('totalpayment')
                             ->label('Total Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->state(function (Model $record) {
                                 $total = 0;
-                                if ($record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX) {
+                                if ($record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX) {
                                     $total += $record->{'1st_payment'} ?? 0;
                                     $total += $record->{'2nd_payment'} ?? 0;
                                 }
-                                if ($record->terms === Terms::THREE || $record->terms === Terms::SIX) {
+                                if ($record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX) {
                                     $total += $record->{'3rd_payment'} ?? 0;
                                 }
-                                if ($record->terms === Terms::SIX) {
+                                if ($record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX) {
                                     $total += $record->{'4th_payment'} ?? 0;
+                                }
+                                if ($record->terms === Terms::FIVE || $record->terms === Terms::SIX) {
                                     $total += $record->{'5th_payment'} ?? 0;
+                                }
+                                if ($record->terms === Terms::SIX) {
                                     $total += $record->{'6th_payment'} ?? 0;
                                 }
                                 return $total;
                             }),
+                            //     $total = 0;
+                            //     if ($record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX) {
+                            //         $total += $record->{'1st_payment'} ?? 0;
+                            //         $total += $record->{'2nd_payment'} ?? 0;
+                            //     }
+                            //     if ($record->terms === Terms::THREE || $record->terms === Terms::SIX) {
+                            //         $total += $record->{'3rd_payment'} ?? 0;
+                            //     }
+                            //     if ($record->terms === Terms::SIX) {
+                            //         $total += $record->{'4th_payment'} ?? 0;
+                            //         $total += $record->{'5th_payment'} ?? 0;
+                            //         $total += $record->{'6th_payment'} ?? 0;
+                            //     }
+                            //     return $total;
+                            // }),
                         
                         TextEntry::make('1st_payment')
                             ->label('1st Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->formatStateUsing(fn ($state, $record) => $record['1st_is_paid'] === 1 ? $state : null),
 
 
                         TextEntry::make('1st_payment_date')
                             ->label('1st Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX),
                         TextEntry::make('2nd_payment')
                             ->label('2nd Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->formatStateUsing(fn ($state, $record) => $record['2nd_is_paid'] === 1? $state : null),
                         TextEntry::make('2nd_payment_date')
                             ->label('2nd Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::SIX),          
+                            ->visible(fn ($record) => $record->terms === Terms::TWO || $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX),      
                         TextEntry::make('3rd_payment')
                             ->label('3rd Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->formatStateUsing(fn ($state, $record) => $record['3rd_is_paid'] === 1? $state : null),
                         TextEntry::make('3rd_payment_date')
                             ->label('3rd Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::THREE || $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX),
                         TextEntry::make('4th_payment')
                             ->label('4th Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->formatStateUsing(fn ($state, $record) => $record['4th_is_paid'] === 1? $state : null),
                         TextEntry::make('4th_payment_date')
                             ->label('4th Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::FOUR || $record->terms === Terms::FIVE || $record->terms === Terms::SIX),
                         TextEntry::make('5th_payment')
                             ->label('5th Payment')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX)
+                            ->visible(fn ($record) => $record->terms === Terms::FIVE || $record->terms === Terms::SIX)
                             ->formatStateUsing(fn ($state, $record) => $record['5th_is_paid'] === 1? $state : null),
                         TextEntry::make('5th_payment_date')
                             ->label('5th Payment Date')
-                            ->visible(fn ($record) => $record->terms === Terms::SIX),
+                            ->visible(fn ($record) => $record->terms === Terms::FIVE || $record->terms === Terms::SIX),
                         TextEntry::make('6th_payment')
                             ->label('6th Payment')
                             ->visible(fn ($record) => $record->terms === Terms::SIX)
@@ -186,7 +245,8 @@ class ViewReports extends ViewRecord
 
                         TextEntry::make('total_payment')
                         ->label('Total Payment') 
-                        ->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::SIX),
+                        // ->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::SIX),
+                        ->visible(fn ($record) => $record->terms !== Terms::TWO && $record->terms !== Terms::THREE && $record->terms !== Terms::FOUR && $record->terms !== Terms::FIVE && $record->terms !== Terms::SIX),
                         TextEntry::make('payment_balance')->label('Outstanding Balance'),
                         TextEntry::make('policy_status')->label('Policy Status')->badge(),
                         TextEntry::make('payment_status')->label('Payment Status to Provider')->badge(),

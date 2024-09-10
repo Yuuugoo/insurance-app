@@ -344,7 +344,7 @@ class ReportsResource extends Resource
                                                 $set('payment_balance', 0); // No balance for straight payment
                                             } elseif (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])) {
                                                 $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : ($terms === Terms::FOUR->value ? 4 : ($terms === Terms::FIVE->value ? 5 : 6)));
-                                                $paymentAmount = $grossPremium / $numberOfPayments;
+                                                $paymentAmount = number_format($grossPremium / $numberOfPayments, 2, '.', '');
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}st_payment", $paymentAmount);
@@ -393,6 +393,7 @@ class ReportsResource extends Resource
                                         ->numeric()
                                         ->required()
                                         ->live(onBlur: true)
+                                        
                                         ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
                                                                             ->whereNotNull('gross_premium')
                                                                             ->exists())
@@ -402,7 +403,7 @@ class ReportsResource extends Resource
                                             
                                             if (in_array($terms, [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value])) {
                                                 $numberOfPayments = $terms === Terms::TWO->value ? 2 : ($terms === Terms::THREE->value ? 3 : ($terms === Terms::FOUR->value ? 4 : ($terms === Terms::FIVE->value ? 5 : 6)));
-                                                $paymentAmount = $grossPremium / $numberOfPayments;
+                                                $paymentAmount = number_format($grossPremium / $numberOfPayments, 2, '.', '');
                                                 
                                                 for ($i = 1; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}st_payment", $paymentAmount);
@@ -445,12 +446,12 @@ class ReportsResource extends Resource
                                                                 ($terms === Terms::FOUR->value ? 4 :
                                                                 ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
-                                            $firstPayment = floatval($state);
+                                            $firstPayment = number_format(floatval($state), 2, '.', '');
                                             $remainingAmount = $grossPremium - $firstPayment;
                                             $remainingPayments = $numberOfPayments - 1;
                                             
                                             if ($remainingPayments > 0) {
-                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                $otherPaymentAmount = number_format($remainingAmount / $remainingPayments, 2, '.', '');
                                                 
                                                 for ($i = 2; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}nd_payment", $otherPaymentAmount);
@@ -474,6 +475,9 @@ class ReportsResource extends Resource
                                         // ->required()
                                         
                                         ->live()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('1st_arpr_num')
+                                                                            ->exists())
                                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                                             $livewire->validateOnly($component->getStatePath());
                                         })
@@ -578,12 +582,12 @@ class ReportsResource extends Resource
                                                                 ($terms === Terms::FIVE->value ? 5 : 6)));
                                             
                                             $firstPayment = floatval($get('1st_payment'));
-                                            $secondPayment = floatval($state);
+                                            $secondPayment = number_format(floatval($state), 2, '.', '');
                                             $remainingAmount = $grossPremium - $firstPayment - $secondPayment;
                                             $remainingPayments = $numberOfPayments - 2;
                                             
                                             if ($remainingPayments > 0) {
-                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                $otherPaymentAmount = number_format($remainingAmount / $remainingPayments, 2, '.', '');
                                                 
                                                 for ($i = 3; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}rd_payment", $otherPaymentAmount);
@@ -608,6 +612,9 @@ class ReportsResource extends Resource
                                         ->label('2nd AR/PR No.')
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::TWO->value, Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         ->live()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('2nd_arpr_num')
+                                                                            ->exists())
                                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                                             $livewire->validateOnly($component->getStatePath());
                                         })
@@ -726,12 +733,12 @@ class ReportsResource extends Resource
                                             
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
-                                            $thirdPayment = floatval($state);
+                                            $thirdPayment = number_format(floatval($state), 2, '.', '');
                                             $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment;
                                             $remainingPayments = $numberOfPayments - 3;
                                             
                                             if ($remainingPayments > 0) {
-                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                $otherPaymentAmount = number_format($remainingAmount / $remainingPayments, 2, '.', '');
                                                 
                                                 for ($i = 4; $i <= $numberOfPayments; $i++) {
                                                     $set("{$i}th_payment", $otherPaymentAmount);
@@ -756,6 +763,9 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::THREE->value, Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         // ->required()
                                         ->live()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('3rd_arpr_num')
+                                                                            ->exists())
                                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                                             $livewire->validateOnly($component->getStatePath());
                                         })
@@ -806,18 +816,36 @@ class ReportsResource extends Resource
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         //     ])
                                         ->reactive()
-                                        ->afterstateupdated(function ($state, callable $set, callable $get) {
+                                        // ->afterstateupdated(function ($state, callable $set, callable $get) {
+                                        //     if ($state) {
+                                        //         $set('3rd_is_paid', 1);
+                                        //         $grossPremium = floatval($get('gross_premium'));
+                                        //         $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment'));
+                                        //         $balance = $grossPremium - $totalPaid;
+                                        //         $set('payment_balance', $balance);
+                                        //     }
+                                        //     else {
+                                        //         $set('3rd_is_paid', 0);
+                                        //         $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment'));
+                                        //     }
+                                        // })
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $grossPremium = floatval($get('gross_premium'));
+                                            $firstPayment = floatval($get('1st_payment'));
+                                            $secondPayment = floatval($get('2nd_payment'));
+                                            $thirdPayment = floatval($get('3rd_payment'));
+                                    
                                             if ($state) {
                                                 $set('3rd_is_paid', 1);
-                                                $grossPremium = floatval($get('gross_premium'));
-                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment'));
-                                                $balance = $grossPremium - $totalPaid;
-                                                $set('payment_balance', $balance);
-                                            }
-                                            else {
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment;
+                                            } else {
                                                 $set('3rd_is_paid', 0);
-                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment'));
+                                                $totalPaid = $firstPayment + $secondPayment;
                                             }
+                                    
+                                            $balance = $grossPremium - $totalPaid;
+                                            $formattedBalance = number_format($balance, 2, '.', '');
+                                            $set('payment_balance', $formattedBalance);
                                         })
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
@@ -908,12 +936,12 @@ class ReportsResource extends Resource
                                             $firstPayment = floatval($get('1st_payment'));
                                             $secondPayment = floatval($get('2nd_payment'));
                                             $thirdPayment = floatval($get('3rd_payment'));
-                                            $fourthPayment = floatval($state);
+                                            $fourthPayment = number_format(floatval($state), 2, '.', '');
                                             $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment - $fourthPayment;
                                             $remainingPayments = $numberOfPayments - 4;
                                             
                                             if ($remainingPayments > 0) {
-                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                $otherPaymentAmount = number_format($remainingAmount / $remainingPayments, 2, '.', '');
                                                 
                                                 for ($i = 5; $i <= $numberOfPayments; $i++) {
                                                     $set("5th_payment", $otherPaymentAmount);
@@ -930,6 +958,9 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FOUR->value, Terms::FIVE->value, Terms::SIX->value]))
                                         // ->required()
                                         ->live()
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('4th_arpr_num')
+                                                                            ->exists())
                                         ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                                             $livewire->validateOnly($component->getStatePath());
                                         })
@@ -982,18 +1013,37 @@ class ReportsResource extends Resource
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         // ]) // Conditional required rule
                                         ->Reactive()
+                                        // ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        //     if ($state) {
+                                        //         $set('4th_is_paid', 1);
+                                        //         $grossPremium = floatval($get('gross_premium'));
+                                        //         $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment'));
+                                        //         $balance = $grossPremium - $totalPaid;
+                                        //         $set('payment_balance', $balance);
+                                        //     }
+                                        //     else {
+                                        //         $set('4th_is_paid', 0);
+                                        //         $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment'));
+                                        //     }
+                                        // })
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $grossPremium = floatval($get('gross_premium'));
+                                            $firstPayment = floatval($get('1st_payment'));
+                                            $secondPayment = floatval($get('2nd_payment'));
+                                            $thirdPayment = floatval($get('3rd_payment'));
+                                            $fourthPayment = floatval($get('4th_payment'));
+                                    
                                             if ($state) {
                                                 $set('4th_is_paid', 1);
-                                                $grossPremium = floatval($get('gross_premium'));
-                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment'));
-                                                $balance = $grossPremium - $totalPaid;
-                                                $set('payment_balance', $balance);
-                                            }
-                                            else {
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment;
+                                            } else {
                                                 $set('4th_is_paid', 0);
-                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment'));
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment;
                                             }
+                                    
+                                            $balance = $grossPremium - $totalPaid;
+                                            $formattedBalance = number_format($balance, 2, '.', '');
+                                            $set('payment_balance', $formattedBalance);
                                         })
                                         ->rules([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
@@ -1062,12 +1112,12 @@ class ReportsResource extends Resource
                                             $secondPayment = floatval($get('2nd_payment'));
                                             $thirdPayment = floatval($get('3rd_payment'));
                                             $fourthPayment = floatval($get('4th_payment'));
-                                            $fifthPayment = floatval($state);
+                                            $fifthPayment = number_format(floatval($state), 2, '.', '');
                                             $remainingAmount = $grossPremium - $firstPayment - $secondPayment - $thirdPayment - $fourthPayment - $fifthPayment;
                                             $remainingPayments = $numberOfPayments - 5;
                                             
                                             if ($remainingPayments > 0) {
-                                                $otherPaymentAmount = $remainingAmount / $remainingPayments;
+                                                $otherPaymentAmount = number_format($remainingAmount / $remainingPayments, 2, '.', '');
                                                 
                                                 for ($i = 6; $i <= $numberOfPayments; $i++) {
                                                     $set("6th_payment", $otherPaymentAmount);
@@ -1082,6 +1132,9 @@ class ReportsResource extends Resource
                                     ->visible(fn (Get $get) => in_array($get('terms'), [Terms::FIVE->value, Terms::SIX->value]))
                                     // ->required()
                                     ->live()
+                                    ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                        ->whereNotNull('5th_arpr_num')
+                                                                        ->exists())
                                     ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
                                         $livewire->validateOnly($component->getStatePath());
                                     })
@@ -1136,19 +1189,39 @@ class ReportsResource extends Resource
                                         //     fn (Get $get) => $get('1st_is_paid') === 1 || $get('2nd_is_paid') === 1 || $get('3rd_is_paid') === 1 || $get('4th_is_paid') === 1 ? 'required' : new CheckboxChecked(),
                                         // ]) // Conditional required rule
                                         ->Reactive()
+                                        // ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        //     if ($state) {
+                                        //         $set('5th_is_paid', 1);
+                                        //         $grossPremium = floatval($get('gross_premium'));
+                                        //         $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment'));
+                                        //         $balance = $grossPremium - $totalPaid;
+                                        //         $set('payment_balance', $balance);
+                                        //     }
+
+                                        //     else {
+                                        //         $set('5th_is_paid', 0);
+                                        //         $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment'));
+                                        //     }
+                                        // })
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $grossPremium = floatval($get('gross_premium'));
+                                            $firstPayment = floatval($get('1st_payment'));
+                                            $secondPayment = floatval($get('2nd_payment'));
+                                            $thirdPayment = floatval($get('3rd_payment'));
+                                            $fourthPayment = floatval($get('4th_payment'));
+                                            $fifthPayment = floatval($get('5th_payment'));
+                                    
                                             if ($state) {
                                                 $set('5th_is_paid', 1);
-                                                $grossPremium = floatval($get('gross_premium'));
-                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment'));
-                                                $balance = $grossPremium - $totalPaid;
-                                                $set('payment_balance', $balance);
-                                            }
-
-                                            else {
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + $fifthPayment;
+                                            } else {
                                                 $set('5th_is_paid', 0);
-                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment'));
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment;
                                             }
+                                    
+                                            $balance = $grossPremium - $totalPaid;
+                                            $formattedBalance = number_format($balance, 2, '.', '');
+                                            $set('payment_balance', $formattedBalance);
                                         })
                                         ->rules ([
                                             fn (Get $get) => function ($attribute, $value, $fail, $isPaid) use ($get) {
@@ -1223,8 +1296,11 @@ class ReportsResource extends Resource
                                         ->visible(fn (Get $get) => $get('terms') === Terms::SIX->value)
                                         // ->required()
                                         ->live()
-                                    ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
-                                        $livewire->validateOnly($component->getStatePath());
+                                        ->disabled(fn (Get $get) => Report::where('reports_id', $get('reports_id'))
+                                                                            ->whereNotNull('6th_arpr_num')
+                                                                            ->exists())
+                                        ->afterStateUpdated(function (Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
                                     })
                                     ->rules([
                                         function (Get $get) {
@@ -1280,18 +1356,43 @@ class ReportsResource extends Resource
                                         // ]) // Conditional required rule
                                         ->Reactive()
                                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                            $grossPremium = floatval($get('gross_premium'));
+                                            $firstPayment = floatval($get('1st_payment'));
+                                            $secondPayment = floatval($get('2nd_payment'));
+                                            $thirdPayment = floatval($get('3rd_payment'));
+                                            $fourthPayment = floatval($get('4th_payment'));
+                                            $fifthPayment = floatval($get('5th_payment'));
+                                            $sixthPayment = floatval($get('6th_payment'));
+                                    
                                             if ($state) {
                                                 $set('6th_is_paid', 1);
-                                                $grossPremium = floatval($get('gross_premium'));
-                                                $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment')) + floatval($get('6th_payment'));
-                                                $balance = $grossPremium - $totalPaid;
-                                                $set('payment_balance', $balance);
-                                            }
-                                            else {
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + $fifthPayment + $sixthPayment;
+                                            } else {
                                                 $set('6th_is_paid', 0);
-                                                $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment') - $get('5th_payment'));
+                                                $totalPaid = $firstPayment + $secondPayment + $thirdPayment + $fourthPayment + $fifthPayment;
                                             }
+                                    
+                                            $balance = $grossPremium - $totalPaid;
+                                            if ($balance > -0.05 && $balance < 0) {
+                                                $balance = 0;
+                                            }
+
+                                            $formattedBalance = number_format($balance, 2, '.', '');
+                                            $set('payment_balance', $formattedBalance);
                                         })
+                                        // ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        //     if ($state) {
+                                        //         $set('6th_is_paid', 1);
+                                        //         $grossPremium = floatval($get('gross_premium'));
+                                        //         $totalPaid = floatval($get('1st_payment')) + floatval($get('2nd_payment')) + floatval($get('3rd_payment')) + floatval($get('4th_payment')) + floatval($get('5th_payment')) + floatval($get('6th_payment'));
+                                        //         $balance = $grossPremium - $totalPaid;
+                                        //         $set('payment_balance', $balance);
+                                        //     }
+                                        //     else {
+                                        //         $set('6th_is_paid', 0);
+                                        //         $set('payment_balance', $get('gross_premium') - $get('1st_payment') - $get('2nd_payment') - $get('3rd_payment') - $get('4th_payment') - $get('5th_payment'));
+                                        //     }
+                                        // })
                                         // ->rules([
                                         //     fn (Get $get) => function ($attribute, $value, $fail) use ($get) {
                                         //         if ($get('terms') === Terms::SIX->value) {

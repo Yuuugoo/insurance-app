@@ -89,16 +89,7 @@ class RolesAndPermissionSeeder extends Seeder
             'avatar_url' => '/storage/default_avatar/panda.png'
         ])->assignRole($cashierRole);
 
-        User::create([
-            'name' => 'Christhia Anne  Arceo',
-            'branch_id' => 1,
-            'username' => 'CSH_CAA',
-            'email' => 'chrarceo@cshaap.com',
-            'email_verified_at' => now(),
-            'password' => hash('sha512', 'password'),
-            'remember_token' => Str::random(10),
-            'avatar_url' => '/storage/default_avatar/panda.png'
-        ])->assignRole($cashierRole);
+        
         
         User::create([
             'name' => 'Emma Thompson',
@@ -276,16 +267,16 @@ class RolesAndPermissionSeeder extends Seeder
             'avatar_url' => '/storage/default_avatar/panda.png'
         ])->assignRole($cashierRole);
         
-        User::create([
-            'name' => 'Charlotte Campbell',
-            'branch_id' => 18,
-            'username' => 'CSH_CC',
-            'email' => 'charlotte@cshapp.com',
-            'email_verified_at' => now(),
-            'password' => hash('sha512', 'password'),
-            'remember_token' => Str::random(10),
-            'avatar_url' => '/storage/default_avatar/panda.png'
-        ])->assignRole($cashierRole);
+        // User::create([
+        //     'name' => 'Charlotte Campbell',
+        //     'branch_id' => 18,
+        //     'username' => 'CSH_CC',
+        //     'email' => 'charlotte@cshapp.com',
+        //     'email_verified_at' => now(),
+        //     'password' => hash('sha512', 'password'),
+        //     'remember_token' => Str::random(10),
+        //     'avatar_url' => '/storage/default_avatar/panda.png'
+        // ])->assignRole($cashierRole);
 
         User::create([
             'name' => 'Charlotte BellCamp',
@@ -303,6 +294,260 @@ class RolesAndPermissionSeeder extends Seeder
             'branch_id' => 20,
             'username' => 'CSH_JDP',
             'email' => 'johnnydepp@cshapp.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+
+        /////////CASHIERS BY BRANCHES//////////
+        /////////FELIZ BRANCH 3//////////
+        User::create([
+            'name' => 'JERIC CONCEPCION',
+            'branch_id' => 3,
+            'username' => 'CSH_JC',
+            'email' => 'jeric@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        /////////FAIRVIEW BRANCH 2//////////
+        User::create([
+            'name' => 'MARY JOY TORRES',
+            'branch_id' => 2,
+            'username' => 'CSH_MJT',
+            'email' => 'maryjoy@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////MANILA BAY BRANCH 4//////////
+        User::create([
+            'name' => 'RODALYN TANQUE',
+            'branch_id' => 4,
+            'username' => 'CSH_RT',
+            'email' => 'rodalyn@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////CEBU BRANCH 18//////////
+        User::create([
+            'name' => 'DAISY MAE',
+            'branch_id' => 18,
+            'username' => 'CSH_DM',
+            'email' => 'daisymae@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////DAVAO BRANCH 19//////////
+        User::create([
+            'name' => 'KRISTINE MABUTE',
+            'branch_id' => 19,
+            'username' => 'CSH_KM',
+            'email' => 'kristine@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+
+        /////////ABREEZA BRANCH 20//////////
+        User::create([
+            'name' => 'EDEN SANTILLAN',
+            'branch_id' => 20,
+            'username' => 'CSH_ES',
+            'email' => 'eden@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////// MAKATI BRANCH 5//////////
+        User::create([
+            'name' => 'MARIA CENIZA P',
+            'branch_id' => 5,
+            'username' => 'CSH_MCP',
+            'email' => 'mariaceniza@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////MARKET BRANCH 6//////////
+        User::create([
+            'name' => 'GERALD DELA CRUZ',
+            'branch_id' => 6,
+            'username' => 'CSH_GDC',
+            'email' => 'gerald@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////ROBINSON MANILA BRANCH 7//////////
+        User::create([
+            'name' => 'MELANIE ARANETA URSAL',
+            'branch_id' => 7,
+            'username' => 'CSH_MAU',
+            'email' => 'melanie@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////ALABANG BRANCH 8//////////
+        User::create([
+            'name' => 'CYRILINE CASTILLO',
+            'branch_id' => 8,
+            'username' => 'CSH_CC',
+            'email' => 'cyriline@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////DASMA BRANCH 10//////////
+        User::create([
+            'name' => 'RODOLFO DE LARA',
+            'branch_id' => 10,
+            'username' => 'CSH_RDL',
+            'email' => 'rodolfo@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////SOUTHWOODS BRANCH 9//////////
+        User::create([
+            'name' => 'ROGELYN LAZO',
+            'branch_id' => 9,
+            'username' => 'CSH_RL',
+            'email' => 'rogelyn@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////STA. ROSA BRANCH 11//////////
+        User::create([
+            'name' => 'ARA MINA AGUIFLOR',
+            'branch_id' => 11,
+            'username' => 'CSH_AMA',
+            'email' => 'aramina@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////PAMPANGA BRANCH 12//////////
+        User::create([
+            'name' => 'ANNA JESSA MERCADO',
+            'branch_id' => 12,
+            'username' => 'CSH_AJM',
+            'email' => 'annajessa@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////MARQUEE BRANCH 13//////////
+        User::create([
+            'name' => 'MARICAR MANGANTI',
+            'branch_id' => 13,
+            'username' => 'CSH_MM',
+            'email' => 'maricar@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+        
+        /////////BALIWAG BRANCH 14//////////
+        User::create([
+            'name' => 'JOE MARIE VIZCONDE',
+            'branch_id' => 14,
+            'username' => 'CSH_JMV',
+            'email' => 'joemarie@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////LA UNION BRANCH 15//////////
+        User::create([
+            'name' => 'KATHLENE GARCIA',
+            'branch_id' => 15,
+            'username' => 'CSH_KG',
+            'email' => 'kathlene@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////LIPA BRANCH 16//////////
+        User::create([
+            'name' => 'JENNY LYN SANTOS',
+            'branch_id' => 16,
+            'username' => 'CSH_JLS',
+            'email' => 'jennylyn@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        /////////CALAMBA BRANCH 17//////////
+        User::create([
+            'name' => 'CHERRY MAE',
+            'branch_id' => 17,
+            'username' => 'CSH_CM',
+            'email' => 'cherrymae@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        ////////AURORA BRANCH 1//////////
+        User::create([
+            'name' => 'JANINE RAMOS',
+            'branch_id' => 1,
+            'username' => 'CSH_JR',
+            'email' => 'janine@example.com',
+            'email_verified_at' => now(),
+            'password' => hash('sha512', 'password'),
+            'remember_token' => Str::random(10),
+            'avatar_url' => '/storage/default_avatar/panda.png'
+        ])->assignRole($cashierRole);
+
+        User::create([
+            'name' => 'Christhia Anne  Arceo',
+            'branch_id' => 1,
+            'username' => 'CSH_CAA',
+            'email' => 'chrarceo@cshaap.com',
             'email_verified_at' => now(),
             'password' => hash('sha512', 'password'),
             'remember_token' => Str::random(10),
