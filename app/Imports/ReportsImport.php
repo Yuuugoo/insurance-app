@@ -14,6 +14,8 @@ use App\Models\InsuranceProvider;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use App\Enums\Terms;
+
 
 class ReportsImport implements WithHeadingRow, ToCollection
 {
@@ -31,8 +33,8 @@ class ReportsImport implements WithHeadingRow, ToCollection
 
             $reports = Report::where("policy_num", $row['policy_number'])->first();
 
-            $arprDate = $this->convertExcelDate($row['arpr_date']);
-            $inceptionDate = $this->convertExcelDate($row['inception_date']);
+            $arprDate = $this->parseDate($row['arpr_date'], $rowNumber, 'ARPR Date');
+            $inceptionDate = $this->parseDate($row['inception_date'], $rowNumber, 'Inception Date');
 
             $data = [
                 'sales_person_id' => self::getClassId($row['sales_person']),
@@ -43,7 +45,7 @@ class ReportsImport implements WithHeadingRow, ToCollection
                 'assured' => $row['assured'],
                 'report_insurance_prod_id' => self::getInsuranceProviderId($row['insurance_provider']),
                 'report_insurance_type_id' => self::getInsuranceTypeId($row['insurance_type']),
-                'terms' => $row['terms'],
+                'terms' => Terms::fromString($row['terms'])->value,
                 'gross_premium' => $row['gross_premium'],
                 'report_payment_mode_id' => self::getPaymentModeId($row['mode_of_payment']),
                 'total_payment' => $row['total_payment'],
@@ -68,11 +70,46 @@ class ReportsImport implements WithHeadingRow, ToCollection
         return empty(array_filter($row->toArray()));
     }
 
+    private function parseDate($date, $rowNumber, $fieldName)
+    {
+        if (empty($date)) {
+            throw new \Exception("Row {$rowNumber}: {$fieldName} is empty. This field is required.");
+        }
+
+        if (is_numeric($date)) {
+            return $this->convertExcelDate($date);
+        }
+        
+        $carbonDate = $this->parseDateWithFormats($date);
+        
+        if (!$carbonDate) {
+            throw new \Exception("Row {$rowNumber}: Invalid date format for {$fieldName}: {$date}");
+        }
+
+        return $carbonDate->format('Y-m-d');
+    }
+
+    private function parseDateWithFormats($date)
+    {
+        $formats = [
+            'd/m/Y', 'm/d/Y', 'Y-m-d', 'd-m-Y', 'm-d-Y',
+            'd.m.Y', 'm.d.Y', 'Y.m.d',
+            'D, F j, Y', 'F j, Y', 'j F Y',
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $date);
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        return false;
+    }
+
     private function convertExcelDate($excelDate)
     {
-        if (!is_numeric($excelDate)) {
-            return $excelDate;
-        }
         $unixDate = ($excelDate - 25569) * 86400;
         return Carbon::createFromTimestamp($unixDate)->format('Y-m-d');
     }
@@ -161,7 +198,7 @@ class ReportsImport implements WithHeadingRow, ToCollection
         $requiredFields = [
             'arpr_number', 'arpr_date', 'inception_date', 'assured', 'policy_number',
             'terms', 'gross_premium', 'total_payment', 'plate_no', 'car_details',
-            'policy_status', 'mortagagee_or_financing', 'mode_of_application'
+            'policy_status', 'mortagagee_or_financing', 'mode_of_application','insurance_provider',
         ];
 
         foreach ($requiredFields as $field) {

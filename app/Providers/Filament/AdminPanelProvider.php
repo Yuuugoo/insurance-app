@@ -7,20 +7,25 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Filament\Auth\Login;
-use App\Filament\Pages\ActivityLog;
 use Filament\Actions\Action;
+use App\Livewire\ReportStats;
+use Livewire\Attributes\Lazy;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
+use App\Filament\Pages\ActivityLog;
 use Filament\Support\Enums\MaxWidth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\StaffDashboard;
 use App\Filament\Widgets\TotalReports;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\CashierDashboard;
-use App\Filament\Resources\ReportsResource;
 use App\Livewire\AccountDashboardWidget;
-use App\Livewire\ReportStats;
+use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
+use Jeffgreco13\FilamentBreezy\BreezyCore;
+use App\Filament\Resources\ReportsResource;
+use Filament\Support\Facades\FilamentColor;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
@@ -29,13 +34,9 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationGroup;
-use Filament\Support\Facades\FilamentColor;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
-use Livewire\Attributes\Lazy;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -78,7 +79,9 @@ class AdminPanelProvider extends PanelProvider
                 'panels::body.end',
                 fn (): string => Blade::render('@livewire(\'Footer\')')
             )
-            ->databaseNotifications()
+            ->databaseNotifications(
+                condition: fn () => Auth::user()->hasAnyRole(['acct-staff', 'acct-manager'])
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([

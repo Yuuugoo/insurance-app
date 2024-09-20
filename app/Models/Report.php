@@ -62,6 +62,10 @@ class Report extends Model
         'financing_bank' => 'encrypted',
         'remit_deposit' => 'array',
     ];
+
+    protected $dates = ['arpr_date', 'inception_date'];
+
+
     
     public function cashier(): BelongsTo
     {
